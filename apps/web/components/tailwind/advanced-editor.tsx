@@ -26,13 +26,14 @@ import GenerativeMenuSwitch from "./generative/generative-menu-switch";
 import { uploadFn } from "./image-upload";
 import { TextButtons } from "./selectors/text-buttons";
 import { slashCommand, suggestionItems } from "./slash-command";
+import { Check, Clock } from "lucide-react";
 
 const hljs = require("highlight.js");
 
 const extensions = [...defaultExtensions, slashCommand];
 
 interface AdvancedEditorProps {
-  initialContent: JSONContent;
+  initialContent: any;
   noteId: string;
 }
 
@@ -80,15 +81,24 @@ const TailwindAdvancedEditor = ({
   );
 
   return (
-    <div className="relative w-full max-w-screen-lg">
-      {/* Status */}
-      <div className="flex absolute right-5 top-5 z-10 mb-5 gap-2">
-        <div className="rounded-lg bg-accent px-2 py-1 text-sm text-muted-foreground">
-          {saveStatus}
-        </div>
-        {charsCount && (
-          <div className="rounded-lg bg-accent px-2 py-1 text-sm text-muted-foreground">
-            {charsCount} Words
+    <div className="relative w-full mx-auto">
+      {/* Clean Status Bar */}
+      <div className="flex items-center justify-end gap-3 mb-4">
+        {saveStatus === "Saved" ? (
+          <div className="inline-flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-600 dark:text-green-400">
+            <Check className="h-3 w-3" />
+            <span>Saved</span>
+          </div>
+        ) : (
+          <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+            <Clock className="h-3 w-3" />
+            <span>Saving...</span>
+          </div>
+        )}
+        
+        {charsCount !== undefined && (
+          <div className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            {charsCount} {charsCount === 1 ? "word" : "words"}
           </div>
         )}
       </div>
@@ -97,7 +107,7 @@ const TailwindAdvancedEditor = ({
         <EditorContent
           initialContent={initialContent}
           extensions={extensions}
-          className="relative min-h-[500px] w-full max-w-screen-lg border-muted bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg"
+          className="relative min-h-[600px] w-full rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md focus-within:shadow-md"
           editorProps={{
             handleDOMEvents: {
               keydown: (_view, event) =>
@@ -109,7 +119,7 @@ const TailwindAdvancedEditor = ({
               handleImageDrop(view, event, moved, uploadFn),
             attributes: {
               class:
-                "prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full",
+                "prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full px-8 py-6",
             },
           }}
           onUpdate={({ editor }) => {
@@ -123,8 +133,8 @@ const TailwindAdvancedEditor = ({
           }}
           slotAfter={<ImageResizer />}
         >
-          <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all">
-            <EditorCommandEmpty className="px-2 text-muted-foreground">
+          <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-xl border border-border bg-popover px-1 py-2 shadow-xl">
+            <EditorCommandEmpty className="px-2 text-sm text-muted-foreground">
               No results
             </EditorCommandEmpty>
             <EditorCommandList>
@@ -133,14 +143,14 @@ const TailwindAdvancedEditor = ({
                   key={item.title}
                   value={item.title}
                   onCommand={(val) => item.command(val)}
-                  className="flex w-full items-center space-x-2 rounded-md px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-accent"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent aria-selected:bg-accent"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md border border-muted bg-background">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background/50">
                     {item.icon}
                   </div>
-                  <div>
-                    <p className="font-medium">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{item.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">
                       {item.description}
                     </p>
                   </div>

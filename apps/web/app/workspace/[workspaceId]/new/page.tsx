@@ -10,11 +10,19 @@ export default function NewNotePage() {
   const workspaceId = params.workspaceId;
 
   const [loading, setLoading] = useState(false);
+  const [customTitle, setCustomTitle] = useState("");
 
-  async function createNote(templateType: string) {
+  async function createNote(e: React.FormEvent) {
+    e.preventDefault();
+    
     // ✅ Validate FIRST
     if (!workspaceId || !uuidValidate(workspaceId)) {
       alert("Invalid workspace ID");
+      return;
+    }
+
+    if (!customTitle.trim()) {
+      alert("Please enter a note title");
       return;
     }
 
@@ -26,8 +34,8 @@ export default function NewNotePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workspaceId,
-          title: templateType,
-          templateType,
+          title: customTitle.trim(),
+          templateType: "Custom",
         }),
       });
 
@@ -69,18 +77,31 @@ export default function NewNotePage() {
         <h1 className="text-lg font-semibold">New Note</h1>
       </div>
 
-      <div className="space-y-2">
-        {["Daily Update", "Task Breakdown", "Brainstorm"].map((type) => (
-          <button
-            key={type}
-            onClick={() => createNote(type)}
+      <form onSubmit={createNote} className="space-y-4">
+        <div>
+          <label htmlFor="noteTitle" className="block text-sm font-medium mb-2">
+            Note Title
+          </label>
+          <input
+            id="noteTitle"
+            type="text"
+            value={customTitle}
+            onChange={(e) => setCustomTitle(e.target.value)}
+            placeholder="Enter your note title..."
             disabled={loading}
-            className="block w-full text-left rounded-lg border p-4 hover:bg-muted disabled:opacity-50"
-          >
-            {type}
-          </button>
-        ))}
-      </div>
+            className="w-full rounded-lg border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+            autoFocus
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading || !customTitle.trim()}
+          className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
+        >
+          {loading ? "Creating..." : "Create Note"}
+        </button>
+      </form>
     </div>
   );
 }

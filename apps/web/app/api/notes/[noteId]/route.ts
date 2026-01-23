@@ -6,14 +6,15 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  */
 export async function GET(
   _req: Request,
-  { params }: { params: { noteId: string } }
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
+  const { noteId } = await params;
   const supabase = createSupabaseServerClient();
 
   const { data, error } = await supabase
     .from("notes")
     .select("id, title, content")
-    .eq("id", params.noteId)
+    .eq("id", noteId)
     .maybeSingle(); // 👈 IMPORTANT
 
   if (!data) {
@@ -32,8 +33,9 @@ export async function GET(
  */
 export async function PUT(
   req: Request,
-  { params }: { params: { noteId: string } }
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
+  const { noteId } = await params;
   const supabase = createSupabaseServerClient();
   const { content } = await req.json();
 
@@ -50,7 +52,7 @@ export async function PUT(
       content,
       last_edited_at: new Date().toISOString(),
     })
-    .eq("id", params.noteId);
+    .eq("id", noteId);
 
   if (error) {
     console.error("UPDATE ERROR:", error);
@@ -66,14 +68,15 @@ export async function PUT(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { noteId: string } }
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
+  const { noteId } = await params;
   const supabase = createSupabaseServerClient();
 
   const { error } = await supabase
     .from("notes")
     .delete()
-    .eq("id", params.noteId);
+    .eq("id", noteId);
 
   if (error) {
     return NextResponse.json(
