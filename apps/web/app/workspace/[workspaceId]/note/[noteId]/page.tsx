@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import TailwindAdvancedEditor from "@/components/tailwind/advanced-editor";
 import AIChatSidebar from "@/components/ai-chat-sidebar";
+import { TagSelector } from "@/components/tag-selector";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const TailwindAdvancedEditor = dynamic(() => import("@/components/tailwind/advanced-editor"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    </div>
+  ),
+});
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function NoteEditorPage() {
   const { noteId, workspaceId } = useParams<{
@@ -16,6 +26,7 @@ export default function NoteEditorPage() {
   const [content, setContent] = useState<any>(null);
   const [title, setTitle] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [tags, setTags] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
@@ -30,11 +41,25 @@ export default function NoteEditorPage() {
       }
 
       setTitle(data?.title || "Untitled");
+      setTags(data?.tags || []);
       setLoading(false);
     }
 
     loadNote();
   }, [noteId]);
+
+  const handleTagsChange = async (newTags: string[]) => {
+    setTags(newTags);
+    try {
+      await fetch(`/api/notes/${noteId}/tags`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tags: newTags }),
+      });
+    } catch (error) {
+      console.error("Failed to update tags:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -60,10 +85,11 @@ export default function NoteEditorPage() {
             <span>Back</span>
           </button>
 
-          <div className="flex-1 flex justify-center">
-            <h1 className="text-sm font-semibold truncate max-w-md">
-              {title}
-            </h1>
+          <div className="flex-1 flex flex-col items-center justify-center -space-y-0.5">
+            <h1 className="text-sm font-semibold truncate max-w-md">{title}</h1>
+            <div className="hidden sm:block">
+              <TagSelector tags={tags} onChange={handleTagsChange} />
+            </div>
           </div>
 
           <button
@@ -77,25 +103,22 @@ export default function NoteEditorPage() {
             )}
           </button>
         </div>
+
+        {/* Mobile Tags */}
+        <div className="sm:hidden px-4 pb-2 border-t bg-muted/20">
+          <TagSelector tags={tags} onChange={handleTagsChange} />
+        </div>
       </header>
 
       {/* Editor Content */}
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto py-8 px-4 sm:px-6">
-          <TailwindAdvancedEditor
-            key={noteId}
-            noteId={noteId}
-            initialContent={content}
-          />
+          <TailwindAdvancedEditor key={noteId} noteId={noteId} initialContent={content} />
         </div>
       </main>
 
       {/* AI Chat Sidebar */}
-      <AIChatSidebar
-        noteId={noteId}
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-      />
+      <AIChatSidebar noteId={noteId} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 }

@@ -3,11 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function getNote(noteId: string) {
   const supabase = createSupabaseServerClient();
 
-  const { data, error } = await supabase
-    .from("notes")
-    .select("*")
-    .eq("id", noteId)
-    .single();
+  const { data, error } = await supabase.from("notes").select("*").eq("id", noteId).single();
 
   if (error) {
     throw error;
@@ -21,11 +17,13 @@ export async function createNote({
   title,
   templateType,
   content,
+  tags = [],
 }: {
   workspaceId: string;
   title: string;
   templateType: string;
   content: any;
+  tags?: string[];
 }) {
   const supabase = createSupabaseServerClient();
 
@@ -36,6 +34,7 @@ export async function createNote({
       title,
       template_type: templateType,
       content,
+      tags,
     })
     .select()
     .single();
@@ -45,4 +44,14 @@ export async function createNote({
   }
 
   return data;
+}
+
+export async function updateNoteTags(noteId: string, tags: string[]) {
+  const supabase = createSupabaseServerClient();
+
+  const { error } = await supabase.from("notes").update({ tags }).eq("id", noteId);
+
+  if (error) {
+    throw error;
+  }
 }

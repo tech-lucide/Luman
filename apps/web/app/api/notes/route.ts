@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   try {
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
     const { data, error } = await supabase
       .from("notes")
-      .select("id, title, created_at")
+      .select("id, title, created_at, tags")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false });
 
@@ -32,7 +32,6 @@ export async function GET(req: Request) {
   }
 }
 
-
 export async function POST(req: Request) {
   console.log("POST /api/notes hit");
 
@@ -44,20 +43,14 @@ export async function POST(req: Request) {
       body = await req.json();
     } catch {
       console.error("Failed to parse JSON body");
-      return NextResponse.json(
-        { error: "Invalid JSON body" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
     const { workspaceId, title, templateType } = body;
 
     if (!workspaceId || !title || !templateType) {
       console.error("Missing fields", body);
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const { data, error } = await supabase
@@ -73,20 +66,13 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error("SUPABASE INSERT ERROR:", error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     console.log("NOTE CREATED:", data.id);
     return NextResponse.json(data, { status: 201 });
-
   } catch (err) {
     console.error("POST /api/notes CRASHED:", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
