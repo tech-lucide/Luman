@@ -15,7 +15,7 @@
     --popover-foreground: 222 47% 11%;
 
     /* Brand */
-    --primary: 222 47% 11%;          /* near-black */
+    --primary: 222 47% 11%; /* near-black */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
@@ -25,7 +25,7 @@
     --muted-foreground: 215 16% 47%;
 
     /* AI Accent */
-    --accent: 217 91% 60%;           /* AI blue */
+    --accent: 217 91% 60%; /* AI blue */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -90,6 +90,44 @@
     --novel-highlight-pink: #5c1a3a;
     --novel-highlight-gray: #3a3a3a;
   }
+
+  /* --- Color Themes --- */
+
+  /* Green Theme */
+  .theme-green {
+    --primary: 142 71% 45%;
+    --primary-foreground: 144 100% 97%;
+    --ring: 142 71% 45%;
+  }
+  .dark .theme-green {
+    --primary: 142 70% 50%;
+    --primary-foreground: 144 100% 5%;
+    --ring: 142 70% 50%;
+  }
+
+  /* Violet Theme */
+  .theme-violet {
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 262 83% 58%;
+  }
+  .dark .theme-violet {
+    --primary: 263 70% 50%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 263 70% 50%;
+  }
+
+  /* Orange Theme */
+  .theme-orange {
+    --primary: 24 95% 53%;
+    --primary-foreground: 60 9% 98%;
+    --ring: 24 95% 53%;
+  }
+  .dark .theme-orange {
+    --primary: 20 80% 50%;
+    --primary-foreground: 60 9% 98%;
+    --ring: 20 80% 50%;
+  }
 }
 
 @layer base {
@@ -117,7 +155,6 @@ pre code {
   font-size: 0.8rem;
   padding: 0;
 }
-
 
 header {
   backdrop-filter: saturate(180%) blur(8px);
