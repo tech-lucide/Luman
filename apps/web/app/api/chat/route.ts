@@ -76,7 +76,7 @@ export async function POST(req: Request) {
             "X-Title": "Novel Note App",
           },
           body: JSON.stringify({
-            model: "mistralai/devstral-2512:free",
+            model: "tngtech/deepseek-r1t2-chimera:free",
             messages,
             stream: true,
           }),
