@@ -45,7 +45,38 @@ const nextConfig = {
       },
     ];
   },
-  productionBrowserSourceMaps: true,
+  // Disable source maps in production for better performance
+  productionBrowserSourceMaps: false,
+  
+  // Image optimization configuration
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+    ],
+  },
+  
+  // Optimize for Vercel deployment
+  experimental: {
+    // Enable server actions for better performance
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
+  // Reduce bundle size
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
 };
 
 module.exports = nextConfig;
+
