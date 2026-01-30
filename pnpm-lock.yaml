@@ -96,6 +96,9 @@ importers:
       highlight.js:
         specifier: ^11.9.0
         version: 11.11.1
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.20
       lowlight:
         specifier: ^3.1.0
         version: 3.3.0
