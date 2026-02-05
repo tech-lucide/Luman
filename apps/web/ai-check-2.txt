@@ -1,0 +1,45 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync
+[1A[2Ke2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync
+Testing Todo...
+
+[1A[2KTask Sync Triggered!
+
+[1A[2K✅ Todo Sync API called successfully.
+
+[1A[2KTesting AI Scheduler...
+
+[1A[2KAI Chat Request received
+
+[1A[2KMessage sent to AI: Schedule this for tomorrow
+
+[1A[2K  1) e2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync ─────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('I have scheduled the note')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText('I have scheduled the note')[22m
+
+
+      76 |   // The 'ai' SDK stream decoder might behave differently if format is wrong,
+      77 |   // but let's check if the text appears.
+    > 78 |   await expect(page.getByText("I have scheduled the note")).toBeVisible({ timeout: 10000 });
+         |                                                             ^
+      79 |
+      80 |   console.log("✅ AI Chat Scheduler Request sent and Response received.");
+      81 | });
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\ai-todo.spec.ts:78:61
+
+    Error Context: test-results\e2e-ai-todo-Feature-Check-AI-Scheduler-Todo-Sync\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync ──────────────────────────────

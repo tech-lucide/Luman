@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get("workspaceId");
 
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
     const { data, error } = await supabase
       .from("notes")
-      .select("id, title, created_at, tags")
+      .select("id, title, created_at, tags, due_date")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false });
 
@@ -36,9 +36,9 @@ export async function POST(req: Request) {
   console.log("POST /api/notes hit");
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
-    let body;
+    let body: any;
     try {
       body = await req.json();
     } catch {

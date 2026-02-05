@@ -1,0 +1,106 @@
+.\src\extensions\mathematics.ts:19:34 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    17 │   katexOptions?: KatexOptions;
+    18 │ 
+  > 19 │   HTMLAttributes: Record<string, any>;
+       │                                  ^^^
+    20 │ }
+    21 │ 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\src\extensions\mathematics.ts:133:30 lint/complexity/useLiteralKeys  FIXABLE  ━━━━━━━━━━━━━━━━━━━━
+
+  × The computed expression can be simplified without the use of a string literal.
+  
+    132 │   renderHTML({ node, HTMLAttributes }) {
+  > 133 │     const latex = node.attrs["latex"] ?? "";
+        │                              ^^^^^^^
+    134 │     return [
+    135 │       "span",
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    131 131 │   
+    132 132 │     renderHTML({ node, HTMLAttributes }) {
+    133     │ - ····const·latex·=·node.attrs["latex"]·??·"";
+        133 │ + ····const·latex·=·node.attrs.latex·??·"";
+    134 134 │       return [
+    135 135 │         "span",
+  
+
+.\src\extensions\mathematics.ts:144:23 lint/complexity/useLiteralKeys  FIXABLE  ━━━━━━━━━━━━━━━━━━━━
+
+  × The computed expression can be simplified without the use of a string literal.
+  
+    143 │   renderText({ node }) {
+  > 144 │     return node.attrs["latex"] ?? "";
+        │                       ^^^^^^^
+    145 │   },
+    146 │ 
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    142 142 │   
+    143 143 │     renderText({ node }) {
+    144     │ - ····return·node.attrs["latex"]·??·"";
+        144 │ + ····return·node.attrs.latex·??·"";
+    145 145 │     },
+    146 146 │   
+  
+
+.\src\extensions\mathematics.ts:150:40 lint/complexity/useLiteralKeys  FIXABLE  ━━━━━━━━━━━━━━━━━━━━
+
+  × The computed expression can be simplified without the use of a string literal.
+  
+    148 │     return ({ node, HTMLAttributes, getPos, editor }) => {
+    149 │       const dom = document.createElement("span");
+  > 150 │       const latex: string = node.attrs["latex"] ?? "";
+        │                                        ^^^^^^^
+    151 │ 
+    152 │       Object.entries(this.options.HTMLAttributes).forEach(([key, value]) => {
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    148 148 │       return ({ node, HTMLAttributes, getPos, editor }) => {
+    149 149 │         const dom = document.createElement("span");
+    150     │ - ······const·latex:·string·=·node.attrs["latex"]·??·"";
+        150 │ + ······const·latex:·string·=·node.attrs.latex·??·"";
+    151 151 │   
+    152 152 │         Object.entries(this.options.HTMLAttributes).forEach(([key, value]) => {
+  
+
+.\src\extensions\mathematics.ts:160:38 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    158 │       });
+    159 │ 
+  > 160 │       dom.addEventListener("click", (evt) => {
+        │                                      ^^^
+    161 │         if (editor.isEditable && typeof getPos === "function") {
+    162 │           const pos = getPos();
+  
+  i Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend evt with an underscore.
+  
+    158 158 │         });
+    159 159 │   
+    160     │ - ······dom.addEventListener("click",·(evt)·=>·{
+        160 │ + ······dom.addEventListener("click",·(_evt)·=>·{
+    161 161 │           if (editor.isEditable && typeof getPos === "function") {
+    162 162 │             const pos = getPos();
+  
+
+Checked 21 files in 29ms. No fixes applied.
+Found 4 errors.
+Found 1 warning.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

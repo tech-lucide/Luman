@@ -1,0 +1,54 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor
+[1A[2Ke2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor
+1. Going to Dashboard (Mocked Auth)...
+
+[1A[2KBROWSER LOG: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+
+[1A[2KBROWSER LOG: [HMR] connected
+
+[1A[2KCurrent URL: http://127.0.0.1:3000/dashboard
+
+[1A[2KMocking session request
+
+[1A[2K2. Clicking Workspace...
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 128ms
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 1348ms
+
+[1A[2K  1) e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor ─────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Notes')
+    Expected: visible
+    Error: strict mode violation: getByText('Notes') resolved to 2 elements:
+        1) <h1 class="text-lg font-semibold">Notes</h1> aka getByRole('heading', { name: 'Notes' })
+        2) <div class="text-sm text-muted-foreground">No notes yet. Create your first one.</div> aka getByText('No notes yet. Create your')
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Notes')[22m
+
+
+       98 |   // Should navigate to /workspace/ws-1
+       99 |   await expect(page).toHaveURL(/.*\/workspace\/ws-1/);
+    > 100 |   await expect(page.getByText("Notes")).toBeVisible();
+          |                                         ^
+      101 |
+      102 |   console.log("3. Clicking New Note...");
+      103 |   const newNoteBtn = page.getByRole("link", { name: "New Note" });
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\mock-smoke.spec.ts:100:41
+
+    Error Context: test-results\e2e-mock-smoke-Mocked-App--37693-hboard---Workspace---Editor\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor ──────────

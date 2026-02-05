@@ -4,39 +4,39 @@
 
 @layer base {
   :root {
-    /* Core surfaces */
-    --background: 0 0% 99%;
-    --foreground: 222 47% 11%;
+    /* BRUTALIST - Harsh, uncompromising */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 0%;
 
-    /* Brand */
-    --primary: 222 47% 11%; /* near-black */
+    /* Brand - Pure black */
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 40%;
 
-    /* AI Accent */
-    --accent: 217 91% 60%; /* AI blue */
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Harsh yellow for emphasis */
+    --accent: 48 100% 50%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    /* UI */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 60%;
+    /* UI Elements - THICK borders */
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+    --ring: 0 0% 0%;
 
-    --radius: 10px;
+    --radius: 0px;
 
     /* Novel Highlights (DO NOT REMOVE) */
     --novel-highlight-default: #ffffff;
@@ -51,33 +51,33 @@
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 222 47% 6%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222 47% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 217 33% 16%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217 33% 16%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 48 100% 50%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217 33% 16%;
-    --input: 217 33% 16%;
-    --ring: 217 91% 60%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 0 0% 100%;
 
     /* Novel Highlights */
     --novel-highlight-default: #000000;
@@ -136,26 +136,128 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-weight: 700;
+  }
+
+  /* EXTREME BRUTALIST TYPOGRAPHY */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-black uppercase;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+  }
+
+  h1 {
+    @apply text-7xl md:text-8xl lg:text-9xl;
+  }
+
+  h2 {
+    @apply text-5xl md:text-6xl lg:text-7xl;
+  }
+
+  h3 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h4 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  p {
+    @apply font-bold;
   }
 }
 
-/* Code blocks */
+@layer utilities {
+  /* HARSH SHADOW SYSTEM */
+  .shadow-brutal {
+    box-shadow: 8px 8px 0px 0px rgb(0 0 0 / 1);
+  }
+
+  .shadow-brutal-lg {
+    box-shadow: 12px 12px 0px 0px rgb(0 0 0 / 1);
+  }
+
+  .shadow-brutal-xl {
+    box-shadow: 20px 20px 0px 0px rgb(0 0 0 / 1);
+  }
+
+  .dark .shadow-brutal {
+    box-shadow: 8px 8px 0px 0px rgb(255 255 255 / 1);
+  }
+
+  .dark .shadow-brutal-lg {
+    box-shadow: 12px 12px 0px 0px rgb(255 255 255 / 1);
+  }
+
+  .dark .shadow-brutal-xl {
+    box-shadow: 20px 20px 0px 0px rgb(255 255 255 / 1);
+  }
+
+  /* THICK BORDERS */
+  .border-brutal {
+    border: 4px solid currentColor;
+  }
+
+  .border-brutal-thick {
+    border: 6px solid currentColor;
+  }
+
+  .border-brutal-mega {
+    border: 8px solid currentColor;
+  }
+
+  /* NO TRANSITIONS - INSTANT */
+  .transition-none {
+    transition: none !important;
+  }
+
+  /* HOVER - HARSH SHIFT */
+  .hover-brutal {
+    transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+  }
+
+  .hover-brutal:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0px 0px rgb(0 0 0 / 1);
+  }
+
+  .dark .hover-brutal:hover {
+    box-shadow: 12px 12px 0px 0px rgb(255 255 255 / 1);
+  }
+
+  /* ACCENT HIGHLIGHT */
+  .accent-brutal {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+/* Code blocks - BRUTAL */
 pre {
-  background: #0d0d0d;
-  border-radius: 0.5rem;
+  background: #000000;
+  border: 4px solid #ffffff;
   color: #ffffff;
   font-family: "JetBrainsMono", monospace;
-  padding: 0.75rem 1rem;
+  padding: 2rem;
+  font-weight: 700;
 }
 
 pre code {
   background: none;
   color: inherit;
-  font-size: 0.8rem;
+  font-size: 1rem;
   padding: 0;
+  font-weight: 700;
 }
 
+/* NO BLUR - HARSH HEADER */
 header {
-  backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 4px solid currentColor;
 }

@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - region "Notifications alt+T"
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - button "Back" [ref=e5] [cursor=pointer]:
+          - img [ref=e6]
+          - generic [ref=e8]: Back
+        - generic [ref=e9]:
+          - heading "New Dev Note" [level=1] [ref=e10]
+          - button "Add Tag" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+            - text: Add Tag
+        - button "AI Chat" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - generic [ref=e18]: AI Chat
+    - main [ref=e20]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - img [ref=e25]
+            - generic [ref=e27]: Saved
+          - generic [ref=e28]: 3 words
+        - list [ref=e32]:
+          - listitem [ref=e33]:
+            - checkbox [ref=e35] [cursor=pointer]
+            - paragraph [ref=e37]: My New Task
+          - listitem [ref=e38]:
+            - text: Press '/' for commands
+            - checkbox [ref=e40] [cursor=pointer]
+            - paragraph [ref=e42]: Press '/' for commands
+    - generic [ref=e43]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - img [ref=e48]
+          - heading "AI Assistant" [level=2] [ref=e51]
+        - button [ref=e52] [cursor=pointer]:
+          - img [ref=e53]
+      - generic [ref=e57]:
+        - img [ref=e59]
+        - generic [ref=e62]:
+          - paragraph [ref=e63]: Start a conversation
+          - paragraph [ref=e64]: Ask me anything about your note
+      - generic [ref=e66]:
+        - textbox "Ask me anything..." [ref=e67]
+        - button [disabled] [ref=e68]:
+          - img [ref=e69]
+  - button "Open Next.js Dev Tools" [ref=e77] [cursor=pointer]:
+    - img [ref=e78]
+  - alert [ref=e81]
+```

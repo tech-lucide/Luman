@@ -1,0 +1,44 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\verification.spec.ts:3:5 › Full App Feature Verification
+[1A[2Ke2e\verification.spec.ts:3:5 › Full App Feature Verification
+Visiting Dashboard...
+
+[1A[2KVerifying Workspaces...
+
+[1A[2KVerifying Workspace Page...
+
+[1A[2KCreating New Note...
+
+[1A[2KFilling New Note Form...
+
+[1A[2KVerifying Editor...
+
+[1A[2K  1) e2e\verification.spec.ts:3:5 › Full App Feature Verification ──────────────────────────────────
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/note\/dev-note-new-/[39m
+    Received string:  [31m"http://localhost:3000/workspace/dev-ws-1/new"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m    9 × unexpected value "http://localhost:3000/workspace/dev-ws-1/new"[22m
+
+
+      33 |   console.log("Verifying Editor...");
+      34 |   // Should redirect to note page
+    > 35 |   await expect(page).toHaveURL(/\/note\/dev-note-new-/); // Matches our ID generation
+         |                      ^
+      36 |
+      37 |   const editor = page.locator(".ProseMirror");
+      38 |   await expect(editor).toBeVisible({ timeout: 15000 });
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\verification.spec.ts:35:22
+
+    Error Context: test-results\e2e-verification-Full-App-Feature-Verification\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\verification.spec.ts:3:5 › Full App Feature Verification ───────────────────────────────────

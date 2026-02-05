@@ -1,54 +1,55 @@
-import { setSession } from "@/lib/auth";
+import { getOrganizationBySlug, getUserMembership } from "@/lib/db/organizations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { ownerName, password } = body;
+    const { email, password, orgSlug } = body;
 
-    if (!ownerName || !password) {
-      return NextResponse.json({ error: "Owner name and password are required" }, { status: 400 });
+    if (!email || !password || !orgSlug) {
+      return NextResponse.json({ error: "Email, password, and organization are required" }, { status: 400 });
     }
 
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
-    // Find workspace by owner_name
-    const { data: workspace, error } = await supabase
-      .from("workspaces")
-      .select("*")
-      .eq("owner_name", ownerName)
-      .single();
-
-    if (error || !workspace) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    // Verify organization exists
+    const organization = await getOrganizationBySlug(orgSlug);
+    if (!organization) {
+      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
 
-    // Role-based password validation
-    let validPassword = false;
-    if (workspace.role === "founder") {
-      validPassword = password === "founder123";
-    } else if (workspace.role === "intern") {
-      validPassword = password === "intern123";
-    }
-
-    if (!validPassword) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-    }
-
-    // Set session
-    await setSession({
-      userId: workspace.owner_id,
-      role: workspace.role,
-      ownerName: workspace.owner_name,
+    // Sign in with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
+
+    if (authError || !authData.user) {
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    }
+
+    // Check if user is a member of this organization
+    const membership = await getUserMembership(organization.id, authData.user.id);
+    if (!membership) {
+      // User exists but not in this organization
+      await supabase.auth.signOut();
+      return NextResponse.json({ error: "You are not a member of this organization" }, { status: 403 });
+    }
+
+    // Check if email is verified
+    if (!authData.user.email_confirmed_at) {
+      return NextResponse.json({ error: "Please verify your email address before logging in" }, { status: 403 });
+    }
 
     return NextResponse.json({
       success: true,
       user: {
-        userId: workspace.owner_id,
-        role: workspace.role,
-        ownerName: workspace.owner_name,
+        id: authData.user.id,
+        email: authData.user.email,
+        role: membership.role,
+        organizationId: organization.id,
+        organizationName: organization.name,
       },
     });
   } catch (err) {

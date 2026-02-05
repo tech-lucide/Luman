@@ -1,0 +1,111 @@
+[2026-02-04T13:20:21.148Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?org=lucidetech","orgSlug":"lucidetech"}
+[2026-02-04T13:20:21.150Z] Missing code in callback 
+[2026-02-04T13:22:10.426Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:22:10.427Z] Missing code in callback 
+[2026-02-04T13:25:08.181Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:25:08.181Z] Missing code in callback 
+[2026-02-04T13:28:18.925Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:28:18.926Z] Missing code in callback 
+[2026-02-04T13:28:48.079Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"test-company"}
+[2026-02-04T13:28:48.080Z] Missing code in callback 
+[2026-02-04T13:34:02.022Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=bae799a3-9f79-4fdb-92b4-c1b08e6255fb","orgSlug":"null"}
+[2026-02-04T13:34:02.991Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T13:43:52.027Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:43:52.029Z] Missing code in callback 
+[2026-02-04T13:47:23.755Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"test-company"}
+[2026-02-04T13:47:23.756Z] Missing code in callback 
+[2026-02-04T13:48:09.104Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:48:09.105Z] Missing code in callback 
+[2026-02-04T13:52:02.559Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?org=lucidetech&new=false","orgSlug":"lucidetech"}
+[2026-02-04T13:52:02.560Z] Missing code in callback 
+[2026-02-04T13:53:05.214Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:53:05.215Z] Missing code in callback 
+[2026-02-04T13:53:29.683Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:53:29.684Z] Missing code in callback 
+[2026-02-04T13:55:25.344Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:55:25.345Z] Missing code in callback 
+[2026-02-04T13:57:39.113Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T13:57:39.113Z] Missing code in callback 
+[2026-02-04T14:04:56.113Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T14:04:56.113Z] Missing code in callback 
+[2026-02-04T14:07:00.072Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"null"}
+[2026-02-04T14:07:00.073Z] Missing code in callback 
+[2026-02-04T14:08:16.770Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"test-company"}
+[2026-02-04T14:08:16.773Z] Missing code in callback 
+[2026-02-04T14:08:17.784Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"test-company"}
+[2026-02-04T14:08:17.785Z] Missing code in callback 
+[2026-02-04T14:08:18.329Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"test-company"}
+[2026-02-04T14:08:18.330Z] Missing code in callback 
+[2026-02-04T14:08:18.412Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"test-company"}
+[2026-02-04T14:08:18.412Z] Missing code in callback 
+[2026-02-04T14:09:12.447Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"lucidetech"}
+[2026-02-04T14:09:12.449Z] Missing code in callback 
+[2026-02-04T14:10:19.529Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback","orgSlug":"null"}
+[2026-02-04T14:10:19.530Z] Missing code in callback 
+[2026-02-04T14:13:30.673Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=89bca02c-5377-4a28-b382-aa47fbe4c63d","orgSlug":"null"}
+[2026-02-04T14:13:31.622Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:14:13.048Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=ed45e68d-ef4b-4623-b5d8-c1bf1d5ab7f3","orgSlug":"lucidetech"}
+[2026-02-04T14:14:13.467Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:15:59.015Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=33bc60d2-89f5-4c2d-ba60-13c97ca49a3d","orgSlug":"null"}
+[2026-02-04T14:15:59.863Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:16:01.035Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:16:51.810Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=42e33ccf-7016-42e1-894d-5c7fec6be5f3","orgSlug":"null"}
+[2026-02-04T14:16:52.200Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:19:50.022Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=dbb21d90-b895-4734-9f8b-efa6e1447396","orgSlug":"null"}
+[2026-02-04T14:19:50.409Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:19:51.356Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:23:05.432Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=f131e701-e91b-4287-8a32-df519eb0257e","orgSlug":"null"}
+[2026-02-04T14:23:06.095Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:23:07.446Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:24:00.395Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=0ad5e498-9a3c-4aec-af3e-2689eb24676e","orgSlug":"null"}
+[2026-02-04T14:24:01.040Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:24:02.002Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:25:46.394Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=b41d650a-7888-4807-8d70-c3bb33946369","orgSlug":"null"}
+[2026-02-04T14:25:47.009Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:25:48.084Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:28:40.242Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=d013f22e-0cc0-40be-89ed-dc9c9db3d1e3","orgSlug":"null"}
+[2026-02-04T14:28:41.000Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:28:42.136Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:29:48.174Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=1994cf83-961f-433a-a381-4d8483f351ee","orgSlug":"null"}
+[2026-02-04T14:29:49.057Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:30:05.567Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?error=server_error&error_code=flow_state_not_found&error_description=Flow+state+not+found"}
+[2026-02-04T14:30:05.568Z] Supabase OAuth error param {"error":"server_error","errorDescription":"Flow state not found"}
+[2026-02-04T14:30:27.783Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=0c6a8baf-5f64-4a40-a3f6-4e14b3e6c202&new=false&org=lucidetech","orgSlug":"lucidetech"}
+[2026-02-04T14:30:28.185Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:37:05.613Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=17bfd99a-24bc-4b10-b7a1-795b0dce013a","orgSlug":"null"}
+[2026-02-04T14:37:06.458Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:37:07.745Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:49:37.785Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=b84b4ebc-e9b5-4047-a8e5-c2d6b4c055f1","orgSlug":"null"}
+[2026-02-04T14:49:38.629Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:49:39.712Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-02-04T14:56:44.963Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=ba8e05cb-0a05-43d1-a16d-01072039bca0&new=true&org=strawberry-1","orgSlug":"strawberry-1"}
+[2026-02-04T14:56:45.629Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:57:19.916Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=1224541c-9313-442f-b6b8-2c8c6939e90c","orgSlug":"null"}
+[2026-02-04T14:57:20.626Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T14:57:21.636Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-02-04T14:57:42.715Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?error=access_denied&error_description="}
+[2026-02-04T14:57:42.717Z] Supabase OAuth error param {"error":"access_denied","errorDescription":""}
+[2026-02-04T14:57:59.482Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=b985c8fb-21e9-4dce-b8cb-0727cc7622ff&new=true&org=dhruvvvvv","orgSlug":"dhruvvvvv"}
+[2026-02-04T14:58:00.088Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T19:40:17.408Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=78853404-a85b-4da1-9893-e7a1c2443b9d","orgSlug":"lucidetech"}
+[2026-02-04T19:40:18.895Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T20:49:32.816Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=cd9dd088-14b4-482f-a323-6f3d65b98d7d&new=true&org=neworg","orgSlug":"neworg"}
+[2026-02-04T20:49:34.242Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T20:59:29.211Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=ff1fa192-7caf-4f0d-9098-65a888a5bcec&new=true&org=neworg2","orgSlug":"neworg2"}
+[2026-02-04T20:59:30.176Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T21:03:20.951Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=7e354b91-19dc-436d-8100-55039c9eea9a","orgSlug":"null"}
+[2026-02-04T21:03:21.674Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T21:03:22.965Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-02-04T21:04:07.985Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?error=access_denied&error_description="}
+[2026-02-04T21:04:07.986Z] Supabase OAuth error param {"error":"access_denied","errorDescription":""}
+[2026-02-04T21:04:22.092Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=0a0e4b06-131b-431f-9188-bdc65c1d4cba","orgSlug":"neworg2"}
+[2026-02-04T21:04:22.734Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T21:14:00.042Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=f2954c70-40f4-4f3f-8d4b-4b52df938e04","orgSlug":"neworg"}
+[2026-02-04T21:14:00.777Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T21:15:49.619Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=152b0c2d-e27c-4679-8175-6d419de2b1c2&new=true&org=lucidetech","orgSlug":"lucidetech"}
+[2026-02-04T21:15:50.125Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T21:18:31.316Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=243bead8-ab1c-41b7-b2d1-57b06b15e5d9","orgSlug":"lucidetech"}
+[2026-02-04T21:18:31.972Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T21:23:56.495Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=d3fac754-ddc2-4455-bb95-2e8eba6839b9","orgSlug":"null"}
+[2026-02-04T21:23:56.985Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-04T21:23:58.071Z] Existing member redirecting to dashboard {"role":"founder"}

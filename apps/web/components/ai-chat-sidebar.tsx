@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Loader2, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useChat } from "ai/react";
+import { Bot, Loader2, Send, Sparkles, User, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "system" | "data";
   content: string;
-  created_at: string;
+  created_at?: string;
 }
 
 interface AIChatSidebarProps {
@@ -18,11 +19,19 @@ interface AIChatSidebarProps {
 }
 
 export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebarProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading } = useChat({
+    api: "/api/chat",
+    body: { noteId },
+    onFinish: (message) => {
+      // Optional: Do something when message finishes
+    },
+    onError: (error) => {
+      console.error("Chat error:", error);
+    },
+  });
 
   // Load chat history on mount
   useEffect(() => {
@@ -31,7 +40,15 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
         const res = await fetch(`/api/chat/${noteId}`);
         if (res.ok) {
           const data = await res.json();
-          setMessages(data);
+          // Map DB messages to AI SDK format if needed
+          setMessages(
+            data.map((m: any) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+              createdAt: m.created_at ? new Date(m.created_at) : undefined,
+            })),
+          );
         }
       } catch (error) {
         console.error("Failed to load chat history:", error);
@@ -43,116 +60,18 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
     if (isOpen) {
       loadHistory();
     }
-  }, [noteId, isOpen]);
+  }, [noteId, isOpen, setMessages]);
 
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: input.trim(),
-      created_at: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      console.log("Sending message to /api/chat...");
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          noteId,
-          message: userMessage.content,
-          history: messages,
-        }),
-      });
-
-      console.log("Response status:", res.status, res.statusText);
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
-        console.error("API error:", errorData);
-        throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
-      }
-
-      const reader = res.body?.getReader();
-      if (!reader) {
-        throw new Error("No response body reader available");
-      }
-
-      const decoder = new TextDecoder();
-      let assistantContent = "";
-
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "",
-        created_at: new Date().toISOString(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      console.log("Starting to read stream...");
-      let chunkCount = 0;
-      
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log("Stream complete. Total chunks:", chunkCount);
-          break;
-        }
-
-        const chunk = decoder.decode(value, { stream: true });
-        chunkCount++;
-        // console.log(`Chunk ${chunkCount}:`, chunk);
-        assistantContent += chunk;
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessage.id
-              ? { ...msg, content: assistantContent }
-              : msg
-          )
-        );
-      }
-
-      if (!assistantContent) {
-        console.warn("No content received from AI");
-        throw new Error("No response from AI");
-      }
-    } catch (error) {
-      console.error("Full error details:", error);
-      
-      // Show error message to user
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: `❌ Error: ${error instanceof Error ? error.message : "Failed to get response"}. Please check the terminal for server logs.`,
-          created_at: new Date().toISOString(),
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div
       className={cn(
         "fixed right-0 top-0 h-screen w-full sm:w-[420px] bg-gradient-to-br from-background via-background to-muted/20 border-l border-border shadow-2xl transform transition-transform duration-300 ease-out z-50",
-        isOpen ? "translate-x-0" : "translate-x-full"
+        isOpen ? "translate-x-0" : "translate-x-full",
       )}
     >
       {/* Header */}
@@ -167,10 +86,7 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
               AI Assistant
             </h2>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-          >
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
@@ -189,9 +105,7 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
             </div>
             <div>
               <p className="font-medium text-sm">Start a conversation</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Ask me anything about your note
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Ask me anything about your note</p>
             </div>
           </div>
         ) : (
@@ -201,7 +115,7 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
                 key={message.id}
                 className={cn(
                   "flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300",
-                  message.role === "user" ? "justify-end" : "justify-start"
+                  message.role === "user" ? "justify-end" : "justify-start",
                 )}
               >
                 {message.role === "assistant" && (
@@ -217,7 +131,7 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
                     "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm",
                     message.role === "user"
                       ? "bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/25"
-                      : "bg-muted/50 backdrop-blur-sm border border-border/50"
+                      : "bg-muted/50 backdrop-blur-sm border border-border/50",
                   )}
                 >
                   <p className="whitespace-pre-wrap break-words">{message.content}</p>
@@ -239,11 +153,11 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
 
       {/* Input */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/50 bg-background/80 backdrop-blur-xl">
-        <form onSubmit={sendMessage} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Ask me anything..."
             disabled={isLoading}
             className="flex-1 rounded-xl border border-border/50 bg-muted/30 px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/50 disabled:opacity-50 transition-shadow"
@@ -253,11 +167,7 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
             disabled={isLoading || !input.trim()}
             className="p-2.5 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white hover:shadow-lg hover:shadow-violet-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 disabled:hover:shadow-none"
           >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </button>
         </form>
       </div>

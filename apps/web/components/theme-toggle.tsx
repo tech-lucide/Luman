@@ -21,6 +21,7 @@ export function ThemeToggle() {
       {/* Mode Toggle */}
       <div className="flex items-center border rounded-lg p-1">
         <button
+          type="button"
           onClick={() => setTheme("light")}
           className={`p-1.5 rounded-md transition-colors ${
             theme === "light" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
@@ -30,6 +31,7 @@ export function ThemeToggle() {
           <Sun className="h-4 w-4" />
         </button>
         <button
+          type="button"
           onClick={() => setTheme("system")}
           className={`p-1.5 rounded-md transition-colors ${
             theme === "system" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
@@ -39,6 +41,7 @@ export function ThemeToggle() {
           <Laptop className="h-4 w-4" />
         </button>
         <button
+          type="button"
           onClick={() => setTheme("dark")}
           className={`p-1.5 rounded-md transition-colors ${
             theme === "dark" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
@@ -53,6 +56,7 @@ export function ThemeToggle() {
       <div className="flex items-center border rounded-lg p-1 gap-1">
         {colors.map((c) => (
           <button
+            type="button"
             key={c.name}
             onClick={() => setThemeColor(c.name)}
             className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${

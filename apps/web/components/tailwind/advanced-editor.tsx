@@ -8,7 +8,6 @@ import {
   EditorContent,
   EditorRoot,
   ImageResizer,
-  type JSONContent,
   handleCommandNavigation,
   handleImageDrop,
   handleImagePaste,
@@ -22,25 +21,59 @@ import { MathSelector } from "./selectors/math-selector";
 import { NodeSelector } from "./selectors/node-selector";
 import { Separator } from "./ui/separator";
 
+import { Check, Clock } from "lucide-react";
 import GenerativeMenuSwitch from "./generative/generative-menu-switch";
 import { uploadFn } from "./image-upload";
 import { TextButtons } from "./selectors/text-buttons";
 import { slashCommand, suggestionItems } from "./slash-command";
-import { Check, Clock } from "lucide-react";
 
 const hljs = require("highlight.js");
 
 const extensions = [...defaultExtensions, slashCommand];
 
 interface AdvancedEditorProps {
+  // biome-ignore lint/suspicious/noExplicitAny: Tiptap content is complex
   initialContent: any;
   noteId: string;
+  workspaceId: string;
 }
 
-const TailwindAdvancedEditor = ({
-  initialContent,
-  noteId,
-}: AdvancedEditorProps) => {
+// biome-ignore lint/suspicious/noExplicitAny: Recursive task extraction
+const extractTasks = (content: any): any[] => {
+  // biome-ignore lint/suspicious/noExplicitAny: Task array
+  const tasks: any[] = [];
+  // biome-ignore lint/suspicious/noExplicitAny: Node traversal
+  const traverse = (node: any) => {
+    if (node.type === "taskItem") {
+      let text = "";
+      if (node.content) {
+        // biome-ignore lint/suspicious/noExplicitAny: Child traversal
+        node.content.forEach((child: any) => {
+          if (child.type === "paragraph" && child.content) {
+            // biome-ignore lint/suspicious/noExplicitAny: Inner child traversal
+            child.content.forEach((inner: any) => {
+              if (inner.type === "text") text += inner.text;
+            });
+          } else if (child.type === "text") {
+            text += child.text;
+          }
+        });
+      }
+
+      tasks.push({
+        content: text,
+        checked: node.attrs?.checked || false,
+      });
+    }
+    if (node.content) {
+      node.content.forEach(traverse);
+    }
+  };
+  traverse(content);
+  return tasks;
+};
+
+const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: AdvancedEditorProps) => {
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [charsCount, setCharsCount] = useState<number | undefined>();
 
@@ -61,24 +94,40 @@ const TailwindAdvancedEditor = ({
   /**
    * 🔥 AUTO-SAVE TO SUPABASE (DEBOUNCED)
    */
-  const debouncedSave = useDebouncedCallback(
-    async (editor) => {
-      const json = editor.getJSON();
-      setCharsCount(editor.storage.characterCount.words());
+  const debouncedSave = useDebouncedCallback(async (editor) => {
+    const json = editor.getJSON();
+    setCharsCount(editor.storage.characterCount.words());
 
-      await fetch(`/api/notes/${noteId}`, {
-        method: "PUT",
+    await fetch(`/api/notes/${noteId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: json,
+        html: highlightCodeblocks(editor.getHTML()),
+      }),
+    });
+
+    setSaveStatus("Saved");
+  }, 800);
+
+  const debouncedTaskSync = useDebouncedCallback(async (editor) => {
+    const json = editor.getJSON();
+    const tasks = extractTasks(json);
+
+    // Only sync if there are tasks or if we want to clear them (but clearing might be dangerous if we don't track deleted ones accurately)
+    // For now, assume sync sends all current tasks for this note/workspace context logic handled by API
+    if (tasks.length > 0) {
+      await fetch("/api/tasks", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: json,
-          html: highlightCodeblocks(editor.getHTML()),
+          tasks,
+          workspaceId,
+          noteId, // helpful for context if we add it to schema later
         }),
       });
-
-      setSaveStatus("Saved");
-    },
-    800
-  );
+    }
+  }, 2000);
 
   return (
     <div className="relative w-full mx-auto">
@@ -95,7 +144,7 @@ const TailwindAdvancedEditor = ({
             <span>Saving...</span>
           </div>
         )}
-        
+
         {charsCount !== undefined && (
           <div className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
             {charsCount} {charsCount === 1 ? "word" : "words"}
@@ -110,13 +159,10 @@ const TailwindAdvancedEditor = ({
           className="relative min-h-[600px] w-full rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md focus-within:shadow-md"
           editorProps={{
             handleDOMEvents: {
-              keydown: (_view, event) =>
-                handleCommandNavigation(event),
+              keydown: (_view, event) => handleCommandNavigation(event),
             },
-            handlePaste: (view, event) =>
-              handleImagePaste(view, event, uploadFn),
-            handleDrop: (view, event, _slice, moved) =>
-              handleImageDrop(view, event, moved, uploadFn),
+            handlePaste: (view, event) => handleImagePaste(view, event, uploadFn),
+            handleDrop: (view, event, _slice, moved) => handleImageDrop(view, event, moved, uploadFn),
             attributes: {
               class:
                 "prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full px-8 py-6",
@@ -130,13 +176,12 @@ const TailwindAdvancedEditor = ({
 
             setSaveStatus("Saving…");
             debouncedSave(editor);
+            debouncedTaskSync(editor);
           }}
           slotAfter={<ImageResizer />}
         >
           <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-xl border border-border bg-popover px-1 py-2 shadow-xl">
-            <EditorCommandEmpty className="px-2 text-sm text-muted-foreground">
-              No results
-            </EditorCommandEmpty>
+            <EditorCommandEmpty className="px-2 text-sm text-muted-foreground">No results</EditorCommandEmpty>
             <EditorCommandList>
               {suggestionItems.map((item) => (
                 <EditorCommandItem
@@ -150,19 +195,14 @@ const TailwindAdvancedEditor = ({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{item.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {item.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{item.description}</p>
                   </div>
                 </EditorCommandItem>
               ))}
             </EditorCommandList>
           </EditorCommand>
 
-          <GenerativeMenuSwitch
-            open={openAI}
-            onOpenChange={setOpenAI}
-          >
+          <GenerativeMenuSwitch open={openAI} onOpenChange={setOpenAI}>
             <Separator orientation="vertical" />
             <NodeSelector open={openNode} onOpenChange={setOpenNode} />
             <Separator orientation="vertical" />
@@ -172,10 +212,7 @@ const TailwindAdvancedEditor = ({
             <Separator orientation="vertical" />
             <TextButtons />
             <Separator orientation="vertical" />
-            <ColorSelector
-              open={openColor}
-              onOpenChange={setOpenColor}
-            />
+            <ColorSelector open={openColor} onOpenChange={setOpenColor} />
           </GenerativeMenuSwitch>
         </EditorContent>
       </EditorRoot>

@@ -1,0 +1,26 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command
+[1A[2Ke2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command
+Visiting home page...
+
+[1A[2K  1) e2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command ────────────────────────────────
+
+    Error: page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL
+    Call log:
+    [2m  - navigating to "/", waiting until "load"[22m
+
+
+      4 |   // 1. Visit Home
+      5 |   console.log("Visiting home page...");
+    > 6 |   await page.goto("/");
+        |              ^
+      7 |   await expect(page).toHaveTitle(/Novel/i);
+      8 |
+      9 |   // 2. Check basics
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\smoke.spec.ts:6:14
+
+
+[1A[2K  1 failed
+    e2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command ─────────────────────────────────

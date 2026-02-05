@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { validate as uuidValidate } from "uuid";
 
@@ -14,7 +14,7 @@ export default function NewNotePage() {
 
   async function createNote(e: React.FormEvent) {
     e.preventDefault();
-    
+
     // ✅ Validate FIRST
     if (!workspaceId || !uuidValidate(workspaceId)) {
       alert("Invalid workspace ID");

@@ -113,7 +113,7 @@ export default function NoteEditorPage() {
       {/* Editor Content */}
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto py-8 px-4 sm:px-6">
-          <TailwindAdvancedEditor key={noteId} noteId={noteId} initialContent={content} />
+          <TailwindAdvancedEditor key={noteId} noteId={noteId} workspaceId={workspaceId} initialContent={content} />
         </div>
       </main>
 

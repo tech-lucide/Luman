@@ -1,9 +1,11 @@
 "use client";
 
 import AppShell from "@/components/layouts/app-shell";
+import OnboardingModal from "@/components/onboarding-modal";
+import type { Organization } from "@/lib/db/organizations";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 type Workspace = {
   id: string;
@@ -16,35 +18,57 @@ type UserSession = {
   userId: string;
   role: "founder" | "intern";
   ownerName: string;
+  organizations: Organization[];
 };
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const orgSlug = searchParams.get("org");
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [session, setSession] = useState<UserSession | null>(null);
 
   async function checkSession() {
     try {
-      const res = await fetch("/api/auth/session");
+      console.log("[Dashboard] Checking session for org:", orgSlug);
+      const res = await fetch(`/api/auth/session${orgSlug ? `?org=${orgSlug}` : ""}`);
       if (res.ok) {
         const data = await res.json();
+        console.log("[Dashboard] Session data received:", data);
         setSession(data.user);
       } else {
-        router.push("/login");
+        console.error("[Dashboard] Session check failed Status:", res.status);
+        router.push(`/login${orgSlug ? `?org=${orgSlug}` : ""}`);
       }
     } catch (err) {
       console.error("Session check failed:", err);
-      router.push("/login");
+      router.push(`/login${orgSlug ? `?org=${orgSlug}` : ""}`);
     }
   }
 
-  async function fetchWorkspaces() {
+  async function fetchWorkspaces(orgId: string) {
     try {
-      const res = await fetch("/api/workspaces");
-      const data = await res.json();
-      setWorkspaces(data);
+      const res = await fetch(`/api/workspaces?orgId=${orgId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setWorkspaces(data);
+        if (data.length === 0) {
+          setShowOnboarding(true);
+        } else {
+          setShowOnboarding(false);
+        }
+      }
     } catch (err) {
       console.error("Failed to fetch workspaces:", err);
     } finally {
@@ -54,8 +78,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
     checkSession();
-    fetchWorkspaces();
-  }, []);
+  }, [orgSlug]);
+
+  useEffect(() => {
+    if (session) {
+      const currentOrg =
+        session.organizations?.find((o: Organization) => o.slug === orgSlug) || session.organizations?.[0];
+
+      if (currentOrg) {
+        fetchWorkspaces(currentOrg.id);
+      }
+    }
+  }, [session, orgSlug]);
 
   async function handleLogout() {
     try {
@@ -66,26 +100,32 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleCreateWorkspace() {
-    const name = prompt("Enter workspace owner name:");
+  async function handleCreateWorkspace(nameToCreate?: string) {
+    const name = nameToCreate || prompt("Enter workspace owner name:");
     if (!name) return;
 
-    const role = prompt("Enter role (founder/intern):", "founder");
-    if (!role || (role !== "founder" && role !== "intern")) {
-      alert("Role must be either 'founder' or 'intern'");
-      return;
-    }
+    const role = session?.role || "founder"; // Inherit session role
 
     try {
       setCreating(true);
+
+      const currentOrg =
+        session?.organizations?.find((o: Organization) => o.slug === orgSlug) || session?.organizations?.[0];
+
+      if (!currentOrg) {
+        alert("No organization found");
+        return;
+      }
+
       const res = await fetch("/api/workspaces", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ownerName: name, role }),
+        body: JSON.stringify({ ownerName: name, role, ownerId: currentOrg.id }),
       });
 
       if (res.ok) {
-        fetchWorkspaces();
+        fetchWorkspaces(currentOrg.id);
+        setShowOnboarding(false);
       } else {
         const errorData = await res.json();
         alert(`Failed to create workspace: ${errorData.error || "Unknown error"}`);
@@ -106,87 +146,98 @@ export default function DashboardPage() {
     );
   }
 
-  // Filter workspaces based on user's role from session
-  const filteredWorkspaces = workspaces.filter((ws) => {
-    if (session.role === "founder") {
-      return true; // Founders can see all workspaces
-    }
-    return ws.role === "intern"; // Interns can only see intern workspaces
-  });
+  // Show all workspaces without filtering by current session role
+  const filteredWorkspaces = workspaces || [];
 
   return (
     <AppShell>
-      <div className="p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-lg font-semibold">All Workspaces</h1>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
-            {/* User Info */}
-            <div className="flex items-center justify-between sm:justify-start gap-2 text-sm bg-muted/50 p-2 sm:p-0 rounded-lg sm:bg-transparent">
-              <div className="text-muted-foreground mr-2 sm:mr-0">
-                <span className="hidden sm:inline">Logged in as: </span>
-                <span className="font-medium text-foreground">{session.ownerName}</span>
+      <div className="p-8 md:p-12 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col gap-8 mb-16">
+          <div className="space-y-6">
+            <h1 className="font-black uppercase leading-none border-l-8 border-foreground pl-6">
+              WORK
+              <br />
+              SPACES
+            </h1>
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="px-6 py-3 bg-foreground text-background font-bold uppercase text-sm border-brutal">
+                {session.ownerName}
               </div>
-              <span
-                className={`px-2 py-1 rounded text-xs font-medium ${
-                  session.role === "founder"
-                    ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-                    : "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+              <div
+                className={`px-6 py-3 font-black uppercase text-sm border-brutal ${
+                  session.role === "founder" ? "bg-accent text-accent-foreground" : "bg-foreground text-background"
                 }`}
               >
                 {session.role}
-              </span>
+              </div>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex-1 sm:flex-none rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-muted transition text-center"
-              >
-                Logout
-              </button>
-              <button
-                type="button"
-                onClick={handleCreateWorkspace}
-                disabled={creating}
-                className="flex-1 sm:flex-none rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 transition disabled:opacity-50 whitespace-nowrap"
-              >
-                {creating ? "Creating..." : "Create Workspace"}
-              </button>
-            </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-background"
+            >
+              LOGOUT
+            </button>
+            <button
+              type="button"
+              onClick={() => handleCreateWorkspace()}
+              disabled={creating}
+              className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground disabled:opacity-50"
+            >
+              {creating ? "CREATING..." : "CREATE WORKSPACE"}
+            </button>
           </div>
         </div>
 
+        {/* Content */}
         {loading ? (
-          <div className="text-sm text-muted-foreground">Loading workspaces...</div>
+          <div className="text-lg font-bold uppercase">LOADING...</div>
         ) : (
           <>
             {(!filteredWorkspaces || filteredWorkspaces.length === 0) && (
-              <div className="text-sm text-muted-foreground border rounded-lg p-8 text-center bg-muted/50">
-                {session.role === "intern"
-                  ? "No intern workspaces found. Only interns can access intern workspaces."
-                  : "No workspaces found. Click the button above to create one."}
+              <div className="border-brutal-thick p-12 bg-muted">
+                <div className="max-w-2xl space-y-6">
+                  <h3 className="text-4xl font-black uppercase">NO WORKSPACES</h3>
+                  <p className="text-xl font-bold uppercase border-l-4 border-foreground pl-6">
+                    {session.role === "intern" ? "NO INTERN WORKSPACES FOUND" : "CREATE YOUR FIRST WORKSPACE"}
+                  </p>
+                </div>
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {filteredWorkspaces?.map((ws) => (
                 <Link
                   key={ws.id}
                   href={`/workspace/${ws.id}`}
-                  className="rounded-lg border bg-card p-4 hover:bg-muted transition"
+                  className="border-brutal shadow-brutal hover-brutal bg-card p-8"
                 >
-                  <div className="font-medium text-lg mb-1">{ws.owner_name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Role: <span className={ws.role === "founder" ? "text-amber-500" : "text-blue-500"}>{ws.role}</span>
+                  <div className="space-y-6">
+                    <div className="text-3xl font-black uppercase leading-tight">{ws.owner_name}</div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-bold uppercase">ROLE:</span>
+                      <span
+                        className={`px-4 py-2 font-black uppercase text-sm border-brutal ${
+                          ws.role === "founder" ? "bg-accent text-accent-foreground" : "bg-foreground text-background"
+                        }`}
+                      >
+                        {ws.role}
+                      </span>
+                    </div>
+                    <div className="text-xs font-mono pt-4 border-t-4 border-foreground opacity-50">{ws.id}</div>
                   </div>
-                  <div className="text-[10px] text-muted-foreground/60 mt-2">ID: {ws.id}</div>
                 </Link>
               ))}
             </div>
           </>
         )}
       </div>
+
+      <OnboardingModal isOpen={showOnboarding} onSubmit={handleCreateWorkspace} />
     </AppShell>
   );
 }

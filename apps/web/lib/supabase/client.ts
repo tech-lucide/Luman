@@ -1,10 +1,12 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-if (!url || !anonKey) {
-  throw new Error("Missing Supabase environment variables. Please check your .env.local file.");
-}
+export const createSupabaseClient = () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error("[Supabase Client] ERROR: Missing environment variables!");
+  }
 
-export const supabase = createClient(url, anonKey);
+  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+};

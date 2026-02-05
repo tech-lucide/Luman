@@ -13,6 +13,7 @@ export default function ChatSidebar({ onClose }: ChatSidebarProps) {
       <div className="h-12 px-4 border-b flex items-center justify-between">
         <span className="font-semibold text-sm">AI Co-Founder</span>
         <button
+          type="button"
           onClick={onClose}
           className="text-muted-foreground hover:text-foreground transition"
           aria-label="Close AI sidebar"
@@ -22,9 +23,7 @@ export default function ChatSidebar({ onClose }: ChatSidebarProps) {
       </div>
 
       {/* Body */}
-      <div className="flex-1 p-4 text-sm text-muted-foreground">
-        Coming soon…
-      </div>
+      <div className="flex-1 p-4 text-sm text-muted-foreground">Coming soon…</div>
     </aside>
   );
 }

@@ -1,39 +1,65 @@
-import { cookies } from "next/headers";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { User } from "@supabase/supabase-js";
 
-export type UserSession = {
-  userId: string;
-  role: "founder" | "intern";
-  ownerName: string;
-};
-
-const SESSION_COOKIE_NAME = "user_session";
-
-export async function setSession(session: UserSession) {
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, JSON.stringify(session), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  });
+/**
+ * Get current authenticated user from Supabase Auth
+ */
+export async function getCurrentUser(): Promise<User | null> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
 }
 
-export async function getSession(): Promise<UserSession | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME);
-
-  if (!sessionCookie) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
+/**
+ * Get current user's session
+ */
+export async function getCurrentSession() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session;
 }
 
-export async function clearSession() {
-  const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE_NAME);
+/**
+ * Sign out current user
+ */
+export async function signOut() {
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+}
+
+/**
+ * Check if user is authenticated
+ */
+export async function isAuthenticated(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return user !== null;
+}
+
+/**
+ * Get user's role in a specific organization
+ */
+export async function getUserRole(organizationId: string, userId: string): Promise<string | null> {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("organization_id", organizationId)
+    .eq("user_id", userId)
+    .single();
+
+  if (error) return null;
+  return data.role;
+}
+
+/**
+ * Check if user has permission (founder or admin)
+ */
+export async function hasAdminPermission(organizationId: string, userId: string): Promise<boolean> {
+  const role = await getUserRole(organizationId, userId);
+  return role === "founder" || role === "admin";
 }

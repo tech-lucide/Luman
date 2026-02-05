@@ -1,0 +1,328 @@
+.\app\api\notes\route.ts:41:9 lint/suspicious/noImplicitAnyLet ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × This variable implicitly has the any type.
+  
+    39 │     const supabase = createSupabaseServerClient();
+    40 │ 
+  > 41 │     let body;
+       │         ^^^^
+    42 │     try {
+    43 │       body = await req.json();
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+.\app\api\notes\[noteId]\route.ts:11:17 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable is unused.
+  
+     9 │   const supabase = createSupabaseServerClient();
+    10 │ 
+  > 11 │   const { data, error } = await supabase.from("notes").select("id, title, content").eq("id", noteId).maybeSingle(); // 👈 IMPORTANT
+       │                 ^^^^^
+    12 │ 
+    13 │   if (!data) {
+  
+  i Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+
+.\components\layouts\app-shell.tsx:27:11 lint/a11y/useKeyWithClickEvents ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Enforce to have the onClick mouse event with the onKeyUp, the onKeyDown, or the onKeyPress keyboard event.
+  
+    25 │         {/* Mobile Overlay */}
+    26 │         {sidebarOpen && (
+  > 27 │           <div
+       │           ^^^^
+  > 28 │             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+  > 29 │             onClick={() => setSidebarOpen(false)}
+  > 30 │           />
+       │           ^^
+    31 │         )}
+    32 │ 
+  
+  i Actions triggered using mouse events should have corresponding keyboard events to account for keyboard-only navigation.
+  
+
+.\app\api\chat\route.ts:69:32 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable is unused.
+  
+    67 │         }),
+    68 │       },
+  > 69 │       onFinish: async ({ text, toolCalls }) => {
+       │                                ^^^^^^^^^
+    70 │         if (text) {
+    71 │           await supabase.from("chat_messages").insert({
+  
+  i Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+
+.\components\tailwind\chat-sidebar.tsx:15:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    13 │       <div className="h-12 px-4 border-b flex items-center justify-between">
+    14 │         <span className="font-semibold text-sm">AI Co-Founder</span>
+  > 15 │         <button
+       │         ^^^^^^^
+  > 16 │           onClick={onClose}
+  > 17 │           className="text-muted-foreground hover:text-foreground transition"
+  > 18 │           aria-label="Close AI sidebar"
+  > 19 │         >
+       │         ^
+    20 │           <X className="h-4 w-4" />
+    21 │         </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+.\components\tailwind\navbar.tsx:21:54 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable is unused.
+  
+    19 │ }
+    20 │ 
+  > 21 │ export default function Navbar({ aiOpen, onToggleAI, sidebarOpen, onToggleSidebar }: NavbarProps) {
+       │                                                      ^^^^^^^^^^^
+    22 │   const params = useParams();
+    23 │   const workspaceId = params?.workspaceId as string;
+  
+  i Unused variables usually are result of incomplete refactoring, typos and other source of bugs.
+  
+
+.\components\tailwind\navbar.tsx:48:7 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    46 │     <header className="h-12 w-full border-b bg-background flex items-center px-4 gap-4">
+    47 │       {/* Mobile Menu Button */}
+  > 48 │       <button onClick={onToggleSidebar} className="lg:hidden p-1 -ml-2 text-muted-foreground hover:text-foreground">
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    49 │         <Menu className="h-5 w-5" />
+    50 │       </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+.\components\tailwind\navbar.tsx:81:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    79 │         <ThemeToggle />
+    80 │ 
+  > 81 │         <button
+       │         ^^^^^^^
+  > 82 │           onClick={onToggleAI}
+  > 83 │           className={`p-1 rounded hover:bg-muted transition ${aiOpen ? "text-foreground" : "text-muted-foreground"}`}
+  > 84 │           aria-label="Toggle AI sidebar"
+  > 85 │         >
+       │         ^
+    86 │           <PanelRight className="h-4 w-4" />
+    87 │         </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+.\components\tailwind\navbar.tsx:89:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    87 │         </button>
+    88 │ 
+  > 89 │         <button className="text-muted-foreground hover:text-foreground transition">
+       │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    90 │           <Share2 className="h-4 w-4" />
+    91 │         </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+.\components\tailwind\navbar.tsx:96:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    94 │         <TodoMenu workspaceId={workspaceId} />
+    95 │ 
+  > 96 │         <button className="text-muted-foreground hover:text-foreground transition">
+       │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    97 │           <Settings className="h-4 w-4" />
+    98 │         </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+.\components\tailwind\workspace-sidebar.tsx:20:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    18 │           Calendar
+    19 │         </Link>
+  > 20 │         <button className="block text-left w-full hover:underline py-1 text-muted-foreground">
+       │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    21 │           AI Prompts (Coming Soon)
+    22 │         </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+.\components\tailwind\advanced-editor.tsx:35:19 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    34 │ interface AdvancedEditorProps {
+  > 35 │   initialContent: any;
+       │                   ^^^
+    36 │   noteId: string;
+    37 │   workspaceId: string;
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\components\tailwind\advanced-editor.tsx:40:32 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    38 │ }
+    39 │ 
+  > 40 │ const extractTasks = (content: any): any[] => {
+       │                                ^^^
+    41 │   const tasks: any[] = [];
+    42 │   const traverse = (node: any) => {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\components\tailwind\advanced-editor.tsx:40:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    38 │ }
+    39 │ 
+  > 40 │ const extractTasks = (content: any): any[] => {
+       │                                      ^^^
+    41 │   const tasks: any[] = [];
+    42 │   const traverse = (node: any) => {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\components\tailwind\advanced-editor.tsx:41:16 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    40 │ const extractTasks = (content: any): any[] => {
+  > 41 │   const tasks: any[] = [];
+       │                ^^^
+    42 │   const traverse = (node: any) => {
+    43 │     if (node.type === "taskItem") {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\components\tailwind\advanced-editor.tsx:42:27 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    40 │ const extractTasks = (content: any): any[] => {
+    41 │   const tasks: any[] = [];
+  > 42 │   const traverse = (node: any) => {
+       │                           ^^^
+    43 │     if (node.type === "taskItem") {
+    44 │       let text = "";
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\components\tailwind\advanced-editor.tsx:46:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    44 │       let text = "";
+    45 │       if (node.content) {
+  > 46 │         node.content.forEach((child: any) => {
+       │                                      ^^^
+    47 │           if (child.type === "paragraph" && child.content) {
+    48 │             child.content.forEach((inner: any) => {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\components\tailwind\advanced-editor.tsx:48:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━
+
+  × Unexpected any. Specify a different type.
+  
+    46 │         node.content.forEach((child: any) => {
+    47 │           if (child.type === "paragraph" && child.content) {
+  > 48 │             child.content.forEach((inner: any) => {
+       │                                           ^^^
+    49 │               if (inner.type === "text") text += inner.text;
+    50 │             });
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+.\components\theme-toggle.tsx:23:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    21 │       {/* Mode Toggle */}
+    22 │       <div className="flex items-center border rounded-lg p-1">
+  > 23 │         <button
+       │         ^^^^^^^
+  > 24 │           onClick={() => setTheme("light")}
+        ...
+  > 28 │           title="Light Mode"
+  > 29 │         >
+       │         ^
+    30 │           <Sun className="h-4 w-4" />
+    31 │         </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+.\components\theme-toggle.tsx:32:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    30 │           <Sun className="h-4 w-4" />
+    31 │         </button>
+  > 32 │         <button
+       │         ^^^^^^^
+  > 33 │           onClick={() => setTheme("system")}
+        ...
+  > 37 │           title="System Mode"
+  > 38 │         >
+       │         ^
+    39 │           <Laptop className="h-4 w-4" />
+    40 │         </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+The number of diagnostics exceeds the number allowed by Biome.
+Diagnostics not shown: 31.
+Checked 74 files in 31ms. No fixes applied.
+Found 42 errors.
+Found 9 warnings.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

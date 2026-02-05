@@ -1,0 +1,37 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command
+[1A[2Ke2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command
+Visiting home page...
+
+[1A[2KChecking for editor presence...
+
+[1A[2K  1) e2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command ────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.ProseMirror')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for locator('.ProseMirror')[22m
+
+
+      10 |   console.log("Checking for editor presence...");
+      11 |   const editor = page.locator(".ProseMirror");
+    > 12 |   await expect(editor).toBeVisible({ timeout: 10000 });
+         |                        ^
+      13 |
+      14 |   // 3. Type in editor
+      15 |   console.log("Typing in editor...");
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\smoke.spec.ts:12:24
+
+    Error Context: test-results\e2e-smoke-App-Smoke-Test-Editor-Slash-Command\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\smoke.spec.ts:3:5 › App Smoke Test: Editor & Slash Command ─────────────────────────────────

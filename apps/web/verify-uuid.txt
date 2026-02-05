@@ -1,0 +1,51 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\verification.spec.ts:3:5 › Full App Feature Verification
+[1A[2Ke2e\verification.spec.ts:3:5 › Full App Feature Verification
+Visiting Dashboard...
+
+[1A[2KVerifying Workspaces...
+
+[1A[2KVerifying Workspace Page...
+
+[1A[2KCreating New Note...
+
+[1A[2KFilling New Note Form...
+
+[1A[2KVerifying Editor...
+
+[1A[2KTyping in Editor...
+
+[1A[2KVerifying Slash Menu...
+
+[1A[2K  1) e2e\verification.spec.ts:3:5 › Full App Feature Verification ──────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('h1')
+    Expected substring: [32m"Success"[39m
+    Received string:    [31m"New Dev Note"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('h1')[22m
+    [2m    9 × locator resolved to <h1 class="text-sm font-semibold truncate max-w-md">New Dev Note</h1>[22m
+    [2m      - unexpected value "New Dev Note"[22m
+
+
+      56 |   await page.keyboard.type("Success");
+      57 |
+    > 58 |   await expect(page.locator("h1")).toContainText("Success");
+         |                                    ^
+      59 |
+      60 |   console.log("VERIFICATION COMPLETE: All features working.");
+      61 | });
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\verification.spec.ts:58:36
+
+    Error Context: test-results\e2e-verification-Full-App-Feature-Verification\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\verification.spec.ts:3:5 › Full App Feature Verification ───────────────────────────────────

@@ -1,0 +1,35 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor
+[1A[2Ke2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor
+1. Going to Dashboard (Mocked Auth)...
+
+[1A[2K  1) e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor ─────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('All Workspaces')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('All Workspaces')[22m
+
+
+      77 |
+      78 |   // Verify Dashboard
+    > 79 |   await expect(page.getByText("All Workspaces")).toBeVisible();
+         |                                                  ^
+      80 |   await expect(page.getByText("TestWorkspace")).toBeVisible();
+      81 |
+      82 |   console.log("2. Clicking Workspace...");
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\mock-smoke.spec.ts:79:50
+
+    Error Context: test-results\e2e-mock-smoke-Mocked-App--37693-hboard---Workspace---Editor\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor ──────────

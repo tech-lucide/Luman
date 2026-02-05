@@ -1,0 +1,75 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor
+[1A[2Ke2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor
+1. Navigating to Dashboard...
+
+[1A[2KBROWSER LOG: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+
+[1A[2KBROWSER LOG: [HMR] connected
+
+[1A[2KPage URL after nav: http://localhost:3000/dashboard
+
+[1A[2KMOCK HIT: /api/auth/session
+
+[1A[2KMOCK HIT: /api/workspaces
+
+[1A[2KBROWSER LOG: %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+
+[1A[2KBROWSER LOG: %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {o: http://localhost:3000/dashboard, sv: 0.1.3, sdkn: @vercel/analytics/react, sdkv: 1.4.1, ts: 1770188193007}
+
+[1A[2KSUCCESS: Dashboard loaded.
+
+[1A[2K2. Clicking Workspace...
+
+[1A[2K3. Clicking New Note...
+
+[1A[2KMOCK HIT: /api/workspaces
+
+[1A[2KMOCK HIT: /api/notes (GET)
+
+[1A[2KMOCK HIT: /api/workspaces
+
+[1A[2KMOCK HIT: /api/notes (GET)
+
+[1A[2KBROWSER LOG: %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/workspace/ws-1 color: rgb(120, 120, 120) color: inherit {o: http://localhost:3000/workspace/ws-1, sv: 0.1.3, sdkn: @vercel/analytics/react, sdkv: 1.4.1, ts: 1770188194891}
+
+[1A[2K4. Waiting for Editor...
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 303ms
+
+[1A[2KREQ FAILED: http://localhost:3000/workspace/ws-1/new?_rsc=d37a3 net::ERR_ABORTED
+
+[1A[2KBROWSER LOG: %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/workspace/ws-1/new color: rgb(120, 120, 120) color: inherit {o: http://localhost:3000/workspace/ws-1/new, sv: 0.1.3, sdkn: @vercel/analytics/react, sdkv: 1.4.1, ts: 1770188195754}
+
+[1A[2K  1) e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor ─────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.ProseMirror')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for locator('.ProseMirror')[22m
+
+
+      117 |
+      118 |   console.log("4. Waiting for Editor...");
+    > 119 |   await expect(page.locator(".ProseMirror")).toBeVisible({ timeout: 15000 });
+          |                                              ^
+      120 |
+      121 |   console.log("TEST PASSED!");
+      122 | });
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\mock-smoke.spec.ts:119:46
+
+    Error Context: test-results\e2e-mock-smoke-Mocked-App--37693-hboard---Workspace---Editor\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\mock-smoke.spec.ts:3:5 › Mocked App Walkthrough: Dashboard -> Workspace -> Editor ──────────

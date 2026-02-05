@@ -1,13 +1,10 @@
-import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ noteId: string }> }
-) {
+export async function GET(_req: Request, { params }: { params: Promise<{ noteId: string }> }) {
   try {
     const { noteId } = await params;
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("chat_messages")

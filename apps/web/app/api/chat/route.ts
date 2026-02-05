@@ -1,184 +1,94 @@
-import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText, tool } from "ai";
+import { z } from "zod";
+
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  console.log("[CHAT API] POST /api/chat - Request received");
-  
   try {
-    const { noteId, message, history } = await req.json();
-    console.log("[CHAT API] Request data:", { noteId, messageLength: message?.length, historyLength: history?.length });
+    const { messages, noteId } = await req.json();
+    console.log("[CHAT API] Received request:", { noteId, messageCount: messages?.length });
 
-    if (!noteId || !message) {
-      console.error("[CHAT API] Missing required fields");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    if (!noteId || !messages) {
+      console.error("[CHAT API] Missing fields:", { noteId, messages });
+      return new Response("Missing required fields", { status: 400 });
     }
 
-    const supabase = createSupabaseServerClient();
-
-    // Store user message
-    console.log("[CHAT API] Storing user message in database...");
-    const { error: insertError } = await supabase.from("chat_messages").insert({
-      note_id: noteId,
-      role: "user",
-      content: message,
+    const supabase = await createSupabaseServerClient();
+    const openRouter = createOpenAI({
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: process.env.OPENROUTER_API_KEY,
     });
 
-    if (insertError) {
-      console.error("[CHAT API] Database insert error:", insertError);
-    }
-
-    // Call OpenRouter API
-    const openRouterKey = process.env.OPENROUTER_API_KEY;
-    if (!openRouterKey) {
-      console.error("[CHAT API] OpenRouter API key not configured");
-      return NextResponse.json(
-        { error: "OpenRouter API key not configured" },
-        { status: 500 }
-      );
-    }
-    console.log("[CHAT API] OpenRouter key found, length:", openRouterKey.length);
-
-    const messages = [
-      {
-        role: "system",
-        content: "You are a helpful AI assistant helping users with their notes. Provide concise, clear, and insightful responses.",
-      },
-      ...history.map((msg: any) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      {
-        role: "user",
-        content: message,
-      },
-    ];
-
-    console.log("[CHAT API] Calling OpenRouter API with", messages.length, "messages");
-    
-    let response;
-    let retries = 3;
-    let delay = 1000;
-
-    while (retries > 0) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-
-        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${openRouterKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-            "X-Title": "Novel Note App",
-          },
-          body: JSON.stringify({
-            model: "tngtech/deepseek-r1t2-chimera:free",
-            messages,
-            stream: true,
-          }),
-          signal: controller.signal,
+    try {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === "user") {
+        await supabase.from("chat_messages").insert({
+          note_id: noteId,
+          role: "user",
+          content: lastMessage.content,
         });
-        
-        clearTimeout(timeoutId);
-        break;
-      } catch (err: any) {
-        retries--;
-        console.error(`[CHAT API] Fetch attempt failed (${3 - retries}/3):`, err.message);
-        if (retries === 0) throw err;
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay *= 2; // Exponential backoff
       }
+    } catch (dbError) {
+      console.error("[CHAT API] DB Save Error:", dbError);
+      // Continue anyway
     }
 
-    if (!response) {
-      throw new Error("Failed to get response after retries");
-    }
+    console.log("[CHAT API] calls streamText with model: google/gemini-2.0-flash-001");
 
-    console.log("[CHAT API] OpenRouter response status:", response.status, response.statusText);
+    const result = await streamText({
+      model: openRouter("google/gemini-2.0-flash-001"),
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful AI assistant helping users with their notes. You can schedule notes by setting a due date.",
+        },
+        ...messages,
+      ],
+      tools: {
+        scheduleNote: tool({
+          description:
+            "Schedule the current note with a due date. Use this when the user asks to schedule, remind, or set a deadline.",
+          parameters: z.object({
+            date: z.string().describe("ISO date string (e.g., 2024-12-25T09:00:00Z) or YYYY-MM-DD"),
+          }),
+          execute: async ({ date }) => {
+            console.log(`Scheduling note ${noteId} for ${date}`);
+            const { error } = await supabase.from("notes").update({ due_date: date }).eq("id", noteId);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[CHAT API] OpenRouter API error:", errorText);
-      return NextResponse.json(
-        { error: `OpenRouter API error: ${response.statusText}`, details: errorText },
-        { status: response.status }
-      );
-    }
-
-    const reader = response.body?.getReader();
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-
-    let fullContent = "";
-
-    // Stream response
-    const stream = new ReadableStream({
-      async start(controller) {
-        if (!reader) {
-          controller.close();
-          return;
-        }
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n").filter((line) => line.trim() !== "");
-
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                const data = line.slice(6);
-                if (data === "[DONE]") continue;
-
-                try {
-                  const parsed = JSON.parse(data);
-                  const content = parsed.choices?.[0]?.delta?.content || "";
-                  if (content) {
-                    fullContent += content;
-                    controller.enqueue(encoder.encode(content));
-                  }
-                } catch (e) {
-                  // Skip invalid JSON
-                }
-              }
+            if (error) {
+              console.error("Error updating note:", error);
+              return "Failed to schedule note.";
             }
-          }
-
-          // Store assistant message
-          if (fullContent) {
-            await supabase.from("chat_messages").insert({
-              note_id: noteId,
-              role: "assistant",
-              content: fullContent,
-            });
-          }
-
-          controller.close();
-        } catch (error) {
-          console.error("Stream error:", error);
-          controller.error(error);
+            return `Note scheduled for ${date}`;
+          },
+        }),
+      },
+      onFinish: async ({ text }) => {
+        if (text) {
+          await supabase.from("chat_messages").insert({
+            note_id: noteId,
+            role: "assistant",
+            content: text,
+          });
         }
       },
     });
 
-    return new Response(stream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-      },
-    });
+    return result.toDataStreamResponse();
   } catch (error) {
-    console.error("[CHAT API] Unexpected error:", error);
-    return NextResponse.json(
-      { error: "Internal server error", details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
+    console.error("Chat API Error:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : String(error),
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 }

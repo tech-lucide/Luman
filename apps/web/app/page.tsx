@@ -2,19 +2,16 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-semibold">
-          notaprompt
-        </h1>
-
-        <p className="text-muted-foreground">
-          Internal workspace for thinking & execution
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="text-center space-y-8 max-w-2xl">
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">notaprompt</h1>
+          <p className="text-lg text-muted-foreground max-w-md mx-auto">Internal workspace for thinking & execution</p>
+        </div>
 
         <Link
           href="/dashboard"
-          className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:opacity-90 transition"
+          className="inline-flex items-center justify-center rounded-xl bg-primary text-primary-foreground px-8 py-3.5 text-sm font-medium shadow-soft hover:shadow-elevated transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           Go to Dashboard →
         </Link>

@@ -1,9 +1,15 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function getWorkspaces() {
-  const supabase = createSupabaseServerClient();
+export async function getWorkspaces(ownerId: string, roleFilter?: string) {
+  const supabase = await createSupabaseServerClient();
 
-  const { data, error } = await supabase.from("workspaces").select("*").order("created_at", { ascending: true });
+  let query = supabase.from("workspaces").select("*").eq("owner_id", ownerId);
+
+  if (roleFilter) {
+    query = query.eq("role", roleFilter);
+  }
+
+  const { data, error } = await query.order("created_at", { ascending: true });
 
   if (error) {
     console.error("Supabase error fetching workspaces:", error);
@@ -20,16 +26,16 @@ export async function createWorkspace({
 }: {
   ownerName: string;
   role?: string;
-  ownerId?: string;
+  ownerId: string;
 }) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
     .from("workspaces")
     .insert({
       owner_name: ownerName,
       role: role,
-      owner_id: ownerId || crypto.randomUUID(),
+      owner_id: ownerId,
     })
     .select()
     .single();

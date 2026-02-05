@@ -1,0 +1,41 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] e2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync
+[1A[2Ke2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync
+Testing Todo...
+
+[1A[2KTask Sync Triggered!
+
+[1A[2K✅ Todo Sync API called successfully.
+
+[1A[2KTesting AI Scheduler...
+
+[1A[2K  1) e2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync ─────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByPlaceholder('Ask AI...')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByPlaceholder('Ask AI...')[22m
+
+
+      67 |   // Check sidebar opens
+      68 |   const chatInput = page.getByPlaceholder("Ask AI...");
+    > 69 |   await expect(chatInput).toBeVisible();
+         |                           ^
+      70 |
+      71 |   // Send Message
+      72 |   await chatInput.fill("Schedule this for tomorrow");
+        at C:\Users\Dasad\OneDrive\Documents\codings\workspace\novel\apps\web\e2e\ai-todo.spec.ts:69:27
+
+    Error Context: test-results\e2e-ai-todo-Feature-Check-AI-Scheduler-Todo-Sync\error-context.md
+
+
+[1A[2K  1 failed
+    e2e\ai-todo.spec.ts:3:5 › Feature Check: AI Scheduler & Todo Sync ──────────────────────────────

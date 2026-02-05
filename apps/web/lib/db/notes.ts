@@ -1,7 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function getNote(noteId: string) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.from("notes").select("*").eq("id", noteId).single();
 
@@ -25,7 +25,7 @@ export async function createNote({
   content: any;
   tags?: string[];
 }) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
     .from("notes")
@@ -47,7 +47,7 @@ export async function createNote({
 }
 
 export async function updateNoteTags(noteId: string, tags: string[]) {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase.from("notes").update({ tags }).eq("id", noteId);
 
