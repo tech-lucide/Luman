@@ -21,36 +21,48 @@ const formatFileSize = (bytes: number): string => {
 const FileAttachmentComponent = ({ node }: NodeViewProps) => {
   const { url, filename, filesize, filetype } = node.attrs;
 
-  const handleDownload = () => {
-    const link = document.body.appendChild(document.createElement("a"));
-    link.href = url;
-    link.download = filename;
-    link.target = "_blank";
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed", error);
+      // Fallback to simple link
+      window.open(url, "_blank");
+    }
   };
 
   return (
-    <NodeViewWrapper className="file-attachment-wrapper">
-      <div className="flex items-center gap-4 p-4 my-2 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors group">
-        <div className="flex-shrink-0 text-muted-foreground">
-          {getFileIcon(filetype)}
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate">{filename}</p>
-          <p className="text-xs text-muted-foreground">
-            {formatFileSize(filesize)}
-          </p>
+    <NodeViewWrapper className="file-attachment-wrapper inline-block w-[calc(25%-1rem)] min-w-[200px] m-2 align-top">
+      <div className="flex flex-col gap-3 p-3 border border-border rounded-xl bg-card hover:bg-accent/50 transition-all group relative">
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 text-muted-foreground p-2 bg-muted rounded-lg">
+            {getFileIcon(filetype)}
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-xs truncate" title={filename}>{filename}</p>
+            <p className="text-[10px] text-muted-foreground">
+              {formatFileSize(filesize)}
+            </p>
+          </div>
         </div>
         
         <button
           type="button"
           onClick={handleDownload}
-          className="flex-shrink-0 p-2 rounded-md hover:bg-accent transition-colors opacity-0 group-hover:opacity-100"
-          title="Download file"
+          className="flex items-center justify-center gap-2 w-full p-2 mt-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors text-xs font-medium"
         >
-          <Download className="h-5 w-5" />
+          <Download className="h-3.5 w-3.5" />
+          <span>Download</span>
         </button>
       </div>
     </NodeViewWrapper>

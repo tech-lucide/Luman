@@ -26,7 +26,6 @@ import GenerativeMenuSwitch from "./generative/generative-menu-switch";
 import { uploadFn } from "./image-upload";
 import { TextButtons } from "./selectors/text-buttons";
 import { slashCommand, suggestionItems } from "./slash-command";
-import { ImageBubbleMenu } from "./image-bubble-menu";
 
 const hljs = require("highlight.js");
 
@@ -182,7 +181,6 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: Advance
           slotAfter={
             <>
               <ImageResizer />
-              <ImageBubbleMenu />
             </>
           }
         >
