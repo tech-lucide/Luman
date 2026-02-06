@@ -25,6 +25,8 @@ const ImageComponent = ({ node }: NodeViewProps) => {
     }
   };
 
+  console.log("[ImageComponent] Rendering NodeView for:", src);
+
   return (
     <NodeViewWrapper className="relative inline-block group mb-2 border rounded-lg overflow-hidden border-muted">
       <img
@@ -39,7 +41,7 @@ const ImageComponent = ({ node }: NodeViewProps) => {
         className="block"
       />
       
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+      <div className="absolute top-2 right-2 z-20">
         <button
           type="button"
           onMouseDown={(e) => {
@@ -47,7 +49,7 @@ const ImageComponent = ({ node }: NodeViewProps) => {
             e.stopPropagation();
           }}
           onClick={handleDownload}
-          className="bg-black/50 hover:bg-black/70 backdrop-blur-md text-white p-2 rounded-lg transition-all shadow-xl"
+          className="bg-black/70 hover:bg-black/90 backdrop-blur-md text-white p-2 rounded-lg transition-all shadow-xl border border-white/20"
           title="Download image"
         >
           <Download className="h-5 w-5" />
