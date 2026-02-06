@@ -39,14 +39,18 @@ const ImageComponent = ({ node }: NodeViewProps) => {
         className="block"
       />
       
-      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <button
           type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           onClick={handleDownload}
-          className="pointer-events-auto bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full transition-all transform scale-90 group-hover:scale-100 shadow-xl"
+          className="bg-black/50 hover:bg-black/70 backdrop-blur-md text-white p-2 rounded-lg transition-all shadow-xl"
           title="Download image"
         >
-          <Download className="h-6 w-6" />
+          <Download className="h-5 w-5" />
         </button>
       </div>
     </NodeViewWrapper>

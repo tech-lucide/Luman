@@ -41,7 +41,7 @@ const FileAttachmentComponent = ({ node }: NodeViewProps) => {
   };
 
   return (
-    <NodeViewWrapper className="file-attachment-wrapper inline-block w-[calc(25%-1rem)] min-w-[200px] m-2 align-top">
+    <NodeViewWrapper className="file-attachment-wrapper inline-block w-[calc(50%-1rem)] min-w-[200px] m-2 align-top">
       <div className="flex flex-col gap-3 p-3 border border-border rounded-xl bg-card hover:bg-accent/50 transition-all group relative">
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0 text-muted-foreground p-2 bg-muted rounded-lg">
