@@ -2,8 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { useChat } from "ai/react";
-import { Bot, Loader2, Send, Sparkles, User, X } from "lucide-react";
+import { Bot, Copy, Loader2, Send, Sparkles, User, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   id: string;
@@ -62,20 +63,69 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
     }
   }, [noteId, isOpen, setMessages]);
 
+  // Resizing logic
+  const [width, setWidth] = useState(420);
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const startResizing = (e: React.MouseEvent) => {
+    setIsResizing(true);
+    e.preventDefault(); // Prevent text selection
+  };
+
+  useEffect(() => {
+    const stopResizing = () => setIsResizing(false);
+
+    const resize = (e: MouseEvent) => {
+      if (isResizing) {
+        // Calculate new width: Window width - mouse X position
+        // We subtract from window width because sidebar is on the right
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth > 300 && newWidth < 800) {
+          setWidth(newWidth);
+        }
+      }
+    };
+
+    if (isResizing) {
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stopResizing);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [isResizing]);
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
   return (
     <div
+      ref={sidebarRef}
+      style={{ width: isOpen ? width : 0 }}
       className={cn(
-        "fixed right-0 top-0 h-screen w-full sm:w-[420px] bg-gradient-to-br from-background via-background to-muted/20 border-l border-border shadow-2xl transform transition-transform duration-300 ease-out z-50",
+        "fixed right-0 top-0 h-screen bg-gradient-to-br from-background via-background to-muted/20 border-l border-border shadow-2xl transition-all ease-out z-50 flex flex-col",
         isOpen ? "translate-x-0" : "translate-x-full",
       )}
     >
+      {/* Drag Handle */}
+      <div
+        onMouseDown={startResizing}
+        className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-violet-500/50 transition-colors z-50 group flex items-center justify-center -translate-x-1/2"
+      >
+        <div className="w-0.5 h-12 rounded-full bg-border group-hover:bg-violet-500 transition-colors" />
+      </div>
+
       {/* Header */}
-      <div className="relative h-14 border-b border-border/50 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-pink-500/10 backdrop-blur-xl">
+      <div className="relative h-14 border-b border-border/50 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-pink-500/10 backdrop-blur-xl flex-shrink-0">
         <div className="flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -93,7 +143,7 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 h-[calc(100vh-8rem)]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {isLoadingHistory ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -128,13 +178,57 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
 
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm",
+                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm overflow-hidden",
                     message.role === "user"
                       ? "bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/25"
                       : "bg-muted/50 backdrop-blur-sm border border-border/50",
                   )}
                 >
-                  <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                  <ReactMarkdown
+                    className={cn(
+                      "prose prose-sm dark:prose-invert max-w-none break-words",
+                      message.role === "user"
+                        ? "prose-headings:text-white prose-p:text-white prose-strong:text-white prose-code:text-white prose-ul:text-white"
+                        : "",
+                    )}
+                    components={{
+                      code({ node, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || "");
+                        const isInline = !match && !className; // Basic check for inline code
+
+                        if (isInline) {
+                          return (
+                            <code className="bg-muted-foreground/20 px-1 py-0.5 rounded font-mono text-xs" {...props}>
+                              {children}
+                            </code>
+                          );
+                        }
+
+                        return (
+                          <div className="relative my-2 rounded-md overflow-hidden bg-black/80 ring-1 ring-border/50">
+                            <div className="flex justify-between items-center px-4 py-1.5 bg-muted/50 border-b border-border/10">
+                              <span className="text-xs text-muted-foreground font-mono">{match?.[1] || "code"}</span>
+                              <button
+                                type="button"
+                                onClick={() => copyToClipboard(String(children).replace(/\n$/, ""))}
+                                className="p-1 hover:bg-white/10 rounded transition-colors group"
+                                title="Copy code"
+                              >
+                                <Copy className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
+                              </button>
+                            </div>
+                            <pre className="p-4 overflow-x-auto text-xs font-mono scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            </pre>
+                          </div>
+                        );
+                      },
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
                 </div>
 
                 {message.role === "user" && (
@@ -152,7 +246,7 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
       </div>
 
       {/* Input */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/50 bg-background/80 backdrop-blur-xl">
+      <div className="p-4 border-t border-border/50 bg-background/80 backdrop-blur-xl flex-shrink-0">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
