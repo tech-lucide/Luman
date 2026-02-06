@@ -1,5 +1,5 @@
 import { getUserMembership } from "@/lib/db/organizations";
-import { createWorkspace, getWorkspaces } from "@/lib/db/workspaces";
+import { createWorkspace, deleteWorkspace, getWorkspaces, updateWorkspace } from "@/lib/db/workspaces";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     // Filter logic: Interns see ONLY 'intern' workspaces. Founders/Admins see ALL.
     const roleFilter = membership.role === "intern" ? "intern" : undefined;
 
-    const data = await getWorkspaces(orgId, roleFilter);
+    const data = await getWorkspaces(orgId, user.id, roleFilter);
     return NextResponse.json(data);
   } catch (err) {
     console.error("GET /api/workspaces error:", err);
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("DEBUG: POST /api/workspaces body:", body);
 
-    const { ownerName, ownerId, role: requestedRole } = body;
+    const { ownerName, ownerId, role: requestedRole, folderId, color } = body;
 
     if (!ownerName) {
       return NextResponse.json({ error: "ownerName is required" }, { status: 400 });
@@ -80,7 +80,10 @@ export async function POST(req: Request) {
     const data = await createWorkspace({
       ownerName,
       role: roleToAssign,
-      ownerId,
+      orgId: ownerId,
+      userId: user.id,
+      folderId,
+      color,
     });
 
     return NextResponse.json(data, { status: 201 });
@@ -94,5 +97,61 @@ export async function POST(req: Request) {
       },
       { status: 500 },
     );
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const workspaceId = searchParams.get("id");
+
+    if (!workspaceId) {
+      return NextResponse.json({ error: "Workspace ID is required" }, { status: 400 });
+    }
+
+    const body = await req.json();
+    console.log("PATCH /api/workspaces body:", body);
+    const { folderId, color, name } = body;
+
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    await updateWorkspace(workspaceId, user.id, { folderId, color, name });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const workspaceId = searchParams.get("id");
+
+    if (!workspaceId) {
+      return NextResponse.json({ error: "Workspace ID is required" }, { status: 400 });
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // We pass user.id as ownerId to ensure they own it.
+    await deleteWorkspace(workspaceId, user.id);
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("DELETE /api/workspaces error:", err);
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Internal server error" }, { status: 500 });
   }
 }

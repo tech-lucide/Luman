@@ -17,6 +17,18 @@ export async function POST(req: Request) {
     }
 
     const supabase = await createSupabaseServerClient();
+
+    // Fetch current note context
+    const { data: currentNote, error: noteError } = await supabase
+      .from("notes")
+      .select("title, content, workspace_id, tags")
+      .eq("id", noteId)
+      .single();
+
+    if (noteError) {
+      console.error("[CHAT API] Error fetching note context:", noteError);
+    }
+
     const openRouter = createOpenAI({
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: process.env.OPENROUTER_API_KEY,
@@ -33,37 +45,81 @@ export async function POST(req: Request) {
       }
     } catch (dbError) {
       console.error("[CHAT API] DB Save Error:", dbError);
-      // Continue anyway
     }
 
-    console.log("[CHAT API] calls streamText with model: google/gemini-2.0-flash-001");
+    const systemMessage = {
+      role: "system" as const,
+      content: `You are a helpful AI assistant helping users with their notes. 
+Current Note Content:
+Title: ${currentNote?.title || "Untitled"}
+Content: ${JSON.stringify(currentNote?.content || "")}
+Tags: ${currentNote?.tags?.join(", ") || "None"}
+
+You have access to the user's entire workspace. You can search for other notes, read their content, and help the user find connections between them.
+When a user asks about other notes, use the 'searchNotes' tool.
+When you need to read the content of a specific note you found, use 'getNoteContent'.
+You can also suggest and apply tags using 'applyTags'.`,
+    };
 
     const result = await streamText({
       model: openRouter("google/gemini-2.0-flash-001"),
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful AI assistant helping users with their notes. You can schedule notes by setting a due date.",
-        },
-        ...messages,
-      ],
+      messages: [systemMessage, ...messages],
       tools: {
         scheduleNote: tool({
-          description:
-            "Schedule the current note with a due date. Use this when the user asks to schedule, remind, or set a deadline.",
+          description: "Schedule the current note with a due date.",
           parameters: z.object({
-            date: z.string().describe("ISO date string (e.g., 2024-12-25T09:00:00Z) or YYYY-MM-DD"),
+            date: z.string().describe("ISO date string or YYYY-MM-DD"),
           }),
           execute: async ({ date }) => {
-            console.log(`Scheduling note ${noteId} for ${date}`);
             const { error } = await supabase.from("notes").update({ due_date: date }).eq("id", noteId);
+            return error ? "Failed to schedule note." : `Note scheduled for ${date}`;
+          },
+        }),
+        searchNotes: tool({
+          description: "Search for other notes in the user's workspace by title or content.",
+          parameters: z.object({
+            query: z.string().describe("The search query"),
+          }),
+          execute: async ({ query }) => {
+            if (!currentNote?.workspace_id) return "No workspace context found.";
 
-            if (error) {
-              console.error("Error updating note:", error);
-              return "Failed to schedule note.";
-            }
-            return `Note scheduled for ${date}`;
+            const { data, error } = await supabase
+              .from("notes")
+              .select("id, title, tags")
+              .eq("workspace_id", currentNote.workspace_id)
+              .neq("id", noteId) // Don't include current note
+              .ilike("title", `%${query}%`);
+
+            if (error) return `Error searching notes: ${error.message}`;
+            if (!data || data.length === 0) return "No other notes found matching that query.";
+
+            return `Found ${data.length} notes: ${data.map((n) => `- ${n.title} (ID: ${n.id})`).join("\n")}`;
+          },
+        }),
+        getNoteContent: tool({
+          description: "Read the full content of a specific note by its ID.",
+          parameters: z.object({
+            targetNoteId: z.string().describe("The ID of the note to read"),
+          }),
+          execute: async ({ targetNoteId }) => {
+            const { data, error } = await supabase
+              .from("notes")
+              .select("title, content, tags")
+              .eq("id", targetNoteId)
+              .single();
+
+            if (error) return `Error fetching note: ${error.message}`;
+            return `Note: ${data.title}\nContent: ${JSON.stringify(data.content)}\nTags: ${data.tags?.join(", ")}`;
+          },
+        }),
+        applyTags: tool({
+          description: "Apply tags to the current note.",
+          parameters: z.object({
+            tags: z.array(z.string()).describe("List of tags to apply"),
+          }),
+          execute: async ({ tags }) => {
+            const { error } = await supabase.from("notes").update({ tags }).eq("id", noteId);
+            return error ? "Failed to apply tags." : `Applied tags: ${tags.join(", ")}`;
           },
         }),
       },

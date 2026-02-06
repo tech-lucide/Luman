@@ -1,7 +1,6 @@
 import {
   addMemberToOrganization,
   getOrganizationBySlug,
-  getOrganizationMembers,
   getUserMembership,
   getUserOrganizations,
 } from "@/lib/db/organizations";
@@ -24,9 +23,13 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code");
   const cookieStore = await cookies();
 
-  // Get org slug from search params OR from cookie
-  let orgSlug = requestUrl.searchParams.get("org") || cookieStore.get("sb_org_slug")?.value;
+  // Get org slug from search params OR from cookie (pending_join_org takes precedence for invites)
+  let orgSlug =
+    cookieStore.get("pending_join_org")?.value ||
+    requestUrl.searchParams.get("org") ||
+    cookieStore.get("sb_org_slug")?.value;
   const isNewOrg = requestUrl.searchParams.get("new") === "true";
+  const isInvite = !!cookieStore.get("pending_join_org")?.value;
 
   // Check for error and error_description from Supabase
   const error = requestUrl.searchParams.get("error");
@@ -132,15 +135,19 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${requestUrl.origin}/dashboard?org=${orgSlug}`);
       }
 
+      // Check for valid invite
+      if (isInvite) {
+        console.log(`[Auth Callback] Invite flow: Adding user to ${orgSlug} as intern`);
+        await addMemberToOrganization(organization.id, user.id, "intern");
+        // Clear the cookie
+        cookieStore.delete("pending_join_org");
+        return NextResponse.redirect(`${requestUrl.origin}/dashboard?org=${orgSlug}`);
+      }
+
       // Fallback: User tried to join specific org but isn't a member.
-      // Automate role selection: Check existing members
-      const members = await getOrganizationMembers(organization.id);
-      const roleToAssign = members.length === 0 ? "founder" : "intern";
-
-      console.log(`[Auth Callback] Auto-assigning role '${roleToAssign}' to new member`);
-      await addMemberToOrganization(organization.id, user.id, roleToAssign);
-
-      return NextResponse.redirect(`${requestUrl.origin}/dashboard?org=${orgSlug}`);
+      // STRICT MODE: Do NOT auto-assign. Redirect to register/join page.
+      console.warn(`[Auth Callback] User ${user.id} tried to access ${orgSlug} but is not a member.`);
+      return NextResponse.redirect(`${requestUrl.origin}/register?error=needs_invite&org=${orgSlug}`);
     } catch (err) {
       console.error("Exception in callback processing:", err);
       logOAuth("Callback Exception", { error: String(err) });

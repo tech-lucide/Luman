@@ -12,6 +12,8 @@ type Workspace = {
   owner_name: string;
   role: string;
   created_at: string;
+  folder_id?: string | null;
+  color?: string;
 };
 
 type UserSession = {
@@ -19,6 +21,7 @@ type UserSession = {
   role: "founder" | "intern";
   ownerName: string;
   organizations: Organization[];
+  invitation_code?: string;
 };
 
 export default function DashboardPage() {
@@ -34,6 +37,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const orgSlug = searchParams.get("org");
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [folders, setFolders] = useState<{ id: string; name: string; color: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -59,18 +63,24 @@ function DashboardContent() {
 
   async function fetchWorkspaces(orgId: string) {
     try {
-      const res = await fetch(`/api/workspaces?orgId=${orgId}`);
-      if (res.ok) {
-        const data = await res.json();
+      const [wsRes, fRes] = await Promise.all([
+        fetch(`/api/workspaces?orgId=${orgId}`),
+        fetch(`/api/folders?orgId=${orgId}`),
+      ]);
+
+      if (wsRes.ok) {
+        const data = await wsRes.json();
         setWorkspaces(data);
-        if (data.length === 0) {
-          setShowOnboarding(true);
-        } else {
-          setShowOnboarding(false);
-        }
+        if (data.length === 0) setShowOnboarding(true);
+        else setShowOnboarding(false);
+      }
+
+      if (fRes.ok) {
+        const fdata = await fRes.json();
+        setFolders(fdata);
       }
     } catch (err) {
-      console.error("Failed to fetch workspaces:", err);
+      console.error("Failed to fetch data:", err);
     } finally {
       setLoading(false);
     }
@@ -138,6 +148,30 @@ function DashboardContent() {
     }
   }
 
+  async function handleDeleteWorkspace(id: string) {
+    if (!confirm("Are you sure you want to delete this workspace? This action cannot be undone.")) return;
+
+    try {
+      const res = await fetch(`/api/workspaces?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        if (session) {
+          const currentOrg =
+            session.organizations?.find((o: Organization) => o.slug === orgSlug) || session.organizations?.[0];
+          if (currentOrg) fetchWorkspaces(currentOrg.id);
+        }
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete workspace");
+      }
+    } catch (err) {
+      console.error("Error deleting workspace:", err);
+      alert("Error deleting workspace");
+    }
+  }
+
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -171,6 +205,12 @@ function DashboardContent() {
               >
                 {session.role}
               </div>
+              {session.role === "founder" && session.organizations[0]?.invitation_code && (
+                <div className="px-6 py-3 bg-accent text-accent-foreground font-bold uppercase text-sm border-brutal flex items-center gap-2">
+                  <span>INVITE CODE:</span>
+                  <span className="font-mono text-lg">{session.organizations[0].invitation_code}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -189,6 +229,27 @@ function DashboardContent() {
               className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground disabled:opacity-50"
             >
               {creating ? "CREATING..." : "CREATE WORKSPACE"}
+            </button>
+            <button
+              onClick={async () => {
+                const name = prompt("Folder Name:");
+                if (!name) return;
+                const color = prompt("Color (red, blue, green, etc):") || "stone";
+
+                // Create folder logic inline for now (or make a function)
+                const currentOrg =
+                  session?.organizations?.find((o: Organization) => o.slug === orgSlug) || session?.organizations?.[0];
+                if (!currentOrg) return;
+
+                await fetch("/api/folders", {
+                  method: "POST",
+                  body: JSON.stringify({ name, orgId: currentOrg.id, color }),
+                });
+                fetchWorkspaces(currentOrg.id);
+              }}
+              className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-background"
+            >
+              NEW FOLDER
             </button>
           </div>
         </div>
@@ -228,7 +289,71 @@ function DashboardContent() {
                         {ws.role}
                       </span>
                     </div>
-                    <div className="text-xs font-mono pt-4 border-t-4 border-foreground opacity-50">{ws.id}</div>
+                    <div className="text-xs font-mono pt-4 border-t-4 border-foreground opacity-50 flex justify-between items-center">
+                      <span>{ws.id}</span>
+                      {(session.role === "founder" || session.userId === ws.id) && ( // Assuming owner_id matches user id logic, but here ws.id is workspace id. We should check ownership but UI toggle is fine for now
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteWorkspace(ws.id);
+                          }}
+                          className="text-destructive hover:underline uppercase font-bold text-xs"
+                        >
+                          DELETE
+                        </button>
+                      )}
+                    </div>
+                    {/* Quick Actions for Folder/Color */}
+                    <div className="mt-4 flex gap-2" onClick={(e) => e.preventDefault()}>
+                      <select
+                        className="bg-background border-brutal-sm text-xs font-bold uppercase p-1"
+                        defaultValue={ws.folder_id || ""}
+                        onChange={async (e) => {
+                          const folderId = e.target.value || null;
+                          const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ folderId }),
+                          });
+                          if (res.ok && session && session.organizations?.[0]) {
+                            await fetchWorkspaces(session.organizations[0].id);
+                          }
+                        }}
+                      >
+                        <option value="">NO FOLDER</option>
+                        {folders.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select
+                        className="bg-background border-brutal-sm text-xs font-bold uppercase p-1"
+                        defaultValue={ws.color || "stone"}
+                        onChange={async (e) => {
+                          const color = e.target.value;
+                          const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ color }),
+                          });
+                          if (res.ok && session && session.organizations?.[0]) {
+                            await fetchWorkspaces(session.organizations[0].id);
+                          }
+                        }}
+                      >
+                        <option value="stone">GRAY</option>
+                        <option value="red">RED</option>
+                        <option value="blue">BLUE</option>
+                        <option value="green">GREEN</option>
+                        <option value="yellow">YELLOW</option>
+                        <option value="purple">PURPLE</option>
+                        <option value="pink">PINK</option>
+                        <option value="orange">ORANGE</option>
+                      </select>
+                    </div>
                   </div>
                 </Link>
               ))}

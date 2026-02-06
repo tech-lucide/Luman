@@ -164,7 +164,7 @@ function LoginForm() {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-lg font-bold uppercase">
+        <div className="text-center text-lg font-bold uppercase space-y-2">
           <p>
             DON'T HAVE AN ACCOUNT?{" "}
             <Link
@@ -172,6 +172,15 @@ function LoginForm() {
               className="underline decoration-4 underline-offset-8 hover:bg-accent hover:text-accent-foreground px-2"
             >
               SIGN UP
+            </Link>
+          </p>
+          <p className="text-sm opacity-70">
+            HAVE AN INVITE CODE?{" "}
+            <Link
+              href="/join"
+              className="underline decoration-2 underline-offset-4 hover:bg-accent hover:text-accent-foreground px-1"
+            >
+              JOIN ORGANIZATION
             </Link>
           </p>
         </div>

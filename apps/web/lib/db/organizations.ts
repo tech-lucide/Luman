@@ -9,6 +9,7 @@ export type Organization = {
   id: string;
   name: string;
   slug: string;
+  invitation_code: string;
   created_at: string;
   updated_at: string;
 };
@@ -79,6 +80,13 @@ export async function getOrganizationById(id: string) {
 export async function createOrganization(name: string, creatorUserId?: string) {
   let slug = generateSlug(name);
 
+  // Generate a 6-character alphanumeric invitation code
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let invitationCode = "";
+  for (let i = 0; i < 6; i++) {
+    invitationCode += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
   // Ensure slug is unique
   let slugExists = await getOrganizationBySlug(slug);
   let counter = 1;
@@ -88,7 +96,11 @@ export async function createOrganization(name: string, creatorUserId?: string) {
     counter++;
   }
 
-  const { data, error } = await supabase.from("organizations").insert({ name, slug }).select().single();
+  const { data, error } = await supabase
+    .from("organizations")
+    .insert({ name, slug, invitation_code: invitationCode })
+    .select()
+    .single();
 
   if (error) throw error;
 
@@ -229,4 +241,22 @@ export async function removeMemberFromOrganization(organizationId: string, userI
     .eq("user_id", userId);
 
   if (error) throw error;
+}
+
+/**
+ * Verify invitation code
+ */
+export async function verifyOrganizationCode(slug: string, code: string) {
+  const { data, error } = await supabase
+    .from("organizations")
+    .select("id, name, slug")
+    .eq("slug", slug)
+    .eq("invitation_code", code)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
 }

@@ -11,6 +11,7 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const orgSlug = searchParams.get("org");
   const isNewOrg = searchParams.get("new") === "true";
+  const errorParam = searchParams.get("error");
 
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,11 @@ function RegisterForm() {
       // No organization selected, redirect to org login
       router.push("/org-login");
     }
-  }, [orgSlug, router]);
+
+    if (errorParam === "needs_invite") {
+      setError("You must have an invitation to join this organization.");
+    }
+  }, [orgSlug, router, errorParam]);
 
   async function handleGoogleSignUp() {
     setError("");
@@ -116,15 +121,24 @@ function RegisterForm() {
             {error && (
               <div className="px-6 py-4 text-sm font-black uppercase border-brutal bg-destructive text-destructive-foreground">
                 {error.toUpperCase()}
+                {error.includes("invitation") && (
+                  <p className="mt-2">
+                    <Link href="/join" className="underline hover:opacity-80">
+                      ENTER INVITE CODE HERE
+                    </Link>
+                  </p>
+                )}
               </div>
             )}
 
             <button
+              type="button"
               onClick={handleGoogleSignUp}
               disabled={loading}
               className="w-full px-8 py-6 text-xl font-black uppercase border-brutal shadow-brutal hover-brutal bg-white text-black disabled:opacity-50 flex items-center justify-center gap-4"
             >
-              <svg className="h-6 w-6" viewBox="0 0 24 24">
+              <svg className="h-6 w-6" viewBox="0 0 24 24" role="img" aria-labelledby="google-icon-title">
+                <title id="google-icon-title">Google Icon</title>
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
