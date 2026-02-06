@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Node as TiptapNode, mergeAttributes } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
 import { Download, File, FileText, FileSpreadsheet, FileVideo, FileAudio, FileArchive, FileImage } from "lucide-react";
 
@@ -22,11 +22,10 @@ const FileAttachmentComponent = ({ node }: NodeViewProps) => {
   const { url, filename, filesize, filetype } = node.attrs;
 
   const handleDownload = () => {
-    const link = document.createElement("a");
+    const link = document.body.appendChild(document.createElement("a"));
     link.href = url;
     link.download = filename;
     link.target = "_blank";
-    document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
@@ -59,7 +58,7 @@ const FileAttachmentComponent = ({ node }: NodeViewProps) => {
 };
 
 export interface FileAttachmentOptions {
-  HTMLAttributes: Record<string, unknown>;
+  HTMLAttributes: Record<string, any>;
 }
 
 declare module "@tiptap/core" {
@@ -75,7 +74,7 @@ declare module "@tiptap/core" {
   }
 }
 
-export const FileAttachment = Node.create<FileAttachmentOptions>({
+export const FileAttachment = TiptapNode.create<FileAttachmentOptions>({
   name: "fileAttachment",
 
   group: "block",
@@ -118,7 +117,7 @@ export const FileAttachment = Node.create<FileAttachmentOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes(HTMLAttributes, { "data-file-attachment": "" })];
+    return ["div", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { "data-file-attachment": "" })];
   },
 
   addCommands() {
