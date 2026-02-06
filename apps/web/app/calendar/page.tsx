@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { EventModal } from "@/components/event-modal";
 import AppShell from "@/components/layouts/app-shell";
 import { Calendar, Plus } from "lucide-react";
