@@ -51,7 +51,8 @@
     "tippy.js": "^6.3.7",
     "tiptap-extension-global-drag-handle": "^0.1.16",
     "tiptap-markdown": "^0.8.10",
-    "tunnel-rat": "^0.1.2"
+    "tunnel-rat": "^0.1.2",
+    "lucide-react": "^0.474.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

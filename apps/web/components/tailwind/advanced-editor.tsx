@@ -26,6 +26,7 @@ import GenerativeMenuSwitch from "./generative/generative-menu-switch";
 import { uploadFn } from "./image-upload";
 import { TextButtons } from "./selectors/text-buttons";
 import { slashCommand, suggestionItems } from "./slash-command";
+import { ImageBubbleMenu } from "./image-bubble-menu";
 
 const hljs = require("highlight.js");
 
@@ -178,7 +179,12 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: Advance
             debouncedSave(editor);
             debouncedTaskSync(editor);
           }}
-          slotAfter={<ImageResizer />}
+          slotAfter={
+            <>
+              <ImageResizer />
+              <ImageBubbleMenu />
+            </>
+          }
         >
           <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-xl border border-border bg-popover px-1 py-2 shadow-xl">
             <EditorCommandEmpty className="px-2 text-sm text-muted-foreground">No results</EditorCommandEmpty>
