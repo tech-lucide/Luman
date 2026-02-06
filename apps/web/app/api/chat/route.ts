@@ -3,6 +3,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
 import { z } from "zod";
 
+export const runtime = "edge";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {

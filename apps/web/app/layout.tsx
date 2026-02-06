@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import "@/styles/prosemirror.css";
 import "katex/dist/katex.min.css";
+import { GeistSans } from "geist/font/sans";
 
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: "@steventey",
   },
+  keywords: ["Novel", "AI Editor", "Notion-style", "Wysiwyg", "Tiptap", "OpenAI"],
   metadataBase: new URL("https://novel.sh"),
 };
 
@@ -33,7 +35,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className={GeistSans.variable}>
         <Providers>{children}</Providers>
       </body>
     </html>

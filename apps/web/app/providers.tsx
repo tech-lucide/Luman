@@ -2,6 +2,7 @@
 
 import useLocalStorage from "@/hooks/use-local-storage";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider, useTheme } from "next-themes";
 import { type Dispatch, type ReactNode, type SetStateAction, createContext } from "react";
 import { Toaster } from "sonner";
@@ -42,6 +43,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         <ToasterProvider />
         {children}
         <Analytics />
+        <SpeedInsights />
         <ThemeColorWrapper themeColor={themeColor} />
       </AppContext.Provider>
     </ThemeProvider>
