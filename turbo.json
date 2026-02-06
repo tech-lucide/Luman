@@ -5,48 +5,48 @@
   ],
   "tasks": {
     "topo": {
-      "dependsOn": [
-        "^topo"
-      ]
+      "dependsOn": ["^topo"]
     },
+
     "build": {
-      "dependsOn": [
-        "^build",
-        "typecheck"
-      ],
+      "dependsOn": ["^build", "typecheck"],
       "outputs": [
         "dist/**",
         ".next/**",
         "!.next/cache/**"
-      ]
-    },
-    "typecheck": {
-      "dependsOn": [
-        "^topo"
       ],
-      "outputs": []
-    },
-    "lint": {
-      "dependsOn": [
-        "^topo"
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "supabasepass",
+        "OPENROUTER_API_KEY"
       ]
+    },
+
+    "typecheck": {
+      "dependsOn": ["^topo"],
+      "outputs": [],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ]
+    },
+
+    "lint": {
+      "dependsOn": ["^topo"]
     },
     "format": {
-      "dependsOn": [
-        "^topo"
-      ]
+      "dependsOn": ["^topo"]
     },
     "lint:fix": {
-      "dependsOn": [
-        "^topo"
-      ]
+      "dependsOn": ["^topo"]
     },
     "format:fix": {
-      "dependsOn": [
-        "^topo"
-      ]
+      "dependsOn": ["^topo"]
     },
-    "check-types": {},
+
     "dev": {
       "cache": false,
       "persistent": true
