@@ -1,6 +1,7 @@
 import {
   CheckSquare,
   Code,
+  FileIcon,
   Heading1,
   Heading2,
   Heading3,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 import { Command, createSuggestionItems, renderItems } from "novel";
 import { uploadFn } from "./image-upload";
+import { uploadFile } from "./file-upload";
 
 export const suggestionItems = createSuggestionItems([
   {
@@ -158,6 +160,34 @@ export const suggestionItems = createSuggestionItems([
           const file = input.files[0];
           const pos = editor.view.state.selection.from;
           uploadFn(file, editor.view, pos);
+        }
+      };
+      input.click();
+    },
+  },
+  {
+    title: "File",
+    description: "Upload any file (PDF, DOC, video, etc.)",
+    searchTerms: ["file", "upload", "attachment", "pdf", "doc"],
+    icon: <FileIcon size={18} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      const input = document.createElement("input");
+      input.type = "file";
+      input.onchange = async () => {
+        if (input.files?.length) {
+          const file = input.files[0];
+          try {
+            const result = await uploadFile(file);
+            editor.commands.setFileAttachment({
+              url: result.url,
+              filename: file.name,
+              filesize: file.size,
+              filetype: file.type,
+            });
+          } catch (error) {
+            console.error("File upload failed", error);
+          }
         }
       };
       input.click();

@@ -46,6 +46,7 @@ export {
   createSuggestionItems,
   handleCommandNavigation,
   type SuggestionItem,
+  FileAttachment,
 } from "./extensions";
 
 // Plugins

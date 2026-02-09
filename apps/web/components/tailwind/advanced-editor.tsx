@@ -179,10 +179,18 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId, onEditorR
             debouncedSave(editor);
             debouncedTaskSync(editor);
           }}
+<<<<<<< HEAD
           onCreate={({ editor }) => {
             onEditorReady?.(editor);
           }}
           slotAfter={<ImageResizer />}
+=======
+          slotAfter={
+            <>
+              <ImageResizer />
+            </>
+          }
+>>>>>>> 833fbfa03a25539a1d2a65347e4fdb9fea6210b8
         >
           <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-xl border border-border bg-popover px-1 py-2 shadow-xl">
             <EditorCommandEmpty className="px-2 text-sm text-muted-foreground">No results</EditorCommandEmpty>

@@ -21,6 +21,7 @@ import {
   UpdatedImage,
   UploadImagesPlugin,
   Youtube,
+  FileAttachment,
 } from "novel";
 
 import { cx } from "class-variance-authority";
@@ -38,7 +39,7 @@ const tiptapLink = TiptapLink.configure({
   },
 });
 
-const tiptapImage = TiptapImage.extend({
+const updatedImage = UpdatedImage.extend({
   addProseMirrorPlugins() {
     return [
       UploadImagesPlugin({
@@ -48,12 +49,6 @@ const tiptapImage = TiptapImage.extend({
   },
 }).configure({
   allowBase64: true,
-  HTMLAttributes: {
-    class: cx("rounded-lg border border-muted"),
-  },
-});
-
-const updatedImage = UpdatedImage.configure({
   HTMLAttributes: {
     class: cx("rounded-lg border border-muted"),
   },
@@ -163,7 +158,6 @@ export const defaultExtensions = [
   starterKit,
   placeholder,
   tiptapLink,
-  tiptapImage,
   updatedImage,
   taskList,
   taskItem,
@@ -181,4 +175,5 @@ export const defaultExtensions = [
   Color,
   CustomKeymap,
   GlobalDragHandle,
+  FileAttachment,
 ];

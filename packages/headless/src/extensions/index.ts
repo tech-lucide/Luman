@@ -16,6 +16,7 @@ import { ImageResizer } from "./image-resizer";
 import { Mathematics } from "./mathematics";
 import { Twitter } from "./twitter";
 import UpdatedImage from "./updated-image";
+import { FileAttachment } from "./file-attachment";
 
 import CharacterCount from "@tiptap/extension-character-count";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
@@ -85,4 +86,5 @@ export {
   Mathematics,
   CharacterCount,
   GlobalDragHandle,
+  FileAttachment,
 };
