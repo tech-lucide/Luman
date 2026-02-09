@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { useChat } from "ai/react";
-import { Bot, Copy, Loader2, Send, Sparkles, User, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowRightToLine, Bot, Copy, Loader2, Send, Sparkles, User, X } from "lucide-react";
+import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 interface Message {
@@ -17,15 +17,18 @@ interface AIChatSidebarProps {
   noteId: string;
   isOpen: boolean;
   onClose: () => void;
+  onInsert: (text: string) => void;
 }
 
-export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebarProps) {
+export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIChatSidebarProps) {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading } = useChat({
+  const [selectedModel, setSelectedModel] = useState("google/gemini-2.0-flash-exp:free");
+
+  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, append } = useChat({
     api: "/api/chat",
-    body: { noteId },
+    body: { noteId, model: selectedModel },
     onFinish: (message) => {
       // Optional: Do something when message finishes
     },
@@ -33,6 +36,32 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
       console.error("Chat error:", error);
     },
   });
+
+  // Listen for Slash Commands
+  useEffect(() => {
+    const handleTrigger = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        const { action, text } = detail;
+        let prompt = "";
+        if (action === "explain") {
+          prompt = `Explain this text:\n\n"${text}"`;
+        } else if (action === "fix") {
+          prompt = `Fix grammar and spelling for this text:\n\n"${text}"`;
+        }
+
+        if (prompt) {
+          append({
+            role: "user",
+            content: prompt,
+          });
+        }
+      }
+    };
+
+    window.addEventListener("ai-chat-trigger", handleTrigger);
+    return () => window.removeEventListener("ai-chat-trigger", handleTrigger);
+  }, [append]);
 
   // Load chat history on mount
   useEffect(() => {
@@ -107,6 +136,13 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
     navigator.clipboard.writeText(text);
   };
 
+  const models = [
+    { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash (Free)" },
+    { id: "google/gemini-exp-1206:free", name: "Gemini Exp 1206 (Free)" },
+    { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B (Free)" },
+    { id: "meta-llama/llama-3-8b-instruct:free", name: "Llama 3 8B (Free)" },
+  ];
+
   return (
     <div
       ref={sidebarRef}
@@ -132,9 +168,22 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
               <Sparkles className="h-5 w-5 text-violet-500 animate-pulse" />
               <div className="absolute inset-0 blur-md bg-violet-500/50" />
             </div>
-            <h2 className="font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
-              AI Assistant
-            </h2>
+            <div className="flex flex-col">
+              <h2 className="font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
+                AI Assistant
+              </h2>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="text-[10px] bg-transparent border-none text-muted-foreground focus:ring-0 cursor-pointer p-0 h-auto"
+              >
+                {models.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
             <X className="h-4 w-4 text-muted-foreground" />
@@ -208,14 +257,27 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
                           <div className="relative my-2 rounded-md overflow-hidden bg-black/80 ring-1 ring-border/50">
                             <div className="flex justify-between items-center px-4 py-1.5 bg-muted/50 border-b border-border/10">
                               <span className="text-xs text-muted-foreground font-mono">{match?.[1] || "code"}</span>
-                              <button
-                                type="button"
-                                onClick={() => copyToClipboard(String(children).replace(/\n$/, ""))}
-                                className="p-1 hover:bg-white/10 rounded transition-colors group"
-                                title="Copy code"
-                              >
-                                <Copy className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
-                              </button>
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => onInsert(String(children).replace(/\n$/, ""))}
+                                  className="p-1 hover:bg-white/10 rounded transition-colors group flex items-center gap-1"
+                                  title="Insert to editor"
+                                >
+                                  <ArrowRightToLine className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
+                                  <span className="text-[10px] text-muted-foreground group-hover:text-foreground">
+                                    Insert
+                                  </span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => copyToClipboard(String(children).replace(/\n$/, ""))}
+                                  className="p-1 hover:bg-white/10 rounded transition-colors group"
+                                  title="Copy code"
+                                >
+                                  <Copy className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
+                                </button>
+                              </div>
                             </div>
                             <pre className="p-4 overflow-x-auto text-xs font-mono scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                               <code className={className} {...props}>
@@ -230,6 +292,19 @@ export default function AIChatSidebar({ noteId, isOpen, onClose }: AIChatSidebar
                     {message.content}
                   </ReactMarkdown>
                 </div>
+
+                {message.role === "assistant" && (
+                  <div className="flex flex-col gap-1 mt-1">
+                    {/* Copy entire message */}
+                    <button
+                      onClick={() => onInsert(message.content)}
+                      className="self-start text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted/50 transition-colors"
+                    >
+                      <ArrowRightToLine className="h-3 w-3" />
+                      Insert
+                    </button>
+                  </div>
+                )}
 
                 {message.role === "user" && (
                   <div className="flex-shrink-0 mt-1">

@@ -28,6 +28,7 @@ export default function NoteEditorPage() {
   const [loading, setLoading] = useState(true);
   const [tags, setTags] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [editorInstance, setEditorInstance] = useState<any>(null);
 
   useEffect(() => {
     async function loadNote() {
@@ -113,12 +114,27 @@ export default function NoteEditorPage() {
       {/* Editor Content */}
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto py-8 px-4 sm:px-6">
-          <TailwindAdvancedEditor key={noteId} noteId={noteId} workspaceId={workspaceId} initialContent={content} />
+          <TailwindAdvancedEditor
+            key={noteId}
+            noteId={noteId}
+            workspaceId={workspaceId}
+            initialContent={content}
+            onEditorReady={setEditorInstance}
+          />
         </div>
       </main>
 
       {/* AI Chat Sidebar */}
-      <AIChatSidebar noteId={noteId} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <AIChatSidebar
+        noteId={noteId}
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onInsert={(text) => {
+          if (editorInstance) {
+            editorInstance.chain().focus().insertContent(text).run();
+          }
+        }}
+      />
     </div>
   );
 }

@@ -36,6 +36,7 @@ interface AdvancedEditorProps {
   initialContent: any;
   noteId: string;
   workspaceId: string;
+  onEditorReady?: (editor: any) => void;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Recursive task extraction
@@ -73,7 +74,7 @@ const extractTasks = (content: any): any[] => {
   return tasks;
 };
 
-const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: AdvancedEditorProps) => {
+const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId, onEditorReady }: AdvancedEditorProps) => {
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [charsCount, setCharsCount] = useState<number | undefined>();
 
@@ -177,6 +178,9 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: Advance
             setSaveStatus("Saving…");
             debouncedSave(editor);
             debouncedTaskSync(editor);
+          }}
+          onCreate={({ editor }) => {
+            onEditorReady?.(editor);
           }}
           slotAfter={<ImageResizer />}
         >

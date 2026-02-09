@@ -69,7 +69,7 @@ export default function Navbar({ aiOpen, onToggleAI, onToggleSidebar }: NavbarPr
 
         <div className="flex items-center gap-3">
           <Sparkles className="h-6 w-6" />
-          <span className="hidden sm:inline text-xl font-black uppercase tracking-tight">NOTAPROMPT</span>
+          <span className="hidden sm:inline text-xl font-black uppercase tracking-tight">LUMAN</span>
         </div>
       </div>
 

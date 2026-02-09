@@ -8,6 +8,8 @@ import {
   List,
   ListOrdered,
   MessageSquarePlus,
+  Pencil,
+  Sparkles,
   Text,
   TextQuote,
   Twitter,
@@ -17,6 +19,42 @@ import { Command, createSuggestionItems, renderItems } from "novel";
 import { uploadFn } from "./image-upload";
 
 export const suggestionItems = createSuggestionItems([
+  {
+    title: "Explain",
+    description: "Ask AI to explain the selected text.",
+    searchTerms: ["explain", "ai", "ask"],
+    icon: <Sparkles size={18} />,
+    command: ({ editor, range }) => {
+      const { from, to } = editor.state.selection;
+      const text = editor.state.doc.textBetween(from, to);
+      if (text) {
+        window.dispatchEvent(
+          new CustomEvent("ai-chat-trigger", {
+            detail: { action: "explain", text },
+          }),
+        );
+      }
+      editor.chain().focus().deleteRange(range).run();
+    },
+  },
+  {
+    title: "Fix Grammar",
+    description: "Ask AI to fix grammar/spelling.",
+    searchTerms: ["fix", "grammar", "spelling", "ai"],
+    icon: <Pencil size={18} />,
+    command: ({ editor, range }) => {
+      const { from, to } = editor.state.selection;
+      const text = editor.state.doc.textBetween(from, to);
+      if (text) {
+        window.dispatchEvent(
+          new CustomEvent("ai-chat-trigger", {
+            detail: { action: "fix", text },
+          }),
+        );
+      }
+      editor.chain().focus().deleteRange(range).run();
+    },
+  },
   {
     title: "Send Feedback",
     description: "Let us know how we can improve.",

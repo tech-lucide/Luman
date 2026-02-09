@@ -8,8 +8,8 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const { messages, noteId } = await req.json();
-    console.log("[CHAT API] Received request:", { noteId, messageCount: messages?.length });
+    const { messages, noteId, model } = await req.json();
+    console.log("[CHAT API] Received request:", { noteId, model, messageCount: messages?.length });
 
     if (!noteId || !messages) {
       console.error("[CHAT API] Missing fields:", { noteId, messages });
@@ -61,8 +61,10 @@ When you need to read the content of a specific note you found, use 'getNoteCont
 You can also suggest and apply tags using 'applyTags'.`,
     };
 
+    const selectedModel = model || "google/gemini-2.0-flash-exp:free";
+
     const result = await streamText({
-      model: openRouter("google/gemini-2.0-flash-001"),
+      model: openRouter(selectedModel),
       messages: [systemMessage, ...messages],
       tools: {
         scheduleNote: tool({

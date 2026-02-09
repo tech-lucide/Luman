@@ -5,7 +5,7 @@ export default function HomePage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="text-center space-y-8 max-w-2xl">
         <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">notaprompt</h1>
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">luman</h1>
           <p className="text-lg text-muted-foreground max-w-md mx-auto">Internal workspace for thinking & execution</p>
         </div>
 
