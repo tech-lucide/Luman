@@ -61,7 +61,7 @@ When you need to read the content of a specific note you found, use 'getNoteCont
 You can also suggest and apply tags using 'applyTags'.`,
     };
 
-    const selectedModel = model || "google/gemini-2.0-flash-exp:free";
+    const selectedModel = model || "stepfun/step-3.5-flash:free";
 
     const result = await streamText({
       model: openRouter(selectedModel),

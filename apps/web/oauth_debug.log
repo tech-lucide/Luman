@@ -161,3 +161,12 @@
 [2026-02-06T12:11:03.726Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=62c4564b-f7fc-4342-bd1d-c6cf3e55f0cb","orgSlug":"lucidetech"}
 [2026-02-06T12:11:04.217Z] Code exchange result {"error":null,"hasSession":true}
 [2026-02-06T12:11:04.987Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-02-09T09:54:12.735Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=1ac4038a-3274-4ca1-b906-14de4b622aab","orgSlug":"lucidetech"}
+[2026-02-09T09:54:14.184Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-09T09:54:15.006Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-02-09T10:25:55.075Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=b69ac230-a16e-4938-ba5f-54252e59f476","orgSlug":"lucidetech"}
+[2026-02-09T10:25:55.516Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-09T10:25:56.256Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-02-10T06:06:27.328Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=09c596e6-3acc-4503-9f85-d4a288e505d0","orgSlug":"lucidetech"}
+[2026-02-10T06:06:28.194Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-10T06:06:29.011Z] Existing member redirecting to dashboard {"role":"intern"}

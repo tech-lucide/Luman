@@ -1,4 +1,5 @@
 import {
+  Calendar,
   CheckSquare,
   Code,
   FileIcon,
@@ -13,14 +14,24 @@ import {
   Sparkles,
   Text,
   TextQuote,
-  Twitter,
   Youtube,
 } from "lucide-react";
 import { Command, createSuggestionItems, renderItems } from "novel";
-import { uploadFn } from "./image-upload";
 import { uploadFile } from "./file-upload";
+import { uploadFn } from "./image-upload";
 
 export const suggestionItems = createSuggestionItems([
+  {
+    title: "Schedule",
+    description: "Create an event or reminder linked to this note.",
+    searchTerms: ["schedule", "event", "reminder", "calendar", "date"],
+    icon: <Calendar size={18} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      // Dispatch custom event to trigger event modal
+      window.dispatchEvent(new CustomEvent("open-event-modal"));
+    },
+  },
   {
     title: "Explain",
     description: "Ask AI to explain the selected text.",
@@ -221,31 +232,30 @@ export const suggestionItems = createSuggestionItems([
       }
     },
   },
-  {
-    title: "Twitter",
-    description: "Embed a Tweet.",
-    searchTerms: ["twitter", "embed"],
-    icon: <Twitter size={18} />,
-    command: ({ editor, range }) => {
-      const tweetLink = prompt("Please enter Twitter Link");
-      const tweetRegex = new RegExp(/^https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?$/);
+  //   title: "Twitter",
+  //   description: "Embed a Tweet.",
+  //   searchTerms: ["twitter", "embed"],
+  //   icon: <Twitter size={18} />,
+  //   command: ({ editor, range }) => {
+  //     const tweetLink = prompt("Please enter Twitter Link");
+  //     const tweetRegex = new RegExp(/^https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?$/);
 
-      if (tweetRegex.test(tweetLink)) {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setTweet({
-            src: tweetLink,
-          })
-          .run();
-      } else {
-        if (tweetLink !== null) {
-          alert("Please enter a correct Twitter Link");
-        }
-      }
-    },
-  },
+  //     if (tweetRegex.test(tweetLink)) {
+  //       editor
+  //         .chain()
+  //         .focus()
+  //         .deleteRange(range)
+  //         .setTweet({
+  //           src: tweetLink,
+  //         })
+  //         .run();
+  //     } else {
+  //       if (tweetLink !== null) {
+  //         alert("Please enter a correct Twitter Link");
+  //       }
+  //     }
+  //   },
+  // },
 ]);
 
 export const slashCommand = Command.configure({

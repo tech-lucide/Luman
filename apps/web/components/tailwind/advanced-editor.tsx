@@ -24,6 +24,7 @@ import { Separator } from "./ui/separator";
 import { Check, Clock } from "lucide-react";
 import GenerativeMenuSwitch from "./generative/generative-menu-switch";
 import { uploadFn } from "./image-upload";
+import { AIButtons } from "./selectors/ai-buttons";
 import { TextButtons } from "./selectors/text-buttons";
 import { slashCommand, suggestionItems } from "./slash-command";
 
@@ -179,18 +180,14 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId, onEditorR
             debouncedSave(editor);
             debouncedTaskSync(editor);
           }}
-<<<<<<< HEAD
           onCreate={({ editor }) => {
             onEditorReady?.(editor);
           }}
-          slotAfter={<ImageResizer />}
-=======
           slotAfter={
             <>
               <ImageResizer />
             </>
           }
->>>>>>> 833fbfa03a25539a1d2a65347e4fdb9fea6210b8
         >
           <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-xl border border-border bg-popover px-1 py-2 shadow-xl">
             <EditorCommandEmpty className="px-2 text-sm text-muted-foreground">No results</EditorCommandEmpty>
@@ -223,6 +220,8 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId, onEditorR
             <MathSelector />
             <Separator orientation="vertical" />
             <TextButtons />
+            <Separator orientation="vertical" />
+            <AIButtons />
             <Separator orientation="vertical" />
             <ColorSelector open={openColor} onOpenChange={setOpenColor} />
           </GenerativeMenuSwitch>

@@ -7,10 +7,11 @@ interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspaceId?: string;
+  noteId?: string; // Optional: Link event to a specific note
   onEventCreated?: () => void;
 }
 
-export function EventModal({ isOpen, onClose, workspaceId, onEventCreated }: EventModalProps) {
+export function EventModal({ isOpen, onClose, workspaceId, noteId, onEventCreated }: EventModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -45,6 +46,7 @@ export function EventModal({ isOpen, onClose, workspaceId, onEventCreated }: Eve
           all_day: allDay,
           event_type: eventType,
           workspace_id: workspaceId,
+          note_id: noteId, // Link to note if provided
         }),
       });
 

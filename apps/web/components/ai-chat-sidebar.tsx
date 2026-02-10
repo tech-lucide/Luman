@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useChat } from "ai/react";
 import { ArrowRightToLine, Bot, Copy, Loader2, Send, Sparkles, User, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 interface Message {
@@ -24,16 +24,17 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const [selectedModel, setSelectedModel] = useState("google/gemini-2.0-flash-exp:free");
+  const [selectedModel, setSelectedModel] = useState("stepfun/step-3.5-flash:free");
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, append } = useChat({
     api: "/api/chat",
     body: { noteId, model: selectedModel },
     onFinish: (message) => {
-      // Optional: Do something when message finishes
+      console.log("[CHAT] Message finished:", message);
     },
     onError: (error) => {
-      console.error("Chat error:", error);
+      console.error("[CHAT ERROR]:", error);
+      alert(`Chat error: ${error.message}`);
     },
   });
 
@@ -63,13 +64,16 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
     return () => window.removeEventListener("ai-chat-trigger", handleTrigger);
   }, [append]);
 
-  // Load chat history on mount
+  // Load chat history on mount or when noteId changes
   useEffect(() => {
     async function loadHistory() {
       try {
+        console.log("[CHAT] Loading history for noteId:", noteId);
+        setIsLoadingHistory(true);
         const res = await fetch(`/api/chat/${noteId}`);
         if (res.ok) {
           const data = await res.json();
+          console.log("[CHAT] Loaded", data.length, "messages from history");
           // Map DB messages to AI SDK format if needed
           setMessages(
             data.map((m: any) => ({
@@ -81,16 +85,14 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
           );
         }
       } catch (error) {
-        console.error("Failed to load chat history:", error);
+        console.error("[CHAT] Failed to load chat history:", error);
       } finally {
         setIsLoadingHistory(false);
       }
     }
 
-    if (isOpen) {
-      loadHistory();
-    }
-  }, [noteId, isOpen, setMessages]);
+    loadHistory();
+  }, [noteId, setMessages]);
 
   // Resizing logic
   const [width, setWidth] = useState(420);
@@ -137,10 +139,9 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
   };
 
   const models = [
-    { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash (Free)" },
-    { id: "google/gemini-exp-1206:free", name: "Gemini Exp 1206 (Free)" },
-    { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B (Free)" },
-    { id: "meta-llama/llama-3-8b-instruct:free", name: "Llama 3 8B (Free)" },
+    { id: "stepfun/step-3.5-flash:free", name: "Step 3.5 Flash (Free)" },
+    { id: "arcee-ai/trinity-large-preview:free", name: "Trinity Large Preview (Free)" },
+    { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen3 Next 80B (Free)" },
   ];
 
   return (

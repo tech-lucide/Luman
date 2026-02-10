@@ -12,6 +12,8 @@ interface Event {
   all_day: boolean;
   event_type: "event" | "reminder" | "task";
   is_completed: boolean;
+  note_id?: string;
+  workspace_id?: string;
 }
 
 interface CalendarGridProps {
@@ -171,7 +173,19 @@ export function CalendarGrid({ events, currentDate, onDateClick, onEventComplete
                             event.is_completed ? "opacity-50 line-through" : ""
                           }`}
                         >
-                          {event.title}
+                          {event.note_id && event.workspace_id ? (
+                            <a
+                              href={`/workspace/${event.workspace_id}/note/${event.note_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:text-accent transition-colors underline decoration-2"
+                              title="Open linked note"
+                            >
+                              {event.title} 📝
+                            </a>
+                          ) : (
+                            event.title
+                          )}
                         </div>
                         <div className="flex items-center gap-4 mb-3">
                           <span

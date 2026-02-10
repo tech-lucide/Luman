@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarGrid } from "@/components/calendar-grid";
 import { EventModal } from "@/components/event-modal";
 import AppShell from "@/components/layouts/app-shell";
 import { Calendar, Plus } from "lucide-react";
@@ -14,6 +15,7 @@ type Event = {
   all_day: boolean;
   event_type: "event" | "reminder" | "task";
   workspace_id?: string;
+  note_id?: string;
   workspaces?: { owner_name: string };
 };
 
@@ -53,13 +55,13 @@ export default function OrganizationCalendarPage() {
     };
   });
 
-  // Get upcoming events (next 30 days)
+  // Get upcoming events (all future events)
   const today = new Date();
-  const nextMonth = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+  today.setHours(0, 0, 0, 0); // Start of today
   const upcomingEvents = filteredEvents
     .filter((event) => {
       const eventDate = new Date(event.start_time);
-      return eventDate >= today && eventDate <= nextMonth;
+      return eventDate >= today;
     })
     .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
 
@@ -93,14 +95,28 @@ export default function OrganizationCalendarPage() {
               CALENDAR
             </h1>
 
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground flex items-center gap-3"
-            >
-              <Plus className="h-6 w-6" />
-              NEW EVENT
-            </button>
+            <div className="flex items-center gap-4">
+              <CalendarGrid
+                events={filteredEvents.map((e) => ({
+                  ...e,
+                  is_completed: false,
+                }))}
+                currentDate={currentDate}
+                onEventComplete={async (eventId) => {
+                  // Optional: handle event completion via API
+                  console.log("Complete event:", eventId);
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground flex items-center gap-3"
+              >
+                <Plus className="h-6 w-6" />
+                NEW EVENT
+              </button>
+            </div>
           </div>
 
           {/* Workspace Filter */}
@@ -152,7 +168,21 @@ export default function OrganizationCalendarPage() {
                   <div className="space-y-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="text-2xl font-black uppercase leading-tight mb-2">{event.title}</div>
+                        <div className="text-2xl font-black uppercase leading-tight mb-2">
+                          {event.note_id && event.workspace_id ? (
+                            <a
+                              href={`/workspace/${event.workspace_id}/note/${event.note_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:text-accent transition-colors underline decoration-2"
+                              title="Open linked note"
+                            >
+                              {event.title} 📝
+                            </a>
+                          ) : (
+                            event.title
+                          )}
+                        </div>
                         <div className="text-sm font-bold uppercase opacity-70">
                           {formatDate(event.start_time)}
                           {!event.all_day && ` • ${formatTime(event.start_time)}`}

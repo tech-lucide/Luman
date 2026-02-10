@@ -42,6 +42,9 @@ function DashboardContent() {
   const [creating, setCreating] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [session, setSession] = useState<UserSession | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewDensity, setViewDensity] = useState<2 | 3 | 4>(2); // columns
+  const [sortBy, setSortBy] = useState<"name" | "date">("name");
 
   async function checkSession() {
     try {
@@ -180,8 +183,24 @@ function DashboardContent() {
     );
   }
 
-  // Show all workspaces without filtering by current session role
-  const filteredWorkspaces = workspaces || [];
+  // Filter and sort workspaces
+  let filteredWorkspaces = workspaces || [];
+
+  // Search filter
+  if (searchQuery) {
+    filteredWorkspaces = filteredWorkspaces.filter((ws) =>
+      ws.owner_name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }
+
+  // Sort
+  filteredWorkspaces = [...filteredWorkspaces].sort((a, b) => {
+    if (sortBy === "name") {
+      return a.owner_name.localeCompare(b.owner_name);
+    } else {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
 
   return (
     <AppShell>
@@ -231,6 +250,7 @@ function DashboardContent() {
               {creating ? "CREATING..." : "CREATE WORKSPACE"}
             </button>
             <button
+              type="button"
               onClick={async () => {
                 const name = prompt("Folder Name:");
                 if (!name) return;
@@ -252,6 +272,57 @@ function DashboardContent() {
               NEW FOLDER
             </button>
           </div>
+
+          {/* Search and View Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+            <div className="flex-1 w-full space-y-2">
+              <label className="text-sm font-black uppercase tracking-wider">SEARCH</label>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="FILTER BY NAME..."
+                className="w-full border-brutal px-6 py-4 text-lg font-bold uppercase bg-background placeholder:text-muted-foreground placeholder:font-bold focus:outline-none focus:shadow-brutal"
+              />
+            </div>
+            <div className="flex gap-2">
+              <div className="space-y-2">
+                <label className="text-sm font-black uppercase tracking-wider block">SORT</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "name" | "date")}
+                  className="border-brutal px-4 py-4 text-sm font-black uppercase bg-background focus:outline-none focus:shadow-brutal"
+                >
+                  <option value="name">NAME</option>
+                  <option value="date">DATE</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-black uppercase tracking-wider block">COLUMNS</label>
+                <div className="flex border-brutal overflow-hidden">
+                  {[2, 3, 4].map((cols) => (
+                    <button
+                      key={cols}
+                      type="button"
+                      onClick={() => setViewDensity(cols as 2 | 3 | 4)}
+                      className={`px-6 py-4 text-sm font-black uppercase transition-colors ${
+                        viewDensity === cols ? "bg-accent text-accent-foreground" : "bg-background hover:bg-muted"
+                      } border-r-2 border-foreground last:border-r-0`}
+                    >
+                      {cols}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Counter */}
+          {searchQuery && (
+            <div className="text-sm font-bold uppercase opacity-70">
+              SHOWING {filteredWorkspaces.length} OF {workspaces.length} WORKSPACES
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -270,7 +341,9 @@ function DashboardContent() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div
+              className={`grid grid-cols-1 ${viewDensity === 2 ? "md:grid-cols-2" : viewDensity === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"} gap-8`}
+            >
               {filteredWorkspaces?.map((ws) => (
                 <Link
                   key={ws.id}

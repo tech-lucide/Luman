@@ -7,8 +7,16 @@ export default defineConfig((options: Options) => ({
   },
   minify: true,
   format: ["cjs", "esm"],
-  dts: true,
+  dts: false,
   clean: true,
-  external: ["react", "react-dom"],
+  external: [
+    "react",
+    "react-dom",
+    "lucide-react",
+    "@tiptap/core",
+    "@tiptap/react",
+    "@tiptap/pm",
+    "@radix-ui/react-slot",
+  ],
   ...options,
 }));
