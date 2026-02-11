@@ -12,6 +12,7 @@ import {
   MessageSquarePlus,
   Pencil,
   Sparkles,
+  Table,
   Text,
   TextQuote,
   Youtube,
@@ -21,6 +22,51 @@ import { uploadFile } from "./file-upload";
 import { uploadFn } from "./image-upload";
 
 export const suggestionItems = createSuggestionItems([
+  {
+    title: "Table",
+    description: "Insert a table with 3 rows and 3 columns.",
+    searchTerms: ["table", "grid", "spreadsheet", "data"],
+    icon: <Table size={18} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    },
+  },
+  {
+    title: "Add Row Below",
+    description: "Add a row below the current row in table.",
+    searchTerms: ["table", "row", "add"],
+    icon: <Table size={18} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).addRowAfter().run();
+    },
+  },
+  {
+    title: "Add Column Right",
+    description: "Add a column to the right in table.",
+    searchTerms: ["table", "column", "add"],
+    icon: <Table size={18} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).addColumnAfter().run();
+    },
+  },
+  {
+    title: "Delete Row",
+    description: "Delete the current row in table.",
+    searchTerms: ["table", "row", "delete", "remove"],
+    icon: <Table size={18} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).deleteRow().run();
+    },
+  },
+  {
+    title: "Delete Column",
+    description: "Delete the current column in table.",
+    searchTerms: ["table", "column", "delete", "remove"],
+    icon: <Table size={18} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).deleteColumn().run();
+    },
+  },
   {
     title: "Schedule",
     description: "Create an event or reminder linked to this note.",

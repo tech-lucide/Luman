@@ -1,8 +1,9 @@
 "use client";
 
 import AppShell from "@/components/layouts/app-shell";
+import { NoteModal } from "@/components/note-modal";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Note = {
@@ -13,12 +14,12 @@ type Note = {
 };
 
 export default function WorkspacePage() {
-  const router = useRouter();
   const params = useParams<{ workspaceId: string }>();
   const workspaceId = params.workspaceId;
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadNotes() {
@@ -38,12 +39,13 @@ export default function WorkspacePage() {
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-16">
           <h1 className="font-black uppercase leading-none border-l-8 border-foreground pl-6">NOTES</h1>
 
-          <Link
-            href={`/workspace/${workspaceId}/new`}
+          <button
+            type="button"
+            onClick={() => setIsNoteModalOpen(true)}
             className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground"
           >
             NEW NOTE
-          </Link>
+          </button>
         </div>
 
         {/* Loading */}
@@ -69,9 +71,9 @@ export default function WorkspacePage() {
 
                   {note.tags && note.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {note.tags.slice(0, 3).map((tag, i) => (
+                      {note.tags.slice(0, 3).map((tag) => (
                         <span
-                          key={i}
+                          key={tag}
                           className="px-3 py-1 text-xs font-black uppercase border-2 border-foreground bg-background"
                         >
                           {tag}
@@ -112,6 +114,19 @@ export default function WorkspacePage() {
           ))}
         </div>
       </div>
+
+      {/* Note Modal */}
+      <NoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        workspaceId={workspaceId}
+        onNoteCreated={async () => {
+          // Refresh notes list
+          const res = await fetch(`/api/notes?workspaceId=${workspaceId}`);
+          const data = await res.json();
+          setNotes(data);
+        }}
+      />
     </AppShell>
   );
 }

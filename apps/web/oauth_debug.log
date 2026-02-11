@@ -170,3 +170,6 @@
 [2026-02-10T06:06:27.328Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=09c596e6-3acc-4503-9f85-d4a288e505d0","orgSlug":"lucidetech"}
 [2026-02-10T06:06:28.194Z] Code exchange result {"error":null,"hasSession":true}
 [2026-02-10T06:06:29.011Z] Existing member redirecting to dashboard {"role":"intern"}
+[2026-02-11T05:03:39.758Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=6c9084db-78ce-41fe-acb1-60ad3423d7e8","orgSlug":"lucidetech"}
+[2026-02-11T05:03:40.469Z] Code exchange result {"error":null,"hasSession":true}
+[2026-02-11T05:03:41.265Z] Existing member redirecting to dashboard {"role":"founder"}

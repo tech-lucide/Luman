@@ -22,13 +22,26 @@ import {
   Youtube,
 } from "novel";
 
+import { Table } from "@tiptap/extension-table";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableRow } from "@tiptap/extension-table-row";
+
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
 
 //TODO I am using cx here to get tailwind autocomplete working, idk if someone else can write a regex to just capture the class key in objects
 const aiHighlight = AIHighlight;
 //You can overwrite the placeholder with your own configuration
-const placeholder = Placeholder;
+const placeholder = Placeholder.configure({
+  placeholder: ({ node }) => {
+    // Only show placeholder in top-level empty paragraphs, not in table cells
+    if (node.type.name === "paragraph") {
+      return "Press '/' for commands";
+    }
+    return "";
+  },
+});
 const tiptapLink = TiptapLink.configure({
   HTMLAttributes: {
     class: cx(
@@ -145,6 +158,31 @@ const markdownExtension = MarkdownExtension.configure({
   transformCopiedText: false,
 });
 
+const table = Table.configure({
+  resizable: true,
+  HTMLAttributes: {
+    class: cx("border-collapse table-auto w-full my-4"),
+  },
+});
+
+const tableRow = TableRow.configure({
+  HTMLAttributes: {
+    class: cx("border border-border"),
+  },
+});
+
+const tableHeader = TableHeader.configure({
+  HTMLAttributes: {
+    class: cx("border border-border bg-muted font-bold text-left p-2"),
+  },
+});
+
+const tableCell = TableCell.configure({
+  HTMLAttributes: {
+    class: cx("border border-border p-2"),
+  },
+});
+
 export const defaultExtensions = [
   starterKit,
   placeholder,
@@ -166,4 +204,8 @@ export const defaultExtensions = [
   CustomKeymap,
   GlobalDragHandle,
   FileAttachment,
+  table,
+  tableRow,
+  tableHeader,
+  tableCell,
 ];
