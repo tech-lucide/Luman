@@ -8,20 +8,28 @@ export const ImageResizer: FC = () => {
   if (!editor?.isActive("image")) return null;
 
   const updateMediaSize = () => {
-    const imageInfo = document.querySelector(".ProseMirror-selectednode") as HTMLImageElement;
+    const selectedNode = document.querySelector(".ProseMirror-selectednode");
+    if (!selectedNode) return;
+
+    const imageInfo =
+      selectedNode.nodeName === "IMG"
+        ? (selectedNode as HTMLImageElement)
+        : (selectedNode.querySelector("img") as HTMLImageElement);
+
     if (imageInfo) {
       const selection = editor.state.selection;
-      const setImage = editor.commands.setImage as (options: {
-        src: string;
-        width: number;
-        height: number;
-      }) => boolean;
 
-      setImage({
-        src: imageInfo.src,
-        width: Number(imageInfo.style.width.replace("px", "")),
-        height: Number(imageInfo.style.height.replace("px", "")),
-      });
+      const width = Number(imageInfo.style.width.replace("px", ""));
+      const height = Number(imageInfo.style.height.replace("px", ""));
+
+      if (width > 0 && height > 0) {
+        // Use updateAttributes instead of setImage to avoid flickering and losing src
+        editor.commands.updateAttributes("image", {
+          width,
+          height,
+        });
+      }
+
       editor.commands.setNodeSelection(selection.from);
     }
   };
@@ -40,35 +48,25 @@ export const ImageResizer: FC = () => {
       /* Only one of resizable, scalable, warpable can be used. */
       resizable={true}
       throttleResize={0}
-      onResize={({
-        target,
-        width,
-        height,
-        // dist,
-        delta,
-      }) => {
+      onResize={({ target, width, height, delta }) => {
         if (delta[0]) target.style.width = `${width}px`;
         if (delta[1]) target.style.height = `${height}px`;
+
+        const img = target.querySelector("img");
+        if (img) {
+          if (delta[0]) img.style.width = `${width}px`;
+          if (delta[1]) img.style.height = `${height}px`;
+        }
       }}
-      // { target, isDrag, clientX, clientY }: any
       onResizeEnd={() => {
         updateMediaSize();
       }}
       /* scalable */
       /* Only one of resizable, scalable, warpable can be used. */
-      scalable={true}
+      scalable={false}
       throttleScale={0}
       /* Set the direction of resizable */
       renderDirections={["w", "e"]}
-      onScale={({
-        target,
-        // scale,
-        // dist,
-        // delta,
-        transform,
-      }) => {
-        target.style.transform = transform;
-      }}
     />
   );
 };

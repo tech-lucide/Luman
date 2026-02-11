@@ -1,5 +1,5 @@
 import Image from "@tiptap/extension-image";
-import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
+import { type NodeViewProps, NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { Download } from "lucide-react";
 
 const ImageComponent = ({ node }: NodeViewProps) => {
@@ -25,8 +25,6 @@ const ImageComponent = ({ node }: NodeViewProps) => {
     }
   };
 
-  console.log("[ImageComponent] Rendering NodeView for:", src);
-
   return (
     <NodeViewWrapper className="relative inline-block group mb-2 border rounded-lg overflow-hidden border-muted">
       <img
@@ -40,7 +38,7 @@ const ImageComponent = ({ node }: NodeViewProps) => {
         }}
         className="block"
       />
-      
+
       <div className="absolute top-2 right-2 z-20">
         <button
           type="button"
