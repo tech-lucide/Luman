@@ -1,9 +1,9 @@
 "use client";
 
 import { createSupabaseClient } from "@/lib/supabase/client";
-import { ChevronDown, ChevronRight, Folder, FolderOpen } from "lucide-react";
+import { ChevronDown, ChevronRight, FileText, Folder, FolderOpen, Plus } from "lucide-react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type WorkspaceFolder = {
@@ -19,16 +19,27 @@ type Workspace = {
   color: string;
 };
 
+type Note = {
+  id: string;
+  title: string;
+  created_at: string;
+};
+
 export function WorkspaceSidebar() {
   const params = useParams();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const workspaceId = params?.workspaceId as string;
+  const workspaceId = typeof params?.workspaceId === "string" ? params.workspaceId : undefined;
+  const noteId = typeof params?.noteId === "string" ? params.noteId : undefined;
   const orgSlug =
     searchParams.get("org") || (typeof window !== "undefined" ? sessionStorage.getItem("selected_org_slug") : null);
+  const isWorkspaceView = Boolean(workspaceId) && pathname?.startsWith("/workspace/");
 
   const [folders, setFolders] = useState<WorkspaceFolder[]>([]);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notesLoading, setNotesLoading] = useState(false);
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -94,6 +105,39 @@ export function WorkspaceSidebar() {
     };
   }, [orgSlug]);
 
+  useEffect(() => {
+    if (!isWorkspaceView || !workspaceId) {
+      setNotes([]);
+      setNotesLoading(false);
+      return;
+    }
+
+    let active = true;
+
+    async function fetchNotes() {
+      try {
+        setNotesLoading(true);
+        const res = await fetch(`/api/notes?workspaceId=${workspaceId}`);
+        const data = await res.json();
+
+        if (active) {
+          setNotes(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Sidebar notes fetch error:", err);
+        if (active) setNotes([]);
+      } finally {
+        if (active) setNotesLoading(false);
+      }
+    }
+
+    fetchNotes();
+
+    return () => {
+      active = false;
+    };
+  }, [isWorkspaceView, workspaceId]);
+
   const toggleFolder = (folderId: string) => {
     setOpenFolders((prev) => ({ ...prev, [folderId]: !prev[folderId] }));
   };
@@ -157,8 +201,89 @@ export function WorkspaceSidebar() {
     }
   };
 
+  const currentWorkspace = workspaceId ? workspaces.find((w) => w.id === workspaceId) : null;
+  const dashboardHref = orgSlug ? `/dashboard?org=${orgSlug}` : "/dashboard";
+
+  if (isWorkspaceView && workspaceId) {
+    return (
+      <aside className="w-[300px] h-full min-h-0 border-r-4 border-foreground bg-background flex flex-col overflow-hidden">
+        <div className="shrink-0 p-6 pb-4 space-y-4 border-b-4 border-foreground">
+          <Link
+            href={dashboardHref}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
+          >
+            <span>&larr; All workspaces</span>
+          </Link>
+
+          <div className="inline-flex max-w-full items-center px-3 py-1.5 text-xs font-black uppercase tracking-widest border-brutal bg-accent text-accent-foreground">
+            <span className="truncate">{currentWorkspace?.owner_name || "Workspace"}</span>
+          </div>
+        </div>
+
+        <div className="shrink-0 flex items-center justify-between px-6 py-4">
+          <span className="text-xs font-black uppercase tracking-[0.3em] opacity-70">Notes</span>
+          <Link
+            href={`/workspace/${workspaceId}/new`}
+            className="inline-flex items-center justify-center h-9 w-9 border-brutal hover-brutal bg-background"
+            aria-label="Create new note"
+            title="Create new note"
+          >
+            <Plus className="h-5 w-5" />
+          </Link>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          {notesLoading ? (
+            <div className="px-2 text-sm font-bold uppercase opacity-60">Loading notes...</div>
+          ) : notes.length === 0 ? (
+            <div className="px-3 py-4 text-sm font-bold text-center uppercase opacity-60 border-brutal-sm bg-muted/30">
+              No notes yet &mdash; hit + to create one
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {notes.map((note) => {
+                const isActive = noteId === note.id;
+
+                return (
+                  <Link
+                    key={note.id}
+                    href={`/workspace/${workspaceId}/note/${note.id}`}
+                    className={`flex items-center gap-3 px-4 py-3 text-sm font-bold border-brutal-sm transition-all ${
+                      isActive
+                        ? "bg-accent text-accent-foreground shadow-brutal"
+                        : "bg-background hover:bg-muted/40 hover:shadow-md"
+                    }`}
+                  >
+                    <FileText className="h-4 w-4 shrink-0" />
+                    <span className="truncate flex-1">{note.title}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="shrink-0 border-t-4 border-foreground p-6 space-y-4">
+          <div className="text-xs font-black uppercase tracking-widest opacity-50">Organization</div>
+          <Link
+            href="/calendar"
+            className="block px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
+          >
+            ALL EVENTS
+          </Link>
+          <Link
+            href="/dashboard/tasks"
+            className="block px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
+          >
+            MY TASKS
+          </Link>
+        </div>
+      </aside>
+    );
+  }
+
   return (
-    <aside className="w-[300px] border-r-4 border-foreground bg-background p-6 flex flex-col min-h-screen overflow-y-auto">
+    <aside className="w-[300px] h-full min-h-0 border-r-4 border-foreground bg-background p-6 flex flex-col overflow-y-auto">
       <div className="space-y-8">
         <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-4 break-words">
           {orgSlug || "MENU"}
@@ -201,7 +326,11 @@ export function WorkspaceSidebar() {
                           ) : (
                             <ChevronRight className="h-4 w-4 transition-transform" />
                           )}
-                          {isOpen ? <FolderOpen className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} /> : <Folder className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} />}
+                          {isOpen ? (
+                            <FolderOpen className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} />
+                          ) : (
+                            <Folder className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} />
+                          )}
                           <span className={`${getFolderTextColor(folder.color)} font-black tracking-wide`}>
                             {folder.name}
                           </span>
