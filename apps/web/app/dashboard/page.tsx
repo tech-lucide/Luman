@@ -1,6 +1,7 @@
 "use client";
 
 import AppShell from "@/components/layouts/app-shell";
+import { MyTasksWidget } from "@/components/my-tasks-widget";
 import OnboardingModal from "@/components/onboarding-modal";
 import type { Organization } from "@/lib/db/organizations";
 import Link from "next/link";
@@ -14,6 +15,23 @@ type Workspace = {
   created_at: string;
   folder_id?: string | null;
   color?: string;
+  owner_id?: string;
+};
+
+const getColorClass = (color?: string) => {
+  switch (color) {
+    case "red": return "bg-red-200";
+    case "blue": return "bg-blue-200";
+    case "green": return "bg-green-200";
+    case "yellow": return "bg-yellow-200";
+    case "purple": return "bg-purple-200";
+    case "pink": return "bg-pink-200";
+    case "orange": return "bg-orange-200";
+    case "teal": return "bg-teal-200";
+    case "indigo": return "bg-indigo-200";
+    case "cyan": return "bg-cyan-200";
+    default: return "bg-stone-300";
+  }
 };
 
 type UserSession = {
@@ -205,117 +223,125 @@ function DashboardContent() {
   return (
     <AppShell>
       <div className="p-8 md:p-12 max-w-7xl mx-auto">
-        {/* Header */}
         <div className="flex flex-col gap-8 mb-16">
-          <div className="space-y-6">
-            <h1 className="font-black uppercase leading-none border-l-8 border-foreground pl-6">
-              WORK
-              <br />
-              SPACES
-            </h1>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="px-6 py-3 bg-foreground text-background font-bold uppercase text-sm border-brutal">
-                {session.ownerName}
-              </div>
-              <div
-                className={`px-6 py-3 font-black uppercase text-sm border-brutal ${
-                  session.role === "founder" ? "bg-accent text-accent-foreground" : "bg-foreground text-background"
-                }`}
-              >
-                {session.role}
-              </div>
-              {session.role === "founder" && session.organizations[0]?.invitation_code && (
-                <div className="px-6 py-3 bg-accent text-accent-foreground font-bold uppercase text-sm border-brutal flex items-center gap-2">
-                  <span>INVITE CODE:</span>
-                  <span className="font-mono text-lg">{session.organizations[0].invitation_code}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-background"
-            >
-              LOGOUT
-            </button>
-            <button
-              type="button"
-              onClick={() => handleCreateWorkspace()}
-              disabled={creating}
-              className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground disabled:opacity-50"
-            >
-              {creating ? "CREATING..." : "CREATE WORKSPACE"}
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                const name = prompt("Folder Name:");
-                if (!name) return;
-                const color = prompt("Color (red, blue, green, etc):") || "stone";
-
-                // Create folder logic inline for now (or make a function)
-                const currentOrg =
-                  session?.organizations?.find((o: Organization) => o.slug === orgSlug) || session?.organizations?.[0];
-                if (!currentOrg) return;
-
-                await fetch("/api/folders", {
-                  method: "POST",
-                  body: JSON.stringify({ name, orgId: currentOrg.id, color }),
-                });
-                fetchWorkspaces(currentOrg.id);
-              }}
-              className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-background"
-            >
-              NEW FOLDER
-            </button>
-          </div>
-
-          {/* Search and View Controls */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-            <div className="flex-1 w-full space-y-2">
-              <label className="text-sm font-black uppercase tracking-wider">SEARCH</label>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="FILTER BY NAME..."
-                className="w-full border-brutal px-6 py-4 text-lg font-bold uppercase bg-background placeholder:text-muted-foreground placeholder:font-bold focus:outline-none focus:shadow-brutal"
-              />
-            </div>
-            <div className="flex gap-2">
-              <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-wider block">SORT</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as "name" | "date")}
-                  className="border-brutal px-4 py-4 text-sm font-black uppercase bg-background focus:outline-none focus:shadow-brutal"
-                >
-                  <option value="name">NAME</option>
-                  <option value="date">DATE</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-black uppercase tracking-wider block">COLUMNS</label>
-                <div className="flex border-brutal overflow-hidden">
-                  {[2, 3, 4].map((cols) => (
-                    <button
-                      key={cols}
-                      type="button"
-                      onClick={() => setViewDensity(cols as 2 | 3 | 4)}
-                      className={`px-6 py-4 text-sm font-black uppercase transition-colors ${
-                        viewDensity === cols ? "bg-accent text-accent-foreground" : "bg-background hover:bg-muted"
-                      } border-r-2 border-foreground last:border-r-0`}
+            <div className="flex flex-col xl:flex-row items-start justify-between gap-8 w-full">
+              <div className="flex flex-col gap-8 flex-1">
+                <div className="space-y-6">
+                  <h1 className="font-black uppercase leading-none border-l-8 border-foreground pl-6">
+                    WORK
+                    <br />
+                    SPACES
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="px-6 py-3 bg-foreground text-background font-bold uppercase text-sm border-brutal">
+                      {session.ownerName}
+                    </div>
+                    <div
+                      className={`px-6 py-3 font-black uppercase text-sm border-brutal ${
+                        session.role === "founder" ? "bg-accent text-accent-foreground" : "bg-foreground text-background"
+                      }`}
                     >
-                      {cols}
-                    </button>
-                  ))}
+                      {session.role}
+                    </div>
+                    {session.role === "founder" && session.organizations[0]?.invitation_code && (
+                      <div className="px-6 py-3 bg-accent text-accent-foreground font-bold uppercase text-sm border-brutal flex items-center gap-2">
+                        <span>INVITE CODE:</span>
+                        <span className="font-mono text-lg">{session.organizations[0].invitation_code}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-background"
+                  >
+                    LOGOUT
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleCreateWorkspace()}
+                    disabled={creating}
+                    className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground disabled:opacity-50"
+                  >
+                    {creating ? "CREATING..." : "CREATE WORKSPACE"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const name = prompt("Folder Name:");
+                      if (!name) return;
+                      const color = prompt("Color (red, blue, green, etc):") || "stone";
+
+                      const currentOrg =
+                        session?.organizations?.find((o: Organization) => o.slug === orgSlug) || session?.organizations?.[0];
+                      if (!currentOrg) return;
+
+                      await fetch("/api/folders", {
+                        method: "POST",
+                        body: JSON.stringify({ name, orgId: currentOrg.id, color }),
+                      });
+                      fetchWorkspaces(currentOrg.id);
+                    }}
+                    className="px-8 py-4 text-lg font-black uppercase border-brutal hover-brutal bg-background"
+                  >
+                    NEW FOLDER
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Side: Concise My Tasks */}
+              <div className="hidden xl:block w-[320px] shrink-0">
+                <MyTasksWidget />
+              </div>
+            </div>
+
+            {/* Search and View Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end w-full">
+              <div className="flex-1 w-full space-y-2">
+                <label className="text-sm font-black uppercase tracking-wider">SEARCH</label>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="FILTER BY NAME..."
+                  className="w-full border-brutal px-6 py-4 text-lg font-bold uppercase bg-background placeholder:text-muted-foreground placeholder:font-bold focus:outline-none focus:shadow-brutal"
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-black uppercase tracking-wider block">SORT</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as "name" | "date")}
+                    className="border-brutal px-4 py-4 text-sm font-black uppercase bg-background focus:outline-none focus:shadow-brutal"
+                  >
+                    <option value="name">NAME</option>
+                    <option value="date">DATE</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-black uppercase tracking-wider block">COLUMNS</label>
+                  <div className="flex border-brutal overflow-hidden">
+                    {[2, 3, 4].map((cols) => (
+                      <button
+                        key={cols}
+                        type="button"
+                        onClick={() => setViewDensity(cols as 2 | 3 | 4)}
+                        className={`px-4 py-4 text-sm font-black uppercase transition-colors ${
+                          viewDensity === cols ? "bg-accent text-accent-foreground" : "bg-background hover:bg-muted"
+                        } border-r-2 border-foreground last:border-r-0`}
+                      >
+                        {cols}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
           {/* Results Counter */}
           {searchQuery && (
@@ -326,114 +352,141 @@ function DashboardContent() {
         </div>
 
         {/* Content */}
-        {loading ? (
-          <div className="text-lg font-bold uppercase">LOADING...</div>
-        ) : (
-          <>
-            {(!filteredWorkspaces || filteredWorkspaces.length === 0) && (
-              <div className="border-brutal-thick p-12 bg-muted">
-                <div className="max-w-2xl space-y-6">
-                  <h3 className="text-4xl font-black uppercase">NO WORKSPACES</h3>
-                  <p className="text-xl font-bold uppercase border-l-4 border-foreground pl-6">
-                    {session.role === "intern" ? "NO INTERN WORKSPACES FOUND" : "CREATE YOUR FIRST WORKSPACE"}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div
-              className={`grid grid-cols-1 ${viewDensity === 2 ? "md:grid-cols-2" : viewDensity === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"} gap-8`}
-            >
-              {filteredWorkspaces?.map((ws) => (
-                <Link
-                  key={ws.id}
-                  href={`/workspace/${ws.id}`}
-                  className="border-brutal shadow-brutal hover-brutal bg-card p-8"
-                >
-                  <div className="space-y-6">
-                    <div className="text-3xl font-black uppercase leading-tight">{ws.owner_name}</div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm font-bold uppercase">ROLE:</span>
-                      <span
-                        className={`px-4 py-2 font-black uppercase text-sm border-brutal ${
-                          ws.role === "founder" ? "bg-accent text-accent-foreground" : "bg-foreground text-background"
-                        }`}
-                      >
-                        {ws.role}
-                      </span>
-                    </div>
-                    <div className="text-xs font-mono pt-4 border-t-4 border-foreground opacity-50 flex justify-between items-center">
-                      <span>{ws.id}</span>
-                      {(session.role === "founder" || session.userId === ws.id) && ( // Assuming owner_id matches user id logic, but here ws.id is workspace id. We should check ownership but UI toggle is fine for now
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleDeleteWorkspace(ws.id);
-                          }}
-                          className="text-destructive hover:underline uppercase font-bold text-xs"
-                        >
-                          DELETE
-                        </button>
-                      )}
-                    </div>
-                    {/* Quick Actions for Folder/Color */}
-                    <div className="mt-4 flex gap-2" onClick={(e) => e.preventDefault()}>
-                      <select
-                        className="bg-background border-brutal-sm text-xs font-bold uppercase p-1"
-                        defaultValue={ws.folder_id || ""}
-                        onChange={async (e) => {
-                          const folderId = e.target.value || null;
-                          const res = await fetch(`/api/workspaces?id=${ws.id}`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ folderId }),
-                          });
-                          if (res.ok && session && session.organizations?.[0]) {
-                            await fetchWorkspaces(session.organizations[0].id);
-                          }
-                        }}
-                      >
-                        <option value="">NO FOLDER</option>
-                        {folders.map((f) => (
-                          <option key={f.id} value={f.id}>
-                            {f.name}
-                          </option>
-                        ))}
-                      </select>
-
-                      <select
-                        className="bg-background border-brutal-sm text-xs font-bold uppercase p-1"
-                        defaultValue={ws.color || "stone"}
-                        onChange={async (e) => {
-                          const color = e.target.value;
-                          const res = await fetch(`/api/workspaces?id=${ws.id}`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ color }),
-                          });
-                          if (res.ok && session && session.organizations?.[0]) {
-                            await fetchWorkspaces(session.organizations[0].id);
-                          }
-                        }}
-                      >
-                        <option value="stone">GRAY</option>
-                        <option value="red">RED</option>
-                        <option value="blue">BLUE</option>
-                        <option value="green">GREEN</option>
-                        <option value="yellow">YELLOW</option>
-                        <option value="purple">PURPLE</option>
-                        <option value="pink">PINK</option>
-                        <option value="orange">ORANGE</option>
-                      </select>
+        <div className="flex flex-col gap-8 items-start w-full">
+          <div className="w-full">
+            {loading ? (
+              <div className="text-lg font-bold uppercase">LOADING...</div>
+            ) : (
+              <>
+                {(!filteredWorkspaces || filteredWorkspaces.length === 0) && (
+                  <div className="border-brutal-thick p-12 bg-muted">
+                    <div className="max-w-2xl space-y-6">
+                      <h3 className="text-4xl font-black uppercase">NO WORKSPACES</h3>
+                      <p className="text-xl font-bold uppercase border-l-4 border-foreground pl-6">
+                        {session.role === "intern" ? "NO INTERN WORKSPACES FOUND" : "CREATE YOUR FIRST WORKSPACE"}
+                      </p>
                     </div>
                   </div>
-                </Link>
-              ))}
+                )}
+
+                <div
+                  className={`grid grid-cols-1 ${viewDensity === 2 ? "md:grid-cols-2" : viewDensity === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"} gap-8`}
+                >
+                  {filteredWorkspaces?.map((ws) => {
+                    const isRestricted = session.role === "intern" && ws.role === "founder";
+                    return (
+                    <Link
+                      key={ws.id}
+                      href={isRestricted ? "#" : `/workspace/${ws.id}`}
+                      onClick={(e) => {
+                        if (isRestricted) {
+                          e.preventDefault();
+                          alert("You do not have permission to enter a founder-restricted workspace.");
+                        }
+                      }}
+                      className="border-brutal shadow-brutal hover-brutal bg-card p-8 group relative overflow-hidden"
+                    >
+                      {/* Decorative color bar */}
+                      <div className={`absolute top-0 left-0 w-3 h-full ${getColorClass(ws.color)}`} />
+                      <div className="pl-2 space-y-6">
+                        <div className="text-3xl font-black uppercase leading-tight flex items-center gap-2">
+                          {session.role === "intern" && ws.role === "founder" && (
+                            <span title="Founder Restricted" className="text-foreground">🔒</span>
+                          )}
+                          {ws.owner_name}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm font-bold uppercase">ROLE:</span>
+                          <span
+                            className={`px-4 py-2 font-black uppercase text-sm border-brutal ${
+                              ws.role === "founder" ? "bg-accent text-accent-foreground" : "bg-foreground text-background"
+                            }`}
+                          >
+                            {ws.role}
+                          </span>
+                        </div>
+                        
+                        {/* Only show member ID list/data if they have access */}
+                        {!(session.role === "intern" && ws.role === "founder") && (
+                          <div className="text-xs font-mono pt-4 border-t-4 border-foreground opacity-50 flex justify-between items-center">
+                            <span>{ws.id.slice(0,8)}...</span>
+                            {(session.role === "founder" || session.userId === ws.owner_id) && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleDeleteWorkspace(ws.id);
+                                }}
+                                className="text-destructive hover:underline uppercase font-bold text-xs"
+                              >
+                                DELETE
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        <div className="mt-4 flex gap-2" onClick={(e) => e.preventDefault()}>
+                          <select
+                            className="bg-background border-brutal-sm text-xs font-bold uppercase p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            defaultValue={ws.folder_id || ""}
+                            disabled={session.role !== "founder"}
+                            title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
+                            onChange={async (e) => {
+                              const folderId = e.target.value || null;
+                              const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ folderId }),
+                              });
+                              if (res.ok && session && session.organizations?.[0]) {
+                                await fetchWorkspaces(session.organizations[0].id);
+                              }
+                            }}
+                          >
+                            <option value="">NO FOLDER</option>
+                            {folders.map((f) => (
+                              <option key={f.id} value={f.id}>
+                                {f.name}
+                              </option>
+                            ))}
+                          </select>
+
+                          <select
+                            className="bg-background border-brutal-sm text-xs font-bold uppercase p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            defaultValue={ws.color || "stone"}
+                            disabled={session.role !== "founder"}
+                            title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
+                            onChange={async (e) => {
+                              const color = e.target.value;
+                              const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ color }),
+                              });
+                              if (res.ok && session && session.organizations?.[0]) {
+                                await fetchWorkspaces(session.organizations[0].id);
+                              }
+                            }}
+                          >
+                            <option value="stone">GRAY</option>
+                            <option value="red">RED</option>
+                            <option value="blue">BLUE</option>
+                            <option value="green">GREEN</option>
+                            <option value="yellow">YELLOW</option>
+                            <option value="purple">PURPLE</option>
+                            <option value="pink">PINK</option>
+                            <option value="orange">ORANGE</option>
+                          </select>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+                </div>
+              </>
+            )}
+              </div>
             </div>
-          </>
-        )}
-      </div>
+          </div>
 
       <OnboardingModal isOpen={showOnboarding} onSubmit={handleCreateWorkspace} />
     </AppShell>

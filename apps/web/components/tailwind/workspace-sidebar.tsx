@@ -192,15 +192,16 @@ export function WorkspaceSidebar() {
                       <button
                         type="button"
                         onClick={() => toggleFolder(folder.id)}
-                        className="flex-1 flex items-center gap-3 px-4 py-3 text-sm font-bold uppercase hover:bg-accent/50 group transition-all border-brutal-sm bg-gradient-to-r from-background to-accent/10 hover:shadow-brutal"
+                        className="flex-1 flex items-center gap-3 px-4 py-3 text-sm font-bold uppercase hover:bg-accent/50 group transition-all border-brutal-sm bg-background hover:shadow-brutal relative overflow-hidden"
                       >
-                        <div className="flex items-center gap-2 flex-1">
+                        <div className={`absolute top-0 left-0 w-2 h-full ${getColorClass(folder.color)}`} />
+                        <div className="flex items-center gap-2 flex-1 pl-1">
                           {isOpen ? (
                             <ChevronDown className="h-4 w-4 transition-transform" />
                           ) : (
                             <ChevronRight className="h-4 w-4 transition-transform" />
                           )}
-                          {isOpen ? <FolderOpen className="h-5 w-5" /> : <Folder className="h-5 w-5" />}
+                          {isOpen ? <FolderOpen className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} /> : <Folder className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} />}
                           <span className={`${getFolderTextColor(folder.color)} font-black tracking-wide`}>
                             {folder.name}
                           </span>

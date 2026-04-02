@@ -1,20 +1,10 @@
 "use client";
 
-import { AppContext } from "@/app/providers";
-import { Laptop, Moon, Palette, Sun } from "lucide-react";
+import { Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useContext } from "react";
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
-  const { themeColor, setThemeColor } = useContext(AppContext);
-
-  const colors = [
-    { name: "Default", class: "bg-slate-950" },
-    { name: "Green", class: "bg-green-600" },
-    { name: "Violet", class: "bg-violet-600" },
-    { name: "Orange", class: "bg-orange-500" },
-  ];
 
   return (
     <div className="flex items-center gap-2">
@@ -52,22 +42,6 @@ export function ThemeToggle() {
         </button>
       </div>
 
-      {/* Color Toggle */}
-      <div className="flex items-center border rounded-lg p-1 gap-1">
-        {colors.map((c) => (
-          <button
-            type="button"
-            key={c.name}
-            onClick={() => setThemeColor(c.name)}
-            className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${
-              c.class
-            } ${themeColor === c.name ? "ring-2 ring-offset-2 ring-primary" : "opacity-80 hover:opacity-100"}`}
-            title={`${c.name} Theme`}
-          >
-            {themeColor === c.name && <Palette className="h-3 w-3 text-white" />}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

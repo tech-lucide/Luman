@@ -94,141 +94,151 @@ export function CalendarGrid({ events, currentDate, onDateClick, onEventComplete
             </button>
           </div>
 
-          {/* Calendar Grid */}
-          <div className="border-brutal-thick bg-card p-8">
-            {/* Day headers */}
-            <div className="grid grid-cols-7 gap-4 mb-8">
-              {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day) => (
-                <div key={day} className="text-center text-lg font-black uppercase tracking-wider">
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Days */}
-            <div className="grid grid-cols-7 gap-4">
-              {days.map((day, index) => {
-                if (!day) {
-                  return <div key={index} className="aspect-square" />;
-                }
-
-                const dateObj = new Date(year, month, day);
-                const isToday = new Date().toDateString() === dateObj.toDateString();
-                const dayHasEvents = hasEvents(day);
-                const isSelected = selectedDate && selectedDate.toDateString() === dateObj.toDateString();
-
-                return (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDate(dateObj);
-                      onDateClick?.(dateObj);
-                    }}
-                    className={`aspect-square border-brutal-thick p-6 relative transition-none ${
-                      isSelected
-                        ? "bg-accent text-accent-foreground shadow-brutal-lg"
-                        : isToday
-                          ? "bg-foreground text-background shadow-brutal"
-                          : dayHasEvents
-                            ? "bg-muted hover-brutal"
-                            : "bg-background hover-brutal"
-                    }`}
-                  >
-                    <div className="text-4xl font-black leading-none">{day}</div>
-                    {dayHasEvents && (
-                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                        {getEventsForDate(day)
-                          .slice(0, 3)
-                          .map((_, i) => (
-                            <div key={i} className="w-3 h-3 border-2 border-foreground bg-accent" />
-                          ))}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Selected Date Events */}
-          {selectedDate && selectedDateEvents.length > 0 && (
-            <div className="border-brutal-thick p-8 bg-card shadow-brutal-xl">
-              <h3 className="text-3xl font-black uppercase mb-8 border-b-4 border-foreground pb-4">
-                {selectedDate
-                  .toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                  })
-                  .toUpperCase()}
-              </h3>
-              <div className="space-y-6">
-                {selectedDateEvents.map((event) => (
-                  <div key={event.id} className="border-brutal-thick p-8 bg-background shadow-brutal">
-                    <div className="flex items-start justify-between gap-6">
-                      <div className="flex-1">
-                        <div
-                          className={`text-2xl font-black uppercase leading-tight mb-3 ${
-                            event.is_completed ? "opacity-50 line-through" : ""
-                          }`}
-                        >
-                          {event.note_id && event.workspace_id ? (
-                            <a
-                              href={`/workspace/${event.workspace_id}/note/${event.note_id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:text-accent transition-colors underline decoration-2"
-                              title="Open linked note"
-                            >
-                              {event.title} 📝
-                            </a>
-                          ) : (
-                            event.title
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 mb-3">
-                          <span
-                            className={`px-4 py-2 text-sm font-black uppercase border-brutal ${
-                              event.event_type === "event"
-                                ? "bg-accent text-accent-foreground"
-                                : event.event_type === "reminder"
-                                  ? "bg-destructive text-destructive-foreground"
-                                  : "bg-foreground text-background"
-                            }`}
-                          >
-                            {event.event_type}
-                          </span>
-                          {!event.all_day && (
-                            <div className="text-base font-bold uppercase">
-                              {formatTime(event.start_time)}
-                              {event.end_time && ` - ${formatTime(event.end_time)}`}
-                            </div>
-                          )}
-                        </div>
-                        {event.description && (
-                          <p className="text-base font-bold pt-4 border-t-4 border-foreground">{event.description}</p>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEventComplete?.(event.id);
-                        }}
-                        className={`p-4 border-brutal-thick hover-brutal shrink-0 ${
-                          event.is_completed ? "bg-accent text-accent-foreground" : "bg-background"
-                        }`}
-                        title={event.is_completed ? "Mark as incomplete" : "Mark as complete"}
-                      >
-                        <Check className="h-6 w-6" />
-                      </button>
-                    </div>
+          <div className="flex flex-col xl:flex-row gap-8 items-start w-full">
+            {/* Calendar Grid (Left) */}
+            <div className="flex-[5] w-full border-brutal-thick bg-card p-8">
+              {/* Day headers */}
+              <div className="grid grid-cols-7 gap-4 mb-8">
+                {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day) => (
+                  <div key={day} className="text-center text-lg font-black uppercase tracking-wider">
+                    {day}
                   </div>
                 ))}
               </div>
+
+              {/* Days */}
+              <div className="grid grid-cols-7 gap-4">
+                {days.map((day, index) => {
+                  if (!day) {
+                    return <div key={index} className="aspect-square" />;
+                  }
+
+                  const dateObj = new Date(year, month, day);
+                  const isToday = new Date().toDateString() === dateObj.toDateString();
+                  const dayHasEvents = hasEvents(day);
+                  const isSelected = selectedDate && selectedDate.toDateString() === dateObj.toDateString();
+
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDate(dateObj);
+                        onDateClick?.(dateObj);
+                      }}
+                      className={`aspect-square border-brutal-thick p-6 relative transition-none ${
+                        isSelected
+                          ? "bg-accent text-accent-foreground shadow-brutal-lg"
+                          : isToday
+                            ? "bg-foreground text-background shadow-brutal"
+                            : dayHasEvents
+                              ? "bg-muted hover-brutal"
+                              : "bg-background hover-brutal"
+                      }`}
+                    >
+                      <div className="text-xl md:text-4xl font-black leading-none">{day}</div>
+                      {dayHasEvents && (
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                          {getEventsForDate(day)
+                            .slice(0, 3)
+                            .map((_, i) => (
+                              <div key={i} className="w-3 h-3 border-2 border-foreground bg-accent" />
+                            ))}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          )}
+
+            {/* Selected Date Events (Right Sidebar) */}
+            {selectedDate && (
+              <div className="flex-[2] shrink-0 w-full xl:w-[420px] border-brutal-thick p-8 bg-card shadow-brutal-xl">
+                <h3 className="text-3xl font-black uppercase mb-8 border-b-4 border-foreground pb-4">
+                  {selectedDate
+                    .toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })
+                    .toUpperCase()}
+                </h3>
+                <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                  {selectedDateEvents.length > 0 ? (
+                    selectedDateEvents.map((event) => (
+                      <div key={event.id} className="border-brutal-thick p-6 bg-background shadow-brutal">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div
+                              className={`text-2xl font-black uppercase leading-tight mb-3 ${
+                                event.is_completed ? "opacity-50 line-through" : ""
+                              }`}
+                            >
+                              {event.note_id && event.workspace_id ? (
+                                <a
+                                  href={`/workspace/${event.workspace_id}/note/${event.note_id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:text-accent transition-colors underline decoration-2"
+                                  title="Open linked note"
+                                >
+                                  {event.title} 📝
+                                </a>
+                              ) : (
+                                event.title
+                              )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 mb-3">
+                              <span
+                                className={`px-3 py-1 text-xs font-black uppercase border-brutal ${
+                                  event.event_type === "event"
+                                    ? "bg-accent text-accent-foreground"
+                                    : event.event_type === "reminder"
+                                      ? "bg-destructive text-destructive-foreground"
+                                      : "bg-foreground text-background"
+                                }`}
+                              >
+                                {event.event_type}
+                              </span>
+                              {!event.all_day && (
+                                <div className="text-sm font-bold uppercase">
+                                  {formatTime(event.start_time)}
+                                  {event.end_time && ` - ${formatTime(event.end_time)}`}
+                                </div>
+                              )}
+                            </div>
+                            {event.description && (
+                              <p className="text-sm font-bold pt-4 border-t-4 border-foreground">{event.description}</p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEventComplete?.(event.id);
+                            }}
+                            className={`p-3 border-brutal-thick hover-brutal shrink-0 ${
+                              event.is_completed ? "bg-accent text-accent-foreground" : "bg-background"
+                            }`}
+                            title={event.is_completed ? "Mark as incomplete" : "Mark as complete"}
+                          >
+                            <Check className="h-6 w-6" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="border-brutal-thick p-8 bg-background text-center space-y-4">
+                      <CalendarIcon className="h-12 w-12 mx-auto opacity-40" />
+                      <p className="text-lg font-black uppercase opacity-50">NO EVENTS</p>
+                      <p className="text-sm font-bold uppercase opacity-40">NOTHING SCHEDULED FOR THIS DAY</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

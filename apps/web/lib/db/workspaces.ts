@@ -63,15 +63,17 @@ export async function createWorkspace({
   return data;
 }
 
-export async function deleteWorkspace(workspaceId: string, userId: string) {
+export async function deleteWorkspace(workspaceId: string, userId: string, isFounder: boolean = false) {
   const supabase = await createSupabaseServerClient();
 
-  // Ensure ownership before deleting
-  const { error } = await supabase
-    .from("workspaces")
-    .delete()
-    .eq("id", workspaceId)
-    .or(`owner_id.eq.${userId},created_by.eq.${userId}`);
+  let query = supabase.from("workspaces").delete().eq("id", workspaceId);
+  
+  if (!isFounder) {
+    // Ensure ownership before deleting if not founder
+    query = query.or(`owner_id.eq.${userId},created_by.eq.${userId}`);
+  }
+
+  const { error } = await query;
 
   if (error) {
     console.error("Supabase error deleting workspace:", error);
@@ -83,20 +85,22 @@ export async function updateWorkspace(
   workspaceId: string,
   userId: string,
   updates: { folderId?: string | null; color?: string; name?: string },
+  isFounder: boolean = false
 ) {
   const supabase = await createSupabaseServerClient();
 
-  // Build update object with only provided fields
   const updateData: Record<string, any> = {};
   if (updates.folderId !== undefined) updateData.folder_id = updates.folderId;
   if (updates.color !== undefined) updateData.color = updates.color;
   if (updates.name !== undefined) updateData.owner_name = updates.name;
 
-  const { error } = await supabase
-    .from("workspaces")
-    .update(updateData)
-    .eq("id", workspaceId)
-    .or(`owner_id.eq.${userId},created_by.eq.${userId}`); // Check both for compatibility
+  let query = supabase.from("workspaces").update(updateData).eq("id", workspaceId);
+
+  if (!isFounder) {
+    query = query.or(`owner_id.eq.${userId},created_by.eq.${userId}`);
+  }
+
+  const { error } = await query;
 
   if (error) {
     console.error("Error updating workspace:", error);
