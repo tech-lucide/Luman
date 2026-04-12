@@ -8,8 +8,9 @@ export default async function WorkspaceLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { workspaceId: string };
+  params: Promise<{ workspaceId: string }>;
 }) {
+  const { workspaceId } = await params;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -23,7 +24,7 @@ export default async function WorkspaceLayout({
   const { data: wsData } = await supabase
     .from("workspaces")
     .select("role, organization_id")
-    .eq("id", params.workspaceId)
+    .eq("id", workspaceId)
     .single();
 
   if (wsData?.organization_id) {
