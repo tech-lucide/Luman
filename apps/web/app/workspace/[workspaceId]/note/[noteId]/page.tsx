@@ -1,6 +1,7 @@
 "use client";
 
 import AIChatSidebar from "@/components/ai-chat-sidebar";
+import { EventModal } from "@/components/event-modal";
 import { TagSelector } from "@/components/tag-selector";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -28,6 +29,9 @@ export default function NoteEditorPage() {
   const [loading, setLoading] = useState(true);
   const [tags, setTags] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [eventCreatedMessage, setEventCreatedMessage] = useState<string | null>(null);
+  const [editorInstance, setEditorInstance] = useState<any>(null);
 
   useEffect(() => {
     async function loadNote() {
@@ -47,6 +51,16 @@ export default function NoteEditorPage() {
 
     loadNote();
   }, [noteId]);
+
+  // Listen for /schedule slash command
+  useEffect(() => {
+    const handleOpenEventModal = () => {
+      setIsEventModalOpen(true);
+    };
+
+    window.addEventListener("open-event-modal", handleOpenEventModal);
+    return () => window.removeEventListener("open-event-modal", handleOpenEventModal);
+  }, []);
 
   const handleTagsChange = async (newTags: string[]) => {
     setTags(newTags);
@@ -113,12 +127,48 @@ export default function NoteEditorPage() {
       {/* Editor Content */}
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto py-8 px-4 sm:px-6">
-          <TailwindAdvancedEditor key={noteId} noteId={noteId} workspaceId={workspaceId} initialContent={content} />
+          <TailwindAdvancedEditor
+            key={noteId}
+            noteId={noteId}
+            workspaceId={workspaceId}
+            initialContent={content}
+            onEditorReady={setEditorInstance}
+          />
         </div>
       </main>
 
       {/* AI Chat Sidebar */}
-      <AIChatSidebar noteId={noteId} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <AIChatSidebar
+        noteId={noteId}
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onInsert={(text) => {
+          if (editorInstance) {
+            editorInstance.chain().focus().insertContent(text).run();
+          }
+        }}
+      />
+
+      {/* Event Modal */}
+      <EventModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
+        workspaceId={workspaceId}
+        noteId={noteId}
+        onEventCreated={() => {
+          setEventCreatedMessage("✅ Event scheduled successfully!");
+          setTimeout(() => setEventCreatedMessage(null), 4000);
+        }}
+      />
+
+      {/* Event Created Notification */}
+      {eventCreatedMessage && (
+        <div className="fixed bottom-8 right-8 z-50 animate-in slide-in-from-bottom-4">
+          <div className="border-brutal-thick shadow-brutal-xl bg-accent text-accent-foreground px-8 py-4 font-black uppercase text-lg">
+            {eventCreatedMessage}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default function Providers({ children }: { children: ReactNode }) {
   const [themeColor, setThemeColor] = useLocalStorage<string>("novel__theme_color", "Default");
 
   return (
-    <ThemeProvider attribute="class" enableSystem disableTransitionOnChange defaultTheme="system">
+    <ThemeProvider attribute="class" enableSystem disableTransitionOnChange defaultTheme="light">
       <AppContext.Provider
         value={{
           font,

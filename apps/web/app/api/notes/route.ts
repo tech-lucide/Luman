@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
     const { data, error } = await supabase
       .from("notes")
-      .select("id, title, created_at, tags, due_date")
+      .select("id, workspace_id, title, created_at, tags, due_date")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false });
 
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   try {
     const supabase = await createSupabaseServerClient();
 
-    let body: any;
+    let body: { workspaceId?: string; title?: string; templateType?: string };
     try {
       body = await req.json();
     } catch {

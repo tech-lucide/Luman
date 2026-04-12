@@ -55,7 +55,21 @@ export async function updateSession(request: NextRequest) {
   );
 
   // This will refresh session if expired - essential for SSR
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // If user is logged in and tries to access public auth pages, redirect to dashboard
+  if (
+    user &&
+    (request.nextUrl.pathname === "/" ||
+      request.nextUrl.pathname === "/login" ||
+      request.nextUrl.pathname === "/register")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
 
   return response;
 }

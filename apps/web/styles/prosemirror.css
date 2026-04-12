@@ -20,6 +20,9 @@
 /* Custom image styles */
 
 .ProseMirror img {
+  /* Optimize rendering during resize */
+
+  /* Only transition filter, not transform/size */
   transition: filter 0.1s ease-in-out;
 
   &:hover {
@@ -31,6 +34,13 @@
     outline: 3px solid #5abbf7;
     filter: brightness(90%);
   }
+}
+
+/* Disable transitions while resizing to prevent glitching */
+.ProseMirror img[data-resizing="true"],
+.ProseMirror .image-resizer-active img {
+  transition: none !important;
+  will-change: width, height;
 }
 
 .img-placeholder {

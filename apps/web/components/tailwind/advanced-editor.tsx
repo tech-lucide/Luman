@@ -24,6 +24,7 @@ import { Separator } from "./ui/separator";
 import { Check, Clock } from "lucide-react";
 import GenerativeMenuSwitch from "./generative/generative-menu-switch";
 import { uploadFn } from "./image-upload";
+import { AIButtons } from "./selectors/ai-buttons";
 import { TextButtons } from "./selectors/text-buttons";
 import { slashCommand, suggestionItems } from "./slash-command";
 
@@ -36,6 +37,7 @@ interface AdvancedEditorProps {
   initialContent: any;
   noteId: string;
   workspaceId: string;
+  onEditorReady?: (editor: any) => void;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Recursive task extraction
@@ -73,7 +75,7 @@ const extractTasks = (content: any): any[] => {
   return tasks;
 };
 
-const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: AdvancedEditorProps) => {
+const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId, onEditorReady }: AdvancedEditorProps) => {
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [charsCount, setCharsCount] = useState<number | undefined>();
 
@@ -178,6 +180,9 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: Advance
             debouncedSave(editor);
             debouncedTaskSync(editor);
           }}
+          onCreate={({ editor }) => {
+            onEditorReady?.(editor);
+          }}
           slotAfter={
             <>
               <ImageResizer />
@@ -215,6 +220,8 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId }: Advance
             <MathSelector />
             <Separator orientation="vertical" />
             <TextButtons />
+            <Separator orientation="vertical" />
+            <AIButtons />
             <Separator orientation="vertical" />
             <ColorSelector open={openColor} onOpenChange={setOpenColor} />
           </GenerativeMenuSwitch>

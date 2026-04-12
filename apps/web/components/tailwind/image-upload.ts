@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 const onUpload = (file: File) => {
   console.log("[Image Upload] Starting upload for file:", file.name, file.type, file.size);
-  
+
   const promise = fetch("/api/upload", {
     method: "POST",
     headers: {
@@ -17,7 +17,7 @@ const onUpload = (file: File) => {
     toast.promise(
       promise.then(async (res) => {
         console.log("[Image Upload] Response status:", res.status);
-        
+
         // Successfully uploaded image
         if (res.status === 200) {
           const { url } = (await res.json()) as { url: string };
@@ -32,8 +32,7 @@ const onUpload = (file: File) => {
         } else if (res.status === 401) {
           console.warn("[Image Upload] No BLOB token, using local file");
           resolve(file);
-          throw new Error("`BLOB_READ_WRITE_TOKEN` environment variable not found, reading image locally instead.");
-          // Unknown error
+          // Don't throw here, as we've resolved with the local file
         } else {
           console.error("[Image Upload] Upload failed with status:", res.status);
           throw new Error("Error uploading image. Please try again.");
@@ -56,7 +55,7 @@ export const uploadFn = createImageUpload({
   onUpload,
   validateFn: (file) => {
     console.log("[Image Upload] Validating file:", file.name, file.type, file.size);
-    
+
     if (!file.type.includes("image/")) {
       console.error("[Image Upload] Validation failed: Not an image type");
       toast.error("File type not supported.");
@@ -67,7 +66,7 @@ export const uploadFn = createImageUpload({
       toast.error("File size too big (max 20MB).");
       return false;
     }
-    
+
     console.log("[Image Upload] Validation passed!");
     return true;
   },

@@ -35,7 +35,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ noteId: 
     .from("notes")
     .update({
       content,
-      last_edited_at: new Date().toISOString(),
     })
     .eq("id", noteId);
 

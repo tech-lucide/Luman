@@ -4,7 +4,7 @@ export const defaultEditorContent = {
     {
       type: "heading",
       attrs: { level: 2 },
-      content: [{ type: "text", text: "Introducing Novel" }],
+      content: [{ type: "text", text: "Introducing Luman" }],
     },
     {
       type: "paragraph",
@@ -20,7 +20,7 @@ export const defaultEditorContent = {
               },
             },
           ],
-          text: "Novel",
+          text: "Luman",
         },
         {
           type: "text",
@@ -77,7 +77,7 @@ export const defaultEditorContent = {
       content: [
         {
           type: "text",
-          text: 'import { Editor } from "novel";\n\nexport default function App() {\n  return (\n     <Editor />\n  )\n}',
+          text: 'import { Editor } from "luman";\n\nexport default function App() {\n  return (\n     <Editor />\n  )\n}',
         },
       ],
     },

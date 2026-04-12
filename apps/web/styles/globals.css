@@ -51,36 +51,39 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    /* Greyish dark mode - easier on the eyes */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 0 0% 90%;
+    --primary-foreground: 0 0% 10%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 48 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    /* Softer accent */
+    --accent: 48 90% 55%;
+    --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 100%;
-    --input: 0 0% 100%;
-    --ring: 0 0% 100%;
+    /* Softer borders */
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 0 0% 80%;
 
     /* Novel Highlights */
-    --novel-highlight-default: #000000;
+    --novel-highlight-default: #1a1a1a;
     --novel-highlight-purple: #3f2c4b;
     --novel-highlight-red: #5c1a1a;
     --novel-highlight-yellow: #5c4b1a;
@@ -138,98 +141,98 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-weight: 700;
+    font-weight: 500;
   }
 
-  /* EXTREME BRUTALIST TYPOGRAPHY */
+  /* Refined typography - less aggressive */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply font-black uppercase;
-    letter-spacing: -0.05em;
-    line-height: 0.9;
+    @apply font-bold;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
   h1 {
-    @apply text-7xl md:text-8xl lg:text-9xl;
-  }
-
-  h2 {
     @apply text-5xl md:text-6xl lg:text-7xl;
   }
 
-  h3 {
+  h2 {
     @apply text-4xl md:text-5xl lg:text-6xl;
   }
 
+  h3 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
   h4 {
-    @apply text-3xl md:text-4xl;
+    @apply text-2xl md:text-3xl;
   }
 
   p {
-    @apply font-bold;
+    @apply font-normal;
   }
 }
 
 @layer utilities {
-  /* HARSH SHADOW SYSTEM */
+  /* Refined shadow system */
   .shadow-brutal {
-    box-shadow: 8px 8px 0px 0px rgb(0 0 0 / 1);
+    box-shadow: 4px 4px 0px 0px rgb(0 0 0 / 0.1);
   }
 
   .shadow-brutal-lg {
-    box-shadow: 12px 12px 0px 0px rgb(0 0 0 / 1);
+    box-shadow: 6px 6px 0px 0px rgb(0 0 0 / 0.15);
   }
 
   .shadow-brutal-xl {
-    box-shadow: 20px 20px 0px 0px rgb(0 0 0 / 1);
+    box-shadow: 8px 8px 0px 0px rgb(0 0 0 / 0.2);
   }
 
   .dark .shadow-brutal {
-    box-shadow: 8px 8px 0px 0px rgb(255 255 255 / 1);
+    box-shadow: 4px 4px 0px 0px rgb(255 255 255 / 0.1);
   }
 
   .dark .shadow-brutal-lg {
-    box-shadow: 12px 12px 0px 0px rgb(255 255 255 / 1);
+    box-shadow: 6px 6px 0px 0px rgb(255 255 255 / 0.15);
   }
 
   .dark .shadow-brutal-xl {
-    box-shadow: 20px 20px 0px 0px rgb(255 255 255 / 1);
+    box-shadow: 8px 8px 0px 0px rgb(255 255 255 / 0.2);
   }
 
-  /* THICK BORDERS */
+  /* Refined borders */
   .border-brutal {
-    border: 4px solid currentColor;
+    border: 2px solid currentColor;
   }
 
   .border-brutal-thick {
-    border: 6px solid currentColor;
+    border: 3px solid currentColor;
   }
 
   .border-brutal-mega {
-    border: 8px solid currentColor;
+    border: 4px solid currentColor;
   }
 
-  /* NO TRANSITIONS - INSTANT */
+  /* Smooth transitions */
   .transition-none {
     transition: none !important;
   }
 
-  /* HOVER - HARSH SHIFT */
+  /* Subtle hover effect */
   .hover-brutal {
-    transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   }
 
   .hover-brutal:hover {
-    transform: translate(-4px, -4px);
-    box-shadow: 12px 12px 0px 0px rgb(0 0 0 / 1);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px rgb(0 0 0 / 0.15);
   }
 
   .dark .hover-brutal:hover {
-    box-shadow: 12px 12px 0px 0px rgb(255 255 255 / 1);
+    box-shadow: 6px 6px 0px 0px rgb(255 255 255 / 0.15);
   }
 
   /* ACCENT HIGHLIGHT */

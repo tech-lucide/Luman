@@ -4,7 +4,7 @@ test("App Smoke Test: Editor & Slash Command", async ({ page }) => {
   // 1. Visit Home
   console.log("Visiting home page...");
   await page.goto("http://127.0.0.1:3000");
-  await expect(page).toHaveTitle(/Novel/i);
+  await expect(page).toHaveTitle(/Luman/i);
 
   // 2. Check basics
   console.log("Checking for editor presence...");

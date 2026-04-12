@@ -1,7 +1,7 @@
 "use client";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TodoMenu } from "@/components/todo-menu";
-import { ArrowLeft, Menu, PanelRight, Settings, Share2, Sparkles } from "lucide-react";
+import { ArrowLeft, Menu, PanelRight, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -69,7 +69,7 @@ export default function Navbar({ aiOpen, onToggleAI, onToggleSidebar }: NavbarPr
 
         <div className="flex items-center gap-3">
           <Sparkles className="h-6 w-6" />
-          <span className="hidden sm:inline text-xl font-black uppercase tracking-tight">NOTAPROMPT</span>
+          <span className="hidden sm:inline text-xl font-black uppercase tracking-tight">LUMAN</span>
         </div>
       </div>
 
@@ -85,19 +85,6 @@ export default function Navbar({ aiOpen, onToggleAI, onToggleSidebar }: NavbarPr
       {/* Right */}
       <div className="flex items-center gap-2">
         <ThemeToggle />
-
-        <button
-          type="button"
-          onClick={onToggleAI}
-          className={`p-3 border-brutal hover-brutal ${aiOpen ? "bg-accent text-accent-foreground" : "bg-background"}`}
-          aria-label="Toggle AI sidebar"
-        >
-          <PanelRight className="h-5 w-5" />
-        </button>
-
-        <button type="button" className="p-3 border-brutal hover-brutal bg-background">
-          <Share2 className="h-5 w-5" />
-        </button>
 
         <TodoMenu workspaceId={workspaceId} />
 

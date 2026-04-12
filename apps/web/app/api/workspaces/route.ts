@@ -27,10 +27,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Not a member of this organization" }, { status: 403 });
     }
 
-    // Filter logic: Interns see ONLY 'intern' workspaces. Founders/Admins see ALL.
-    const roleFilter = membership.role === "intern" ? "intern" : undefined;
-
-    const data = await getWorkspaces(orgId, user.id, roleFilter);
+    // Interns and Founders now see ALL workspaces (Interns see founder workspaces as locked).
+    const data = await getWorkspaces(orgId, user.id);
     return NextResponse.json(data);
   } catch (err) {
     console.error("GET /api/workspaces error:", err);
@@ -120,7 +118,22 @@ export async function PATCH(req: Request) {
 
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    await updateWorkspace(workspaceId, user.id, { folderId, color, name });
+    const { data: wsData } = await supabase
+      .from("workspaces")
+      .select("organization_id")
+      .eq("id", workspaceId)
+      .single();
+
+    let isFounder = false;
+    
+    if (wsData?.organization_id) {
+      const membership = await getUserMembership(wsData.organization_id, user.id);
+      if (membership && membership.role === "founder") {
+        isFounder = true;
+      }
+    }
+
+    await updateWorkspace(workspaceId, user.id, { folderId, color, name }, isFounder);
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -146,8 +159,25 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // We need to check if user is founder of the org the workspace belongs to
+    const { data: wsData, error: wsError } = await supabase
+      .from("workspaces")
+      .select("organization_id")
+      .eq("id", workspaceId)
+      .single();
+
+    let isFounder = false;
+    
+    if (wsData?.organization_id) {
+      // Lazy import to avoid circular dependency if any, but getUserMembership is ok to import at top. We will import at top.
+      const membership = await getUserMembership(wsData.organization_id, user.id);
+      if (membership && membership.role === "founder") {
+        isFounder = true;
+      }
+    }
+
     // We pass user.id as ownerId to ensure they own it.
-    await deleteWorkspace(workspaceId, user.id);
+    await deleteWorkspace(workspaceId, user.id, isFounder);
 
     return NextResponse.json({ success: true });
   } catch (err) {
