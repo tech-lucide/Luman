@@ -1,7 +1,7 @@
 "use client";
 
 import { createSupabaseClient } from "@/lib/supabase/client";
-import { ChevronDown, ChevronRight, FileText, Folder, FolderOpen, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, FileText, Folder, FolderOpen, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -207,15 +207,30 @@ export function WorkspaceSidebar() {
   if (isWorkspaceView && workspaceId) {
     return (
       <aside className="w-[300px] h-full min-h-0 border-r-4 border-foreground bg-background flex flex-col overflow-hidden">
-        <div className="shrink-0 p-6 pb-4 space-y-4 border-b-4 border-foreground">
+        <div className="shrink-0 p-6 pb-4 space-y-4 border-b-4 border-foreground bg-[#FDFBF7]">
           <Link
             href={dashboardHref}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background w-full justify-center"
           >
             <span>&larr; All workspaces</span>
           </Link>
 
-          <div className="inline-flex max-w-full items-center px-3 py-1.5 text-xs font-black uppercase tracking-widest border-brutal bg-accent text-accent-foreground">
+          <div className="grid grid-cols-2 gap-2">
+            <Link
+              href="/calendar"
+              className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+            >
+              ALL EVENTS
+            </Link>
+            <Link
+              href="/dashboard/tasks"
+              className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+            >
+              MY TASKS
+            </Link>
+          </div>
+
+          <div className="inline-flex max-w-full items-center px-3 py-1.5 text-xs font-black uppercase tracking-widest border-brutal bg-accent text-accent-foreground w-full justify-center">
             <span className="truncate">{currentWorkspace?.owner_name || "Workspace"}</span>
           </div>
         </div>
@@ -262,49 +277,47 @@ export function WorkspaceSidebar() {
             </div>
           )}
         </div>
-
-        <div className="shrink-0 border-t-4 border-foreground p-6 space-y-4">
-          <div className="text-xs font-black uppercase tracking-widest opacity-50">Organization</div>
-          <Link
-            href="/calendar"
-            className="block px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
-          >
-            ALL EVENTS
-          </Link>
-          <Link
-            href="/dashboard/tasks"
-            className="block px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
-          >
-            MY TASKS
-          </Link>
-        </div>
       </aside>
     );
   }
 
   return (
-    <aside className="w-[300px] h-full min-h-0 border-r-4 border-foreground bg-background p-6 flex flex-col overflow-y-auto">
+    <aside className="w-[300px] h-full min-h-0 border-r-4 border-foreground bg-[#FDFBF7] p-6 flex flex-col overflow-y-auto">
       <div className="space-y-8">
         <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-4 break-words">
           {orgSlug || "MENU"}
         </h2>
 
         <nav className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Link
               href={`/dashboard?org=${orgSlug || ""}`}
-              className="block px-4 py-2 font-black uppercase text-lg hover:bg-accent border-brutal transition-transform hover:-translate-y-1"
+              className="block px-4 py-2.5 font-black uppercase text-center text-lg bg-[#FBBF24] hover:bg-[#FBBF24]/90 border-brutal shadow-brutal transition-transform hover:-translate-y-1"
             >
               DASHBOARD
             </Link>
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href="/calendar"
+                className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+              >
+                ALL EVENTS
+              </Link>
+              <Link
+                href="/dashboard/tasks"
+                className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+              >
+                MY TASKS
+              </Link>
+            </div>
           </div>
 
           {loading ? (
-            <div className="text-sm opacity-50 font-bold px-4">LOADING...</div>
+            <div className="text-xs opacity-50 font-black px-4 tracking-widest animate-pulse">LOADING...</div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center justify-between px-4 pb-2 border-b-2 border-dashed border-foreground/30">
-                <span className="text-xs font-black uppercase tracking-widest opacity-70">WORKSPACES</span>
+              <div className="flex items-center justify-between px-3 pb-2 border-b-2 border-dashed border-foreground/30">
+                <span className="text-xs font-black uppercase tracking-widest opacity-60">WORKSPACES</span>
               </div>
 
               {folders.map((folder) => {
@@ -312,33 +325,32 @@ export function WorkspaceSidebar() {
                 const isOpen = openFolders[folder.id];
 
                 return (
-                  <div key={folder.id} className="space-y-1 mb-3">
-                    <div className="flex items-center gap-1">
+                  <div 
+                    key={folder.id} 
+                    className="border-2 border-black rounded-[18px] bg-white p-2 text-stone-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all space-y-1 relative"
+                  >
+                    {/* Folder row */}
+                    <div className="flex items-center justify-between gap-1">
                       <button
                         type="button"
                         onClick={() => toggleFolder(folder.id)}
-                        className="flex-1 flex items-center gap-3 px-4 py-3 text-sm font-bold uppercase hover:bg-accent/50 group transition-all border-brutal-sm bg-background hover:shadow-brutal relative overflow-hidden"
+                        className="flex-1 flex items-center gap-2 px-2.5 py-2 text-xs font-black uppercase rounded-lg hover:bg-stone-50 transition-all text-left"
                       >
-                        <div className={`absolute top-0 left-0 w-2 h-full ${getColorClass(folder.color)}`} />
-                        <div className="flex items-center gap-2 flex-1 pl-1">
+                        <div className={`h-4.5 w-4.5 rounded-full border border-black ${getColorClass(folder.color)} flex items-center justify-center shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
                           {isOpen ? (
-                            <ChevronDown className="h-4 w-4 transition-transform" />
+                            <ChevronDown className="h-3 w-3 text-black" />
                           ) : (
-                            <ChevronRight className="h-4 w-4 transition-transform" />
+                            <ChevronRight className="h-3 w-3 text-black" />
                           )}
-                          {isOpen ? (
-                            <FolderOpen className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} />
-                          ) : (
-                            <Folder className={`h-5 w-5 ${getFolderTextColor(folder.color)}`} />
-                          )}
-                          <span className={`${getFolderTextColor(folder.color)} font-black tracking-wide`}>
-                            {folder.name}
-                          </span>
                         </div>
-                        <span className="text-xs opacity-50 font-mono bg-foreground/5 px-2 py-1 rounded border border-foreground/10">
+                        <span className={`${getFolderTextColor(folder.color)} font-black tracking-wide truncate`}>
+                          {folder.name}
+                        </span>
+                        <span className="text-[9px] font-mono bg-stone-100 border border-stone-200 px-1.5 py-0.5 rounded ml-auto">
                           {folderWorkspaces.length}
                         </span>
                       </button>
+
                       <button
                         type="button"
                         onClick={async (e) => {
@@ -352,47 +364,31 @@ export function WorkspaceSidebar() {
                             alert("Failed to delete folder. It might not be empty.");
                           }
                         }}
-                        className="p-3 border-brutal-sm hover:bg-red-200 text-red-600 transition-colors h-full flex items-center justify-center bg-background"
+                        className="p-2 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                         title="Delete Folder"
                       >
-                        <svg
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M3 6h18" />
-                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                        </svg>
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
 
+                    {/* Folder sub-workspaces */}
                     {isOpen && (
-                      <div className="ml-6 pl-4 border-l-4 border-accent/30 space-y-1.5 py-2">
+                      <div className="pl-2 pr-1 pb-1 space-y-1.5 border-t border-dashed border-stone-100 pt-2 mt-1">
                         {folderWorkspaces.length === 0 ? (
-                          <div className="px-4 py-3 text-xs opacity-50 italic border-brutal-sm bg-muted/30 text-center">
-                            📂 Empty folder
+                          <div className="px-3 py-2 text-[10px] font-bold text-center uppercase text-stone-400 bg-stone-50 rounded-lg border border-stone-200 border-dashed">
+                            Empty folder
                           </div>
                         ) : (
                           folderWorkspaces.map((w) => (
                             <Link
                               key={w.id}
                               href={`/workspace/${w.id}`}
-                              className={`block px-4 py-2.5 text-sm font-bold uppercase truncate border-brutal-sm hover:bg-accent hover:-translate-x-1 transition-all group ${workspaceId === w.id ? "bg-accent text-accent-foreground shadow-brutal" : "bg-background hover:shadow-md"}`}
+                              className={`flex items-center gap-2.5 px-3 py-2 text-xs font-black uppercase rounded-lg border-2 border-black transition-all ${workspaceId === w.id ? "bg-[#FBBF24] text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]" : "bg-white hover:bg-stone-50 hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-stone-700"}`}
                             >
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={`h-3 w-3 rounded-full ${getColorClass(w.color)} ring-2 ring-foreground/20 group-hover:ring-foreground/40 transition-all`}
-                                />
-                                <span className="flex-1">{w.owner_name}</span>
-                              </div>
+                              <div
+                                className={`h-2.5 w-2.5 rounded-full border border-black shrink-0 ${getColorClass(w.color)}`}
+                              />
+                              <span className="truncate flex-1">{w.owner_name}</span>
                             </Link>
                           ))
                         )}
@@ -402,42 +398,28 @@ export function WorkspaceSidebar() {
                 );
               })}
 
-              {unfolderedWorkspaces.map((w) => (
-                <Link
-                  key={w.id}
-                  href={`/workspace/${w.id}`}
-                  className={`block ml-0 px-4 py-2.5 text-sm font-bold uppercase truncate border-brutal-sm hover:bg-accent hover:-translate-x-1 transition-all group ${workspaceId === w.id ? "bg-accent text-accent-foreground shadow-brutal" : "bg-background hover:shadow-md"}`}
-                >
-                  <div className="flex items-center gap-3">
+              <div className="space-y-2 pt-2">
+                {unfolderedWorkspaces.map((w) => (
+                  <Link
+                    key={w.id}
+                    href={`/workspace/${w.id}`}
+                    className={`flex items-center gap-3 px-4 py-2.5 text-xs font-black uppercase rounded-full border-2 border-black transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] ${workspaceId === w.id ? "bg-[#FBBF24] text-black" : "bg-white text-stone-800 hover:bg-stone-50"}`}
+                  >
                     <div
-                      className={`h-3 w-3 rounded-full ${getColorClass(w.color)} ring-2 ring-foreground/20 group-hover:ring-foreground/40 transition-all`}
+                      className={`h-3 w-3 rounded-full border border-black shrink-0 ${getColorClass(w.color)} shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}
                     />
-                    <span className="flex-1">{w.owner_name}</span>
-                  </div>
-                </Link>
-              ))}
+                    <span className="flex-1 truncate">{w.owner_name}</span>
+                  </Link>
+                ))}
+              </div>
 
               {folders.length === 0 && workspaces.length === 0 && (
-                <div className="px-4 text-xs opacity-50 uppercase">NO WORKSPACES</div>
+                <div className="px-4 text-[10px] font-black uppercase opacity-50 tracking-widest text-center py-4 border-2 border-dashed border-stone-200 rounded-[18px]">
+                  No workspaces
+                </div>
               )}
             </div>
           )}
-
-          <div className="space-y-2 mt-8">
-            <div className="text-xs font-black uppercase tracking-widest mb-4 opacity-50 px-4">ORGANIZATION</div>
-            <Link
-              href="/calendar"
-              className="block px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
-            >
-              ALL EVENTS
-            </Link>
-            <Link
-              href="/dashboard/tasks"
-              className="block px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background"
-            >
-              MY TASKS
-            </Link>
-          </div>
         </nav>
       </div>
     </aside>

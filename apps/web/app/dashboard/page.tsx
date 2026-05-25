@@ -272,34 +272,41 @@ function DashboardContent() {
 
   return (
     <AppShell>
-      <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(253,224,71,0.18),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_22%),linear-gradient(to_bottom,_rgba(0,0,0,0.02),_transparent_38%)]" />
-        <div className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-80 w-80 rounded-full bg-foreground/5 blur-3xl" />
+      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden">
+        {/* Technical grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none" />
 
-        <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-12 space-y-10">
+        {/* Ambient Glows */}
+        <div className="pointer-events-none absolute top-12 left-1/4 h-96 w-96 rounded-full bg-[#FBBF24]/10 blur-[120px] dark:opacity-20" />
+        <div className="pointer-events-none absolute bottom-24 right-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px] dark:opacity-20" />
+
+        <div className="relative mx-auto max-w-7xl px-8 py-12 md:py-16 space-y-12">
+          {/* Header Banner */}
           <section className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-6">
+              <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-2 px-3 py-1 text-xs font-black uppercase tracking-[0.35em] border-brutal bg-background">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Dashboard
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-black uppercase tracking-[0.25em] border-[3px] border-black bg-[#FBBF24] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
+                    <Sparkles className="h-4 w-4" />
+                    DASHBOARD
                   </span>
-                  <span className="px-3 py-1 text-xs font-black uppercase tracking-[0.3em] border-brutal bg-background">
+                  <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
                     {session.role}
                   </span>
-                  <span className="px-3 py-1 text-xs font-black uppercase tracking-[0.3em] border-brutal bg-accent text-accent-foreground">
+                  <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black bg-black text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
                     {session.ownerName}
                   </span>
                   {session.role === "founder" && session.organizations[0]?.invitation_code && (
-                    <span className="px-3 py-1 text-xs font-black uppercase tracking-[0.25em] border-brutal bg-foreground text-background">
-                      Invite: {session.organizations[0].invitation_code}
+                    <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black bg-[#A7F3D0] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
+                      INVITE: {session.organizations[0].invitation_code}
                     </span>
                   )}
                 </div>
-                <div className="text-sm font-black uppercase tracking-[0.35em] opacity-60">
-                  Search workspaces and jump back in
+                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wide text-black">
+                  Welcome to Luman
+                </h1>
+                <div className="text-xs font-black uppercase tracking-[0.25em] text-stone-500">
+                  Manage your team, notes, and workspaces beautifully.
                 </div>
               </div>
 
@@ -308,7 +315,7 @@ function DashboardContent() {
                   type="button"
                   onClick={() => handleCreateWorkspace()}
                   disabled={creating}
-                  className="px-6 py-3 text-sm font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground disabled:opacity-50"
+                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
                 >
                   {creating ? "Creating..." : "Create workspace"}
                 </button>
@@ -330,157 +337,158 @@ function DashboardContent() {
                     });
                     fetchWorkspaces(currentOrg.id);
                   }}
-                  className="px-6 py-3 text-sm font-black uppercase border-brutal hover-brutal bg-background"
+                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                 >
                   New folder
                 </button>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-6 py-3 text-sm font-black uppercase border-brutal hover-brutal bg-background"
+                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-stone-100 hover:bg-stone-200 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                 >
                   Logout
                 </button>
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="flex-1 space-y-3">
-                <label htmlFor="workspace-search" className="text-sm font-black uppercase tracking-[0.35em]">
-                  Search workspaces
-                </label>
-                <div className="flex items-center gap-3 border-brutal bg-background px-4 py-4 shadow-brutal">
-                  <Search className="h-4 w-4 shrink-0 opacity-60" />
-                  <input
-                    id="workspace-search"
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Filter by workspace name..."
-                    className="w-full bg-transparent text-base md:text-lg font-bold uppercase placeholder:text-muted-foreground placeholder:font-bold focus:outline-none"
-                  />
-                </div>
+            {/* Redesigned Search & Sort bar */}
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between bg-white border-[3px] border-black p-6 rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mt-8">
+              <div className="flex-1 flex items-center gap-3 bg-stone-50 border-[3px] border-black rounded-full px-5 py-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <Search className="h-5 w-5 shrink-0 text-stone-500" />
+                <input
+                  id="workspace-search"
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="FILTER BY WORKSPACE NAME..."
+                  className="w-full bg-transparent text-sm font-bold uppercase placeholder:text-stone-400 focus:outline-none"
+                />
               </div>
 
-              <div className="flex flex-wrap items-end gap-4">
-                <div className="space-y-3">
-                  <label htmlFor="workspace-sort" className="text-sm font-black uppercase tracking-[0.35em] block">
-                    Sort
-                  </label>
-                  <select
-                    id="workspace-sort"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as "name" | "date")}
-                    className="border-brutal px-4 py-4 text-sm font-black uppercase bg-background focus:outline-none focus:shadow-brutal"
-                  >
-                    <option value="name">Name</option>
-                    <option value="date">Date</option>
-                  </select>
-                </div>
-                <div className="space-y-3">
-                  <div className="text-sm font-black uppercase tracking-[0.35em] block">Density</div>
-                  <div className="flex border-brutal overflow-hidden shadow-brutal">
-                    {[2, 3, 4].map((cols) => (
-                      <button
-                        key={cols}
-                        type="button"
-                        onClick={() => setViewDensity(cols as 2 | 3 | 4)}
-                        className={`px-4 py-4 text-sm font-black uppercase transition-colors ${
-                          viewDensity === cols ? "bg-accent text-accent-foreground" : "bg-background hover:bg-muted"
-                        } border-r-2 border-foreground last:border-r-0`}
-                      >
-                        {cols}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              <div className="flex items-center gap-4">
+                <label htmlFor="workspace-sort" className="text-xs font-black uppercase tracking-widest text-stone-500">
+                  SORT BY
+                </label>
+                <select
+                  id="workspace-sort"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "name" | "date")}
+                  className="border-[3px] border-black rounded-full px-5 py-3 text-xs font-black uppercase bg-white cursor-pointer hover:bg-stone-50 focus:outline-none"
+                >
+                  <option value="name">NAME (A-Z)</option>
+                  <option value="date">DATE CREATED</option>
+                </select>
               </div>
             </div>
 
             {searchQuery && (
-              <div className="text-sm font-bold uppercase opacity-70">
+              <div className="text-xs font-black uppercase tracking-wider opacity-60 pl-2">
                 Showing {filteredWorkspaces.length} of {workspaces.length} workspaces
               </div>
             )}
           </section>
 
-          <section className="grid gap-4 md:grid-cols-2">
+          {/* Quick Action Widget Cards */}
+          <section className="grid gap-6 md:grid-cols-2">
             <Link
               href="/dashboard/tasks"
-              className="group border-brutal-thick shadow-brutal bg-card p-5 md:p-6 flex items-center justify-between gap-4 transition-all hover:-translate-y-1 hover:shadow-brutal-xl"
+              className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#FBBF24] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
             >
-              <div className="space-y-1">
-                <div className="text-xs font-black uppercase tracking-[0.35em] opacity-60">Tasks</div>
-                <div className="text-2xl font-black uppercase leading-none">My Tasks</div>
-                <p className="text-sm font-bold uppercase opacity-70">Jump straight to the task board.</p>
+              <div className="space-y-2">
+                <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#FBBF24] rounded-full">
+                  TASKS & BOARD
+                </div>
+                <h3 className="text-3xl font-black uppercase leading-none mt-2">
+                  My Tasks
+                </h3>
+                <p className="text-xs font-bold uppercase tracking-wider text-black/75">
+                  Organize, assign, and track all your workflow tasks in one place.
+                </p>
               </div>
-              <div className="inline-flex h-12 w-12 items-center justify-center border-brutal bg-accent text-accent-foreground group-hover:translate-x-1 transition-transform">
-                <ArrowRight className="h-5 w-5" />
+
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-sm font-black uppercase tracking-widest group-hover:underline">
+                  GO TO BOARD &rarr;
+                </span>
+                <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <ArrowRight className="h-5 w-5" />
+                </div>
               </div>
             </Link>
 
             <Link
               href="/calendar"
-              className="group border-brutal-thick shadow-brutal bg-card p-5 md:p-6 flex items-center justify-between gap-4 transition-all hover:-translate-y-1 hover:shadow-brutal-xl"
+              className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#A7F3D0] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
             >
-              <div className="space-y-1">
-                <div className="text-xs font-black uppercase tracking-[0.35em] opacity-60">Calendar</div>
-                <div className="text-2xl font-black uppercase leading-none">Upcoming events</div>
-                <p className="text-sm font-bold uppercase opacity-70">
-                  {upcomingEvents.length} upcoming event{upcomingEvents.length === 1 ? "" : "s"} ready to view.
+              <div className="space-y-2">
+                <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#A7F3D0] rounded-full">
+                  CALENDAR & SCHEDULE
+                </div>
+                <h3 className="text-3xl font-black uppercase leading-none mt-2">
+                  Upcoming Events
+                </h3>
+                <p className="text-xs font-bold uppercase tracking-wider text-black/75">
+                  {upcomingEvents.length} active schedule event{upcomingEvents.length === 1 ? "" : "s"} waiting for your attention.
                 </p>
               </div>
-              <div className="inline-flex h-12 w-12 items-center justify-center border-brutal bg-background group-hover:translate-x-1 transition-transform">
-                <Calendar className="h-5 w-5" />
+
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-sm font-black uppercase tracking-widest group-hover:underline">
+                  VIEW CALENDAR &rarr;
+                </span>
+                <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <Calendar className="h-5 w-5" />
+                </div>
               </div>
             </Link>
           </section>
 
-          <section className="space-y-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="text-xs font-black uppercase tracking-[0.35em] opacity-60">Workspace library</div>
-              <div className="text-sm font-bold uppercase opacity-60">
-                {filteredWorkspaces.length} visible of {workspaces.length}
-              </div>
+          {/* Workspaces Section */}
+          <section className="space-y-6 pt-6">
+            <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 pb-4">
+              <span className="text-xs font-black uppercase tracking-[0.35em] text-stone-500">
+                WORKSPACE LIBRARY
+              </span>
+              <span className="text-xs font-black uppercase text-stone-500">
+                {filteredWorkspaces.length} VISIBLE OF {workspaces.length}
+              </span>
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {["alpha", "beta", "gamma", "delta"].map((key) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {["alpha", "beta", "gamma"].map((key) => (
                   <div
                     key={`workspace-skeleton-${key}`}
-                    className="border-brutal-thick bg-card p-8 space-y-6 animate-pulse"
+                    className="border-[3px] border-black bg-white rounded-[24px] p-8 space-y-6 animate-pulse shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
                   >
-                    <div className="h-4 w-28 bg-muted" />
-                    <div className="h-10 w-4/5 bg-muted" />
-                    <div className="h-4 w-full bg-muted" />
-                    <div className="h-4 w-3/4 bg-muted" />
-                    <div className="h-12 w-full bg-muted" />
+                    <div className="h-4 w-28 bg-stone-200 rounded" />
+                    <div className="h-10 w-4/5 bg-stone-200 rounded" />
+                    <div className="h-4 w-full bg-stone-200 rounded" />
+                    <div className="h-12 w-full bg-stone-200 rounded" />
                   </div>
                 ))}
               </div>
             ) : filteredWorkspaces.length === 0 ? (
-              <div className="border-brutal-thick shadow-brutal-xl bg-card p-10 md:p-14 relative overflow-hidden">
-                <div className="absolute -right-10 top-10 h-32 w-32 rounded-full bg-accent/20 blur-3xl" />
+              <div className="border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white p-10 md:p-14 rounded-[24px] relative overflow-hidden">
                 <div className="relative max-w-2xl space-y-6">
-                  <span className="inline-flex items-center gap-2 px-3 py-1 text-xs font-black uppercase tracking-[0.3em] border-brutal bg-muted">
-                    <Grid3X3 className="h-3.5 w-3.5" />
-                    Empty workspace library
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-black uppercase border-[3px] border-black bg-stone-100 rounded-full">
+                    <Grid3X3 className="h-4 w-4" />
+                    EMPTY WORKSPACE LIBRARY
                   </span>
-                  <h3 className="text-4xl md:text-6xl font-black uppercase leading-none">
+                  <h3 className="text-4xl md:text-5xl font-black uppercase leading-none">
                     {searchQuery.trim() ? "No matching workspaces" : "No workspaces yet"}
                   </h3>
-                  <p className="max-w-xl text-base md:text-lg font-bold uppercase leading-7 opacity-75">
+                  <p className="max-w-xl text-sm font-bold uppercase leading-relaxed text-stone-500">
                     {searchQuery.trim()
                       ? "Try a different search term or clear the filter to see everything again."
                       : "Create your first workspace, then turn it into a habit by adding notes and folder structure."}
                   </p>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-4 pt-4">
                     <button
                       type="button"
                       onClick={() => handleCreateWorkspace()}
                       disabled={creating}
-                      className="px-8 py-4 text-base font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground disabled:opacity-50"
+                      className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
                     >
                       {creating ? "Creating..." : "Create workspace"}
                     </button>
@@ -502,7 +510,7 @@ function DashboardContent() {
                         });
                         fetchWorkspaces(currentOrg.id);
                       }}
-                      className="px-8 py-4 text-base font-black uppercase border-brutal hover-brutal bg-background"
+                      className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                     >
                       New folder
                     </button>
@@ -510,9 +518,7 @@ function DashboardContent() {
                 </div>
               </div>
             ) : (
-              <div
-                className={`grid grid-cols-1 ${viewDensity === 2 ? "md:grid-cols-2" : viewDensity === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"} gap-6`}
-              >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredWorkspaces.map((ws) => {
                   const isRestricted = session.role === "intern" && ws.role === "founder";
                   const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
@@ -520,127 +526,128 @@ function DashboardContent() {
                   return (
                     <article
                       key={ws.id}
-                      className="group relative overflow-hidden border-brutal-thick bg-card shadow-brutal transition-all hover:-translate-y-1 hover:shadow-brutal-xl"
+                      className="group relative overflow-hidden border-[3px] border-black bg-white rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[300px] p-6 md:p-8"
                     >
-                      <div className={`absolute top-0 left-0 h-full w-2 ${getColorClass(ws.color)}`} />
-                      <div className="p-6 md:p-8 pl-8 md:pl-10 space-y-6">
+                      <div className="space-y-6">
                         <div className="flex items-start justify-between gap-4">
                           <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                              {isRestricted && <span className="text-foreground">Lock</span>}
-                              <h3 className="text-2xl md:text-3xl font-black uppercase leading-tight">
-                                {ws.owner_name}
-                              </h3>
-                            </div>
                             <div className="flex flex-wrap items-center gap-2">
                               <span
-                                className={`px-3 py-1 text-[11px] font-black uppercase tracking-[0.25em] border-brutal ${
+                                className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
                                   ws.role === "founder"
-                                    ? "bg-accent text-accent-foreground"
-                                    : "bg-foreground text-background"
+                                    ? "bg-[#FED7AA] text-black"
+                                    : "bg-black text-white"
                                 }`}
                               >
                                 {ws.role}
                               </span>
-                              <span className="px-3 py-1 text-[11px] font-black uppercase tracking-[0.25em] border-brutal bg-background">
-                                {new Date(ws.created_at).toLocaleDateString()}
-                              </span>
+                              {folderName && (
+                                <span className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
+                                  {folderName}
+                                </span>
+                              )}
                             </div>
+                            <h3 className="text-2xl font-black uppercase leading-tight mt-2 text-stone-900 group-hover:text-[#FBBF24] transition-colors">
+                              {ws.owner_name}
+                            </h3>
                           </div>
 
-                          <span
-                            className={`h-3 w-3 rounded-full ${getColorClass(ws.color)} ring-2 ring-foreground/20`}
+                          <div
+                            className={`h-6 w-6 rounded-full border-2 border-black ${getColorClass(ws.color)} shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}
                           />
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.25em] opacity-60">
-                          <span>ID: {ws.id.slice(0, 8)}...</span>
-                          {folderName && <span>Folder: {folderName}</span>}
-                        </div>
 
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <select
-                            className="bg-background border-brutal-sm text-xs font-bold uppercase px-3 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                            defaultValue={ws.folder_id || ""}
-                            disabled={session.role !== "founder"}
-                            title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
-                            onChange={async (e) => {
-                              const folderId = e.target.value || null;
-                              const res = await fetch(`/api/workspaces?id=${ws.id}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ folderId }),
-                              });
-                              if (res.ok && session && session.organizations?.[0]) {
-                                await fetchWorkspaces(session.organizations[0].id);
-                              }
-                            }}
-                          >
-                            <option value="">No folder</option>
-                            {folders.map((f) => (
-                              <option key={f.id} value={f.id}>
-                                {f.name}
-                              </option>
-                            ))}
-                          </select>
 
-                          <select
-                            className="bg-background border-brutal-sm text-xs font-bold uppercase px-3 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                            defaultValue={ws.color || "stone"}
-                            disabled={session.role !== "founder"}
-                            title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
-                            onChange={async (e) => {
-                              const color = e.target.value;
-                              const res = await fetch(`/api/workspaces?id=${ws.id}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ color }),
-                              });
-                              if (res.ok && session && session.organizations?.[0]) {
-                                await fetchWorkspaces(session.organizations[0].id);
-                              }
-                            }}
-                          >
-                            <option value="stone">Gray</option>
-                            <option value="red">Red</option>
-                            <option value="blue">Blue</option>
-                            <option value="green">Green</option>
-                            <option value="yellow">Yellow</option>
-                            <option value="purple">Purple</option>
-                            <option value="pink">Pink</option>
-                            <option value="orange">Orange</option>
-                          </select>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-3 pt-4 border-t-4 border-foreground">
-                          <Link
-                            href={isRestricted ? "#" : `/workspace/${ws.id}`}
-                            onClick={(e) => {
-                              if (isRestricted) {
-                                e.preventDefault();
-                                alert("You do not have permission to enter a founder-restricted workspace.");
-                              }
-                            }}
-                            className="inline-flex items-center gap-2 text-sm font-black uppercase transition-transform group-hover:translate-x-1"
-                          >
-                            Open workspace
-                            <ArrowRight className="h-4 w-4" />
-                          </Link>
-
-                          {!isRestricted && (session.role === "founder" || session.userId === ws.owner_id) && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleDeleteWorkspace(ws.id);
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Folder</label>
+                            <select
+                              className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
+                              defaultValue={ws.folder_id || ""}
+                              disabled={session.role !== "founder"}
+                              title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
+                              onChange={async (e) => {
+                                const folderId = e.target.value || null;
+                                const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                                  method: "PATCH",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ folderId }),
+                                });
+                                if (res.ok && session && session.organizations?.[0]) {
+                                  await fetchWorkspaces(session.organizations[0].id);
+                                }
                               }}
-                              className="inline-flex items-center gap-2 text-xs font-black uppercase text-destructive hover:underline"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
-                              Delete
-                            </button>
-                          )}
+                              <option value="">None</option>
+                              {folders.map((f) => (
+                                <option key={f.id} value={f.id}>
+                                  {f.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Accent</label>
+                            <select
+                              className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
+                              defaultValue={ws.color || "stone"}
+                              disabled={session.role !== "founder"}
+                              title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
+                              onChange={async (e) => {
+                                const color = e.target.value;
+                                const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                                  method: "PATCH",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ color }),
+                                });
+                                if (res.ok && session && session.organizations?.[0]) {
+                                  await fetchWorkspaces(session.organizations[0].id);
+                                }
+                              }}
+                            >
+                              <option value="stone">Gray</option>
+                              <option value="red">Red</option>
+                              <option value="blue">Blue</option>
+                              <option value="green">Green</option>
+                              <option value="yellow">Yellow</option>
+                              <option value="purple">Purple</option>
+                              <option value="pink">Pink</option>
+                              <option value="orange">Orange</option>
+                            </select>
+                          </div>
                         </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3 pt-5 border-t-2 border-stone-200 mt-6">
+                        <Link
+                          href={isRestricted ? "#" : `/workspace/${ws.id}`}
+                          onClick={(e) => {
+                            if (isRestricted) {
+                              e.preventDefault();
+                              alert("You do not have permission to enter a founder-restricted workspace.");
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black hover:underline"
+                        >
+                          OPEN WORKSPACE
+                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                        </Link>
+
+                        {!isRestricted && (session.role === "founder" || session.userId === ws.owner_id) && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleDeleteWorkspace(ws.id);
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-red-600 hover:text-red-700 hover:underline"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            DELETE
+                          </button>
+                        )}
                       </div>
                     </article>
                   );
