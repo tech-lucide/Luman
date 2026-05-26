@@ -149,67 +149,84 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
       ref={sidebarRef}
       style={{ width: isOpen ? width : 0 }}
       className={cn(
-        "fixed right-0 top-0 h-screen bg-gradient-to-br from-background via-background to-muted/20 border-l border-border shadow-2xl transition-all ease-out z-50 flex flex-col",
-        isOpen ? "translate-x-0" : "translate-x-full",
+        "relative h-full bg-[#FDFBF7] border-l-[4px] border-black flex flex-col shadow-none select-none overflow-hidden z-30 shrink-0",
+        isResizing ? "transition-none" : "transition-all duration-300 ease-out",
+        isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       )}
     >
       {/* Drag Handle */}
       <div
         onMouseDown={startResizing}
-        className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-violet-500/50 transition-colors z-50 group flex items-center justify-center -translate-x-1/2"
+        className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-black/10 transition-colors z-50 group flex items-center justify-center -translate-x-1/2"
       >
-        <div className="w-0.5 h-12 rounded-full bg-border group-hover:bg-violet-500 transition-colors" />
+        <div className="w-1 h-16 rounded-full bg-black group-hover:bg-[#FBBF24] transition-colors" />
       </div>
 
       {/* Header */}
-      <div className="relative h-14 border-b border-border/50 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-pink-500/10 backdrop-blur-xl flex-shrink-0">
-        <div className="flex items-center justify-between h-full px-4">
+      <div className="relative h-16 border-b-[4px] border-black bg-[#FBBF24] flex-shrink-0">
+        <div className="flex items-center justify-between h-full px-4 text-black">
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <Sparkles className="h-5 w-5 text-violet-500 animate-pulse" />
-              <div className="absolute inset-0 blur-md bg-violet-500/50" />
-            </div>
+            <Sparkles className="h-5 w-5 text-black animate-pulse" />
             <div className="flex flex-col">
-              <h2 className="font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
-                AI Assistant
+              <h2 className="font-black text-xs uppercase tracking-wider text-black">
+                AI Assistant Terminal
               </h2>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="text-[10px] bg-transparent border-none text-muted-foreground focus:ring-0 cursor-pointer p-0 h-auto"
+                className="text-[9px] bg-white border-2 border-black rounded-md px-1.5 py-0.5 text-black font-black uppercase focus:ring-0 focus:outline-none cursor-pointer h-auto shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]"
               >
                 {models.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.name}
+                    {m.name.toUpperCase()}
                   </option>
                 ))}
               </select>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
+
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+      <div className="flex-1 overflow-y-auto scrollbar-none p-4 space-y-4 min-h-0 bg-[#FDFBF7] relative">
+        {/* Vintage grid layer in side drawer */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-[size:30px_30px] opacity-60 pointer-events-none" />
+
         {isLoadingHistory ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div className="flex items-center justify-center h-full relative z-10">
+            <Loader2 className="h-6 w-6 animate-spin text-[#FBBF24]" />
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-3">
-            <div className="p-4 rounded-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20">
-              <Bot className="h-8 w-8 text-violet-500" />
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-4 p-6 relative z-10">
+            <div className="p-4 rounded-2xl border-[3px] border-black bg-[#FBBF24] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-bounce">
+              <Bot className="h-8 w-8 text-black" />
             </div>
-            <div>
-              <p className="font-medium text-sm">Start a conversation</p>
-              <p className="text-xs text-muted-foreground mt-1">Ask me anything about your note</p>
+            <div className="space-y-2">
+              <p className="font-black text-base uppercase tracking-wider text-stone-900">Start a conversation</p>
+              <p className="text-xs font-bold uppercase text-stone-500 mt-1 max-w-[240px]">
+                Ask Luman anything about your note, equations, or code.
+              </p>
+            </div>
+            
+            {/* Quick Badges in Empty State */}
+            <div className="grid grid-cols-2 gap-2.5 pt-4 w-full max-w-[280px]">
+              <button
+                onClick={() => append({ role: "user", content: "Can you summarize the current note?" })}
+                className="px-3 py-2 border-2 border-black rounded-xl bg-white hover:bg-stone-50 font-black text-[10px] uppercase text-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 text-left"
+              >
+                ⚡ Summarize
+              </button>
+              <button
+                onClick={() => append({ role: "user", content: "What are the key action items or todo items in this note?" })}
+                className="px-3 py-2 border-2 border-black rounded-xl bg-white hover:bg-stone-50 font-black text-[10px] uppercase text-stone-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 text-left"
+              >
+                📋 Todo items
+              </button>
             </div>
           </div>
         ) : (
-          <>
+          <div className="relative z-10 space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -220,67 +237,67 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
               >
                 {message.role === "assistant" && (
                   <div className="flex-shrink-0 mt-1">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20">
-                      <Bot className="h-4 w-4 text-violet-500" />
+                    <div className="p-2 border-2 border-black rounded-xl bg-[#FBBF24] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <Bot className="h-4 w-4 text-black" />
                     </div>
                   </div>
                 )}
 
                 <div
                   className={cn(
-                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm overflow-hidden",
+                    "max-w-[85%] rounded-2xl px-4 py-3 text-xs font-bold border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden",
                     message.role === "user"
-                      ? "bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/25"
-                      : "bg-muted/50 backdrop-blur-sm border border-border/50",
+                      ? "bg-[#F9A8D4] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                      : "bg-white text-stone-900",
                   )}
                 >
                   <ReactMarkdown
                     className={cn(
-                      "prose prose-sm dark:prose-invert max-w-none break-words",
+                      "prose prose-sm dark:prose-invert max-w-none break-words font-bold",
                       message.role === "user"
-                        ? "prose-headings:text-white prose-p:text-white prose-strong:text-white prose-code:text-white prose-ul:text-white"
-                        : "",
+                        ? "prose-headings:text-black prose-p:text-black prose-strong:text-black prose-code:text-black prose-ul:text-black"
+                        : "prose-headings:text-stone-900 prose-p:text-stone-900 prose-strong:text-stone-900 prose-code:text-stone-900 prose-ul:text-stone-900",
                     )}
                     components={{
                       code({ node, className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || "");
-                        const isInline = !match && !className; // Basic check for inline code
+                        const isInline = !match && !className;
 
                         if (isInline) {
                           return (
-                            <code className="bg-muted-foreground/20 px-1 py-0.5 rounded font-mono text-xs" {...props}>
+                            <code className="bg-stone-100 border border-stone-200 px-1 py-0.5 rounded font-mono text-[10px] text-black" {...props}>
                               {children}
                             </code>
                           );
                         }
 
                         return (
-                          <div className="relative my-2 rounded-md overflow-hidden bg-black/80 ring-1 ring-border/50">
-                            <div className="flex justify-between items-center px-4 py-1.5 bg-muted/50 border-b border-border/10">
-                              <span className="text-xs text-muted-foreground font-mono">{match?.[1] || "code"}</span>
+                          <div className="relative my-2 rounded-xl overflow-hidden border-2 border-black bg-stone-900 text-stone-100">
+                            <div className="flex justify-between items-center px-3 py-1.5 bg-stone-900 border-b-2 border-black">
+                              <span className="text-[10px] text-stone-400 font-mono uppercase font-black">{match?.[1] || "code"}</span>
                               <div className="flex gap-1">
                                 <button
                                   type="button"
                                   onClick={() => onInsert(String(children).replace(/\n$/, ""))}
-                                  className="p-1 hover:bg-white/10 rounded transition-colors group flex items-center gap-1"
+                                  className="p-1 hover:bg-stone-800 rounded transition-colors group flex items-center gap-1"
                                   title="Insert to editor"
                                 >
-                                  <ArrowRightToLine className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
-                                  <span className="text-[10px] text-muted-foreground group-hover:text-foreground">
+                                  <ArrowRightToLine className="h-3 w-3 text-stone-400 group-hover:text-stone-100" />
+                                  <span className="text-[9px] text-stone-400 group-hover:text-stone-100 uppercase font-black">
                                     Insert
                                   </span>
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => copyToClipboard(String(children).replace(/\n$/, ""))}
-                                  className="p-1 hover:bg-white/10 rounded transition-colors group"
+                                  className="p-1 hover:bg-stone-800 rounded transition-colors group"
                                   title="Copy code"
                                 >
-                                  <Copy className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
+                                  <Copy className="h-3 w-3 text-stone-400 group-hover:text-stone-100" />
                                 </button>
                               </div>
                             </div>
-                            <pre className="p-4 overflow-x-auto text-xs font-mono scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                            <pre className="p-4 overflow-x-auto text-[10px] font-mono scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-transparent">
                               <code className={className} {...props}>
                                 {children}
                               </code>
@@ -296,10 +313,9 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
 
                 {message.role === "assistant" && (
                   <div className="flex flex-col gap-1 mt-1">
-                    {/* Copy entire message */}
                     <button
                       onClick={() => onInsert(message.content)}
-                      className="self-start text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted/50 transition-colors"
+                      className="self-start text-[10px] text-stone-500 hover:text-black font-black uppercase flex items-center gap-1.5 px-2.5 py-1 rounded-lg border-2 border-black bg-white hover:bg-stone-50 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all shrink-0"
                     >
                       <ArrowRightToLine className="h-3 w-3" />
                       Insert
@@ -309,35 +325,59 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
 
                 {message.role === "user" && (
                   <div className="flex-shrink-0 mt-1">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
-                      <User className="h-4 w-4 text-blue-500" />
+                    <div className="p-2 border-2 border-black rounded-xl bg-[#FBBF24] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <User className="h-4 w-4 text-black" />
                     </div>
                   </div>
                 )}
               </div>
             ))}
             <div ref={messagesEndRef} />
-          </>
+          </div>
         )}
       </div>
 
-      {/* Input */}
-      <div className="p-4 border-t border-border/50 bg-background/80 backdrop-blur-xl flex-shrink-0">
+      {/* Suggestion Quickchips dynamic toolbar */}
+      {isOpen && messages.length > 0 && (
+        <div className="px-4 py-2.5 bg-[#FDFBF7] flex gap-2 overflow-x-auto border-t-2 border-stone-200 scrollbar-none flex-shrink-0 relative z-10">
+          <button
+            onClick={() => append({ role: "user", content: "Please summarize our note." })}
+            className="px-3 py-1.5 border-2 border-black rounded-full bg-white hover:bg-stone-50 font-black text-[9px] uppercase text-stone-700 shrink-0 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+          >
+            ✨ SUMMARIZE
+          </button>
+          <button
+            onClick={() => append({ role: "user", content: "What are the next action items or todo items in this note?" })}
+            className="px-3 py-1.5 border-2 border-black rounded-full bg-white hover:bg-stone-50 font-black text-[9px] uppercase text-stone-700 shrink-0 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+          >
+            📋 TODOS
+          </button>
+          <button
+            onClick={() => append({ role: "user", content: "Check spelling and polish grammar in the note." })}
+            className="px-3 py-1.5 border-2 border-black rounded-full bg-white hover:bg-stone-50 font-black text-[9px] uppercase text-stone-700 shrink-0 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+          >
+            🚀 POLISH PROSE
+          </button>
+        </div>
+      )}
+
+      {/* Input Form */}
+      <div className="p-4 border-t-4 border-black bg-stone-50 flex-shrink-0 relative z-10">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={handleInputChange}
-            placeholder="Ask me anything..."
+            placeholder="ASK ME ANYTHING..."
             disabled={isLoading}
-            className="flex-1 rounded-xl border border-border/50 bg-muted/30 px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/50 disabled:opacity-50 transition-shadow"
+            className="flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2.5 text-xs font-black uppercase placeholder:text-stone-400 focus:outline-none focus:ring-0 disabled:opacity-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="p-2.5 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white hover:shadow-lg hover:shadow-violet-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 disabled:hover:shadow-none"
+            className="p-2.5 rounded-full border-[3px] border-black bg-[#FBBF24] text-black hover:bg-[#FBBF24]/90 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all duration-200 flex items-center justify-center shrink-0"
           >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : <Send className="h-4 w-4 text-black" />}
           </button>
         </form>
       </div>

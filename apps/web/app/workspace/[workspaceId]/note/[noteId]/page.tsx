@@ -3,14 +3,16 @@
 import AIChatSidebar from "@/components/ai-chat-sidebar";
 import { EventModal } from "@/components/event-modal";
 import { TagSelector } from "@/components/tag-selector";
-import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, MessageSquare, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const TailwindAdvancedEditor = dynamic(() => import("@/components/tailwind/advanced-editor"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center p-8">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
     </div>
   ),
 });
@@ -33,9 +35,11 @@ export default function NoteEditorPage() {
   const [eventCreatedMessage, setEventCreatedMessage] = useState<string | null>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
 
-  // Live stats state
+  // Live stats and dynamic outline
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
+  const [headings, setHeadings] = useState<{ text: string; level: number }[]>([]);
+  const [workspaceNotes, setWorkspaceNotes] = useState<{ id: string; title: string }[]>([]);
 
   useEffect(() => {
     async function loadNote() {
@@ -56,12 +60,28 @@ export default function NoteEditorPage() {
     loadNote();
   }, [noteId]);
 
-  // Bind statistics change listener to editorInstance
+  // Load other workspace notes for quick directory navigation
+  useEffect(() => {
+    async function loadWorkspaceNotes() {
+      try {
+        const res = await fetch(`/api/notes?workspaceId=${workspaceId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setWorkspaceNotes(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to load workspace notes:", err);
+      }
+    }
+    loadWorkspaceNotes();
+  }, [workspaceId, noteId]);
+
+  // Bind statistics change listener & outline heading parser to editorInstance
   useEffect(() => {
     if (!editorInstance) return;
 
-    const updateStats = () => {
-      // TipTap character-count extension support
+    const updateStatsAndOutline = () => {
+      // 1. Live stats
       if (editorInstance.storage?.characterCount) {
         setWordCount(editorInstance.storage.characterCount.words() || 0);
         setCharCount(editorInstance.storage.characterCount.characters() || 0);
@@ -71,18 +91,54 @@ export default function NoteEditorPage() {
         setWordCount(words);
         setCharCount(text.length);
       }
+
+      // 2. Headings for Table of Contents
+      const json = editorInstance.getJSON();
+      const extracted: { text: string; level: number }[] = [];
+      const traverse = (node: any) => {
+        if (node.type === "heading" && node.content?.[0]?.text) {
+          extracted.push({
+            text: node.content[0].text,
+            level: node.attrs?.level || 1,
+          });
+        }
+        if (node.content) {
+          node.content.forEach(traverse);
+        }
+      };
+      traverse(json);
+      setHeadings(extracted);
     };
 
-    // Initialize counts
-    updateStats();
+    // Initialize counts & headings on editor mount
+    updateStatsAndOutline();
 
-    // Bind event
-    editorInstance.on("update", updateStats);
+    // Listen for real-time keystrokes
+    editorInstance.on("update", updateStatsAndOutline);
 
     return () => {
-      editorInstance.off("update", updateStats);
+      editorInstance.off("update", updateStatsAndOutline);
     };
   }, [editorInstance]);
+
+  // Clickable TOC scrolling logic with highlighted visual pulse
+  const scrollToHeading = (index: number) => {
+    const editorDom = document.querySelector(".tiptap, [contenteditable='true']");
+    if (!editorDom) return;
+
+    const headingElements = editorDom.querySelectorAll("h1, h2, h3, h4, h5, h6");
+    const targetElement = headingElements[index];
+
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      
+      // Temporary neobrutalist highlighting pulse
+      targetElement.classList.add("bg-[#FEF08A]", "transition-all", "duration-500", "ring-4", "ring-black", "rounded-lg");
+      setTimeout(() => {
+        targetElement.classList.remove("bg-[#FEF08A]", "ring-4", "ring-black", "rounded-lg");
+      }, 1500);
+    }
+  };
 
   // Listen for /schedule slash command
   useEffect(() => {
@@ -121,7 +177,7 @@ export default function NoteEditorPage() {
   return (
     <div className="h-screen flex flex-col bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden relative">
       {/* Technical grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-75 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none" />
 
       {/* Ambient Glows */}
       <div className="pointer-events-none absolute top-12 left-1/4 h-96 w-96 rounded-full bg-[#FBBF24]/5 blur-[120px] dark:opacity-20 animate-pulse" />
@@ -147,85 +203,81 @@ export default function NoteEditorPage() {
             </div>
           </div>
 
-          <button
-            onClick={() => setIsChatOpen(!isChatOpen)}
-            className="relative inline-flex items-center gap-2 rounded-full border-[3px] border-black bg-black text-white px-4 py-2 text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
-          >
-            <MessageSquare className="h-4 w-4" />
-            <span>AI Chat</span>
-            {isChatOpen && (
-              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-black" />
-            )}
-          </button>
+          <div className="w-[108px] flex justify-end" />
         </div>
       </header>
 
       {/* Split Body Layout */}
       <div className="flex-1 flex overflow-hidden relative z-10">
         
-        {/* Left Side Command Bar */}
+        {/* Left Side Command Bar (IDE-like workspace directory & Table of Contents) */}
         <aside className="w-80 shrink-0 border-r-4 border-black bg-white hidden lg:flex flex-col justify-between overflow-y-auto">
-          <div className="p-6 space-y-6">
-            <div className="space-y-2">
+          <div className="p-6 space-y-6 flex-1 flex flex-col min-h-0">
+            
+            {/* 1. Workspace Directory list of other notes */}
+            <div className="space-y-3 flex flex-col shrink-0">
               <div className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
-                AI WORKSPACE ASSISTANT
+                WORKSPACE DIRECTORY
               </div>
-              <div className="space-y-2.5">
-                <button
-                  onClick={() => {
-                    setIsChatOpen(true);
-                  }}
-                  className="w-full text-left flex items-center justify-between px-4 py-3 border-2 border-black rounded-xl bg-purple-50 hover:bg-purple-100 transition-all font-black text-xs uppercase text-purple-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
-                >
-                  <span>✨ Summarize Note</span>
-                  <span className="text-[9px] bg-purple-200 border border-purple-300 px-1.5 py-0.5 rounded font-mono">AI</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsChatOpen(true);
-                  }}
-                  className="w-full text-left flex items-center justify-between px-4 py-3 border-2 border-black rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-all font-black text-xs uppercase text-emerald-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
-                >
-                  <span>📝 Find Action Items</span>
-                  <span className="text-[9px] bg-emerald-200 border border-emerald-300 px-1.5 py-0.5 rounded font-mono">AI</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsChatOpen(true);
-                  }}
-                  className="w-full text-left flex items-center justify-between px-4 py-3 border-2 border-black rounded-xl bg-amber-50 hover:bg-amber-100 transition-all font-black text-xs uppercase text-amber-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
-                >
-                  <span>🚀 Improve Grammar</span>
-                  <span className="text-[9px] bg-amber-200 border border-amber-300 px-1.5 py-0.5 rounded font-mono">AI</span>
-                </button>
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {workspaceNotes.map((n) => {
+                  const isCurrent = n.id === noteId;
+                  return (
+                    <Link
+                      key={n.id}
+                      href={`/workspace/${workspaceId}/note/${n.id}`}
+                      className={cn(
+                        "flex items-center gap-2 px-3.5 py-2.5 text-xs font-black uppercase rounded-xl border-2 border-black transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 truncate",
+                        isCurrent ? "bg-[#FBBF24] text-black" : "bg-white text-stone-700 hover:bg-stone-50"
+                      )}
+                    >
+                      <span className="shrink-0">📄</span>
+                      <span className="truncate flex-1">{n.title}</span>
+                    </Link>
+                  );
+                })}
+                {workspaceNotes.length === 0 && (
+                  <div className="text-[10px] font-bold text-center uppercase text-stone-400 py-3 border-2 border-dashed border-stone-200 rounded-xl">
+                    No notes in workspace
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="border-t-2 border-dashed border-stone-200 pt-6 space-y-3">
+            {/* 2. Live Dynamic Outline / Table of Contents */}
+            <div className="border-t-2 border-dashed border-stone-200 pt-6 space-y-3 flex-1 flex flex-col min-h-0">
               <div className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
-                EDITOR SLASH COMMANDS
+                TABLE OF CONTENTS
               </div>
-              <div className="bg-stone-50 border-2 border-black rounded-2xl p-4 space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-black uppercase text-stone-600">
-                  <span>/schedule</span>
-                  <span className="text-[9px] bg-white border border-stone-200 px-1.5 py-0.5 rounded font-mono">Event</span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-black uppercase text-stone-600">
-                  <span>[] Checklist</span>
-                  <span className="text-[9px] bg-white border border-stone-200 px-1.5 py-0.5 rounded font-mono">Tasks</span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-black uppercase text-stone-600">
-                  <span>"" Quote block</span>
-                  <span className="text-[9px] bg-white border border-stone-200 px-1.5 py-0.5 rounded font-mono">Block</span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-black uppercase text-stone-600">
-                  <span># Header 1</span>
-                  <span className="text-[9px] bg-white border border-stone-200 px-1.5 py-0.5 rounded font-mono">Title</span>
-                </div>
+              <div className="flex-1 overflow-y-auto pr-1">
+                {headings.length === 0 ? (
+                  <div className="text-[10px] font-bold text-center uppercase text-stone-400 py-6 border-2 border-dashed border-stone-200 rounded-xl bg-stone-50/50">
+                    No headers found. Use # in note to create one.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {headings.map((h, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => scrollToHeading(i)}
+                        style={{ paddingLeft: `${(h.level - 1) * 10}px` }}
+                        className={cn(
+                          "w-full text-left flex items-start gap-2 text-xs font-black uppercase truncate group transition-all hover:translate-x-[2px] cursor-pointer",
+                          h.level === 1 ? "text-stone-900" : h.level === 2 ? "text-stone-600" : "text-stone-400"
+                        )}
+                      >
+                        <span className="text-[#FBBF24] shrink-0 font-bold">•</span>
+                        <span className="truncate group-hover:underline">{h.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="border-t-2 border-dashed border-stone-200 pt-6 space-y-3">
+            {/* 3. Live Statistics Block */}
+            <div className="border-t-2 border-dashed border-stone-200 pt-6 space-y-3 shrink-0">
               <div className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
                 LIVE STATISTICS
               </div>
@@ -246,9 +298,11 @@ export default function NoteEditorPage() {
                 </span>
               </div>
             </div>
+
           </div>
 
-          <div className="p-6 border-t-2 border-dashed border-stone-200 space-y-3 bg-stone-50/50">
+          {/* Quick Document Exporters */}
+          <div className="p-6 border-t-2 border-dashed border-stone-200 space-y-3 bg-stone-50/50 shrink-0">
             <div className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
               DOCUMENT ACTIONS
             </div>
@@ -289,9 +343,8 @@ export default function NoteEditorPage() {
           </div>
         </aside>
 
-        {/* Right Area: Floating Paper Canvas */}
-        <main className="flex-1 overflow-y-auto px-6 py-8 md:px-12 md:py-10">
-          <div className="max-w-4xl mx-auto border-[3px] border-black rounded-[24px] bg-white p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-all">
+        <main className="flex-1 overflow-y-auto scrollbar-none px-6 py-8 md:px-12 md:py-10">
+          <div className="max-w-6xl mx-auto border-[3px] border-black rounded-[24px] bg-white p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-all">
             <TailwindAdvancedEditor
               key={noteId}
               noteId={noteId}
@@ -302,19 +355,19 @@ export default function NoteEditorPage() {
           </div>
         </main>
 
-      </div>
+        {/* AI Chat Sidebar (Inline Flex Panel) */}
+        <AIChatSidebar
+          noteId={noteId}
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          onInsert={(text) => {
+            if (editorInstance) {
+              editorInstance.chain().focus().insertContent(text).run();
+            }
+          }}
+        />
 
-      {/* AI Chat Sidebar */}
-      <AIChatSidebar
-        noteId={noteId}
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        onInsert={(text) => {
-          if (editorInstance) {
-            editorInstance.chain().focus().insertContent(text).run();
-          }
-        }}
-      />
+      </div>
 
       {/* Event Modal */}
       <EventModal
@@ -336,6 +389,24 @@ export default function NoteEditorPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Neobrutalist AI Chat Toggle Button near the right-hand scrollbar at the top */}
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        className="fixed right-6 top-[84px] z-40 flex items-center justify-center h-12 w-12 rounded-full border-[3px] border-black bg-[#FBBF24] hover:bg-[#FBBF24]/90 text-black hover:-translate-y-0.5 transition-all shadow-[-3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none hover:shadow-[-5px_5px_0px_0px_rgba(0,0,0,1)]"
+        title={isChatOpen ? "Close AI Assistant" : "Open AI Assistant"}
+      >
+        {isChatOpen ? (
+          <ChevronRight className="h-6 w-6 text-black" />
+        ) : (
+          <ChevronLeft className="h-6 w-6 text-black animate-pulse" />
+        )}
+        {!isChatOpen && (
+          <span className="absolute -top-1.5 -left-1.5 h-4.5 w-4.5 bg-black rounded-full text-[8px] font-black flex items-center justify-center text-[#FBBF24] ring-2 ring-black">
+            AI
+          </span>
+        )}
+      </button>
     </div>
   );
 }

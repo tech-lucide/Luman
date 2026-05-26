@@ -167,7 +167,7 @@ const TailwindAdvancedEditor = ({ initialContent, noteId, workspaceId, onEditorR
             handleDrop: (view, event, _slice, moved) => handleImageDrop(view, event, moved, uploadFn),
             attributes: {
               class:
-                "prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full px-8 py-6",
+                "prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-none px-8 py-6",
             },
           }}
           onUpdate={({ editor }) => {

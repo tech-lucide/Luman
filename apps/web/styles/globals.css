@@ -264,3 +264,12 @@ pre code {
 header {
   border-bottom: 4px solid currentColor;
 }
+
+/* Hide scrollbar utility class */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
