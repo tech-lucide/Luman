@@ -26,6 +26,7 @@ function AdminDashboardContent() {
   const [members, setMembers] = useState<MemberWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [orgId, setOrgId] = useState<string | null>(null);
 
   // Helper to fetch session and verify access
   useEffect(() => {
@@ -46,6 +47,7 @@ function AdminDashboardContent() {
         // Find current org ID
         const currentOrg = (user.organizations as any[]).find((o) => o.slug === orgSlug) || user.organizations[0];
         if (currentOrg) {
+          setOrgId(currentOrg.id);
           fetchMembers(currentOrg.id);
         }
       } catch (err) {
@@ -156,34 +158,37 @@ function AdminDashboardContent() {
           </div>
         )}
 
-        <div className="mt-12 border-brutal-thick bg-destructive/10 p-8 border-destructive">
-          <h2 className="text-2xl font-black uppercase mb-4 text-destructive">DANGER ZONE</h2>
-          <p className="font-bold uppercase mb-6 text-sm">Irreversible actions. Be careful.</p>
-          <button
-            onClick={async () => {
-              if (confirm("ARE YOU SURE? THIS WILL DELETE THIS ORGANIZATION AND ALL DATA.")) {
-                try {
-                  const res = await fetch("/api/debug/reset", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ target: "organizations" }),
-                  });
-                  if (res.ok) {
-                    alert("Organization deleted.");
-                    window.location.href = "/org-login";
-                  } else {
-                    alert("Failed to delete.");
+        {currentUserRole === "founder" && (
+          <div className="mt-12 border-brutal-thick bg-destructive/10 p-8 border-destructive">
+            <h2 className="text-2xl font-black uppercase mb-4 text-destructive">DANGER ZONE</h2>
+            <p className="font-bold uppercase mb-6 text-sm">Irreversible actions. Be careful.</p>
+            <button
+              onClick={async () => {
+                if (confirm("ARE YOU SURE? THIS WILL DELETE THIS ORGANIZATION AND ALL DATA.")) {
+                  try {
+                    const res = await fetch("/api/debug/reset", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ target: "organizations", orgId }),
+                    });
+                    if (res.ok) {
+                      alert("Organization deleted.");
+                      window.location.href = "/org-login";
+                    } else {
+                      const errorData = await res.json();
+                      alert(`Failed to delete: ${errorData.error || "Unknown error"}`);
+                    }
+                  } catch (e) {
+                    alert("Error deleting.");
                   }
-                } catch (e) {
-                  alert("Error deleting.");
                 }
-              }
-            }}
-            className="px-6 py-4 bg-destructive text-destructive-foreground font-black uppercase border-brutal hover:opacity-90"
-          >
-            DELETE ORGANIZATION
-          </button>
-        </div>
+              }}
+              className="px-6 py-4 bg-destructive text-destructive-foreground font-black uppercase border-brutal hover:opacity-90"
+            >
+              DELETE ORGANIZATION
+            </button>
+          </div>
+        )}
       </div>
     </AppShell>
   );

@@ -24,13 +24,18 @@ export async function GET(request: NextRequest) {
     // If orgSlug provided, get specific role
     if (orgSlug) {
       const org = await getOrganizationBySlug(orgSlug);
-      if (org) {
-        const membership = await getUserMembership(org.id, user.id);
-        if (membership) {
-          role = membership.role;
-        }
+      if (!org) {
+        return NextResponse.json({ error: "Organization not found" }, { status: 404 });
       }
-    } else if (organizations.length > 0) {
+      const membership = await getUserMembership(org.id, user.id);
+      if (!membership) {
+        return NextResponse.json({ error: "Not a member of this organization" }, { status: 403 });
+      }
+      role = membership.role;
+    } else {
+      if (organizations.length === 0) {
+        return NextResponse.json({ error: "User has no organizations" }, { status: 403 });
+      }
       // Use first organization as default
       role = organizations[0].userRole;
     }

@@ -39,7 +39,7 @@ type Folder = {
 
 type UserSession = {
   userId: string;
-  role: "founder" | "intern";
+  role: "founder" | "admin" | "intern";
   ownerName: string;
   organizations: Organization[];
   invitation_code?: string;
@@ -421,6 +421,14 @@ function DashboardContent() {
                 >
                   New folder
                 </button>
+                {(session?.role === "founder" || session?.role === "admin") && (
+                  <Link
+                    href={`/dashboard/admin?org=${orgSlug || ""}`}
+                    className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white dark:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center"
+                  >
+                    Admin Panel
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={handleLogout}

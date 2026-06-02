@@ -27,16 +27,38 @@ export async function POST(req: NextRequest) {
 
     // For now, let's just provide a simple "Delete My Organizations" which cascades
     if (target === "organizations") {
-      // Find orgs where user is founder
-      const { data: memberships } = await supabase
-        .from("organization_members")
-        .select("organization_id")
-        .eq("user_id", user.id)
-        .eq("role", "founder");
+      const { orgId } = body;
+      let orgIdsToDelete: string[] = [];
 
-      if (memberships && memberships.length > 0) {
-        const orgIds = memberships.map((m) => m.organization_id);
-        const { error } = await supabase.from("organizations").delete().in("id", orgIds);
+      if (orgId) {
+        // Targeted deletion: Verify requesting user is the founder of this specific organization
+        const { data: membership, error: memError } = await supabase
+          .from("organization_members")
+          .select("role")
+          .eq("organization_id", orgId)
+          .eq("user_id", user.id)
+          .single();
+
+        if (memError || !membership || membership.role !== "founder") {
+          return NextResponse.json({ error: "Forbidden: Only the Founder can delete this organization." }, { status: 403 });
+        }
+
+        orgIdsToDelete = [orgId];
+      } else {
+        // Fallback: Find all orgs where user is founder
+        const { data: memberships } = await supabase
+          .from("organization_members")
+          .select("organization_id")
+          .eq("user_id", user.id)
+          .eq("role", "founder");
+
+        if (memberships && memberships.length > 0) {
+          orgIdsToDelete = memberships.map((m) => m.organization_id);
+        }
+      }
+
+      if (orgIdsToDelete.length > 0) {
+        const { error } = await supabase.from("organizations").delete().in("id", orgIdsToDelete);
         if (error) throw error;
       }
     }

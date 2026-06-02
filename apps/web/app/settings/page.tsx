@@ -1,6 +1,7 @@
 "use client";
 
 import AppShell from "@/components/layouts/app-shell";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -19,6 +20,8 @@ function SettingsContent() {
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<{ id: string; email?: string; full_name?: string } | null>(null);
   const [fullName, setFullName] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [orgSlug, setOrgSlug] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUser() {
@@ -36,6 +39,13 @@ function SettingsContent() {
             // Ideally we should have the raw meta name.
             // Let's rely on what the session gave us for now or fetch updated profile
             setFullName(data.user.ownerName || "");
+            setUserRole(data.user.role || null);
+            
+            // Get org slug from search params or fallback to first org
+            const params = new URLSearchParams(window.location.search);
+            const slugFromUrl = params.get("org");
+            const slug = slugFromUrl || data.user.organizations?.[0]?.slug || null;
+            setOrgSlug(slug);
           }
         }
       } catch (err) {
@@ -121,6 +131,27 @@ function SettingsContent() {
             </form>
           </div>
         </section>
+
+        {/* Organization Section */}
+        {userRole && (userRole === "founder" || userRole === "admin") && (
+          <section className="space-y-6">
+            <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-2">ORGANIZATION</h2>
+
+            <div className="border-brutal-thick bg-card p-8 space-y-4">
+              <p className="font-bold uppercase text-sm">
+                Manage members, update team roles (Founder, Admin, Intern), and configure organization parameters.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href={`/dashboard/admin?org=${orgSlug || ""}`}
+                  className="inline-block px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase border-brutal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                >
+                  Go to Admin Panel
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

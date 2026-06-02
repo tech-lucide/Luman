@@ -1,5 +1,6 @@
 import { addMemberToOrganization, getOrganizationBySlug, getOrganizationMembers } from "@/lib/db/organizations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -28,6 +29,18 @@ export async function POST(req: Request) {
     // Check if organization has any members
     const members = await getOrganizationMembers(organization.id);
     const assignedRole = members.length === 0 ? "founder" : "intern";
+
+    // Invite validation for existing organizations: require verified invite code
+    if (assignedRole === "intern") {
+      const cookieStore = await cookies();
+      const pendingOrg = cookieStore.get("pending_join_org")?.value;
+      if (!pendingOrg || pendingOrg !== orgSlug) {
+        return NextResponse.json({ error: "An invitation code is required to join this organization." }, { status: 403 });
+      }
+      
+      // Clean up the verified cookie on success
+      cookieStore.delete("pending_join_org");
+    }
 
     console.log(
       `[Register] Assigning role '${assignedRole}' to new user (Organization has ${members.length} existing members)`,
