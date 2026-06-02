@@ -305,7 +305,7 @@ function DashboardContent() {
     <section className="grid gap-6 md:grid-cols-2">
       <Link
         href="/dashboard/tasks"
-        className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#FBBF24] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
+        className="group relative overflow-hidden border-[3px] border-black dark:border-stone-100 rounded-[24px] bg-[#FBBF24] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] text-black"
       >
         <div className="space-y-2">
           <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#FBBF24] rounded-full">
@@ -319,7 +319,7 @@ function DashboardContent() {
 
         <div className="flex items-center justify-between mt-4">
           <span className="text-sm font-black uppercase tracking-widest group-hover:underline">GO TO BOARD &rarr;</span>
-          <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 text-black dark:text-stone-100 group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
             <ArrowRight className="h-5 w-5" />
           </div>
         </div>
@@ -327,7 +327,7 @@ function DashboardContent() {
 
       <Link
         href="/calendar"
-        className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#A7F3D0] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
+        className="group relative overflow-hidden border-[3px] border-black dark:border-stone-100 rounded-[24px] bg-[#A7F3D0] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] text-black"
       >
         <div className="space-y-2">
           <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#A7F3D0] rounded-full">
@@ -344,7 +344,7 @@ function DashboardContent() {
           <span className="text-sm font-black uppercase tracking-widest group-hover:underline">
             VIEW CALENDAR &rarr;
           </span>
-          <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 text-black dark:text-stone-100 group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
             <Calendar className="h-5 w-5" />
           </div>
         </div>
@@ -368,24 +368,24 @@ function DashboardContent() {
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-black uppercase tracking-[0.25em] border-[3px] border-black bg-[#FBBF24] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-black uppercase tracking-[0.25em] border-[3px] border-black dark:border-stone-100 bg-[#FBBF24] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
                     <Sparkles className="h-4 w-4" />
                     DASHBOARD
                   </span>
-                  <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
+                  <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 text-black dark:text-stone-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
                     {session.role}
                   </span>
-                  <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black bg-black text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
+                  <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black dark:border-stone-100 bg-black dark:bg-white text-white dark:text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
                     {session.ownerName}
                   </span>
                   {session.role === "founder" && session.organizations[0]?.invitation_code && (
-                    <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black bg-[#A7F3D0] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
+                    <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black dark:border-stone-100 bg-[#A7F3D0] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
                       INVITE: {session.organizations[0].invitation_code}
                     </span>
                   )}
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wide text-black">Welcome to Luman</h1>
-                <div className="text-xs font-black uppercase tracking-[0.25em] text-stone-500">
+                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wide text-black dark:text-stone-100">Welcome to Luman</h1>
+                <div className="text-xs font-black uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400">
                   Manage your team, notes, and workspaces beautifully.
                 </div>
               </div>
@@ -395,7 +395,7 @@ function DashboardContent() {
                   type="button"
                   onClick={() => handleCreateWorkspace()}
                   disabled={creating}
-                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
+                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
                 >
                   {creating ? "Creating..." : "Create workspace"}
                 </button>
@@ -417,14 +417,14 @@ function DashboardContent() {
                     });
                     fetchWorkspaces(currentOrg.id);
                   }}
-                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-white dark:bg-zinc-900 text-black dark:text-stone-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                 >
                   New folder
                 </button>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-stone-100 hover:bg-stone-200 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 text-black dark:text-stone-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                 >
                   Logout
                 </button>
@@ -432,8 +432,8 @@ function DashboardContent() {
             </div>
 
             {/* Redesigned Search & Sort bar */}
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between bg-white border-[3px] border-black p-6 rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mt-8">
-              <div className="flex-1 flex items-center gap-3 bg-stone-50 border-[3px] border-black rounded-full px-5 py-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between bg-white dark:bg-zinc-900 border-[3px] border-black dark:border-stone-100 p-6 rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] mt-8">
+              <div className="flex-1 flex items-center gap-3 bg-stone-50 dark:bg-zinc-800 border-[3px] border-black dark:border-stone-100 rounded-full px-5 py-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
                 <Search className="h-5 w-5 shrink-0 text-stone-500" />
                 <input
                   id="workspace-search"
@@ -441,19 +441,19 @@ function DashboardContent() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="FILTER BY WORKSPACE NAME..."
-                  className="w-full bg-transparent text-sm font-bold uppercase placeholder:text-stone-400 focus:outline-none"
+                  className="w-full bg-transparent text-sm font-bold uppercase placeholder:text-stone-400 focus:outline-none text-stone-900 dark:text-stone-100"
                 />
               </div>
 
               <div className="flex items-center gap-4">
-                <label htmlFor="workspace-sort" className="text-xs font-black uppercase tracking-widest text-stone-500">
+                <label htmlFor="workspace-sort" className="text-xs font-black uppercase tracking-widest text-stone-500 dark:text-stone-400">
                   SORT BY
                 </label>
                 <select
                   id="workspace-sort"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as "name" | "date")}
-                  className="border-[3px] border-black rounded-full px-5 py-3 text-xs font-black uppercase bg-white cursor-pointer hover:bg-stone-50 focus:outline-none"
+                  className="border-[3px] border-black dark:border-stone-100 rounded-full px-5 py-3 text-xs font-black uppercase bg-white dark:bg-zinc-900 text-stone-900 dark:text-stone-100 cursor-pointer hover:bg-stone-50 dark:hover:bg-zinc-800 focus:outline-none"
                 >
                   <option value="name">NAME (A-Z)</option>
                   <option value="date">DATE CREATED</option>
@@ -462,7 +462,7 @@ function DashboardContent() {
             </div>
 
             {searchQuery && (
-              <div className="text-xs font-black uppercase tracking-wider opacity-60 pl-2">
+              <div className="text-xs font-black uppercase tracking-wider pl-2 text-stone-600 dark:text-stone-300">
                 Showing {filteredWorkspaces.length} of {workspaces.length} workspaces and {filteredNotes.length} matching notes
               </div>
             )}
@@ -472,7 +472,7 @@ function DashboardContent() {
             <>
               {/* Search Results in thin tile manner */}
               <section className="space-y-6 pt-2">
-                <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 pb-4">
+                <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 dark:border-zinc-800 pb-4">
                   <span className="text-xs font-black uppercase tracking-[0.35em] text-stone-500">SEARCH RESULTS</span>
                   <span className="text-xs font-black uppercase text-stone-500">
                     {filteredWorkspaces.length + filteredNotes.length} MATCH{filteredWorkspaces.length + filteredNotes.length === 1 ? "" : "ES"} FOUND
@@ -482,13 +482,13 @@ function DashboardContent() {
                 <div className="grid gap-8 md:grid-cols-2">
                   {/* Workspace Results Column */}
                   <div className="space-y-4">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-stone-700 flex items-center gap-2 border-b-2 border-stone-200 pb-2">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-stone-700 dark:text-stone-300 flex items-center gap-2 border-b-2 border-stone-200 dark:border-zinc-800 pb-2">
                       <Grid3X3 className="h-4 w-4 text-[#FBBF24]" />
                       WORKSPACES ({filteredWorkspaces.length})
                     </h4>
                     
                     {filteredWorkspaces.length === 0 ? (
-                      <div className="border-[3px] border-black bg-stone-50/50 p-6 rounded-[16px] text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="border-[3px] border-black dark:border-stone-100 bg-stone-50/50 dark:bg-zinc-900/50 p-6 rounded-[16px] text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
                         <p className="text-xs font-bold uppercase text-stone-500">
                           No matching workspaces
                         </p>
@@ -509,7 +509,7 @@ function DashboardContent() {
                                   alert("You do not have permission to enter a founder-restricted workspace.");
                                 }
                               }}
-                              className="group flex items-center justify-between border-[3px] border-black bg-white rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-black"
+                              className="group flex items-center justify-between border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 text-black dark:text-stone-100 rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                             >
                               <div className="flex items-center gap-4 flex-wrap">
                                 <div
@@ -518,20 +518,20 @@ function DashboardContent() {
                                   )}`}
                                 />
                                 
-                                <span className="text-base font-black uppercase text-stone-900 group-hover:text-[#FBBF24] transition-colors font-sans">
+                                <span className="text-base font-black uppercase text-stone-900 dark:text-stone-100 group-hover:text-[#FBBF24] transition-colors font-sans">
                                   {ws.owner_name}
                                 </span>
 
                                 <div className="flex items-center gap-2">
                                   <span
-                                    className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
+                                    className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black dark:border-stone-100 rounded-full ${
                                       ws.role === "founder" ? "bg-[#FED7AA] text-black" : "bg-black text-white"
                                     }`}
                                   >
                                     {ws.role}
                                   </span>
                                   {folderName && (
-                                    <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
+                                    <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black dark:border-stone-100 rounded-full bg-stone-100 dark:bg-zinc-800 text-black dark:text-stone-100">
                                       {folderName}
                                     </span>
                                   )}
@@ -539,7 +539,7 @@ function DashboardContent() {
                               </div>
 
                               <div className="flex items-center gap-4">
-                                <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline">
+                                <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline text-black dark:text-stone-100">
                                   {isRestricted ? "RESTRICTED" : "OPEN"}
                                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                                 </span>
@@ -553,13 +553,13 @@ function DashboardContent() {
 
                   {/* Notes Results Column */}
                   <div className="space-y-4">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-stone-700 flex items-center gap-2 border-b-2 border-stone-200 pb-2">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-stone-700 dark:text-stone-300 flex items-center gap-2 border-b-2 border-stone-200 dark:border-zinc-800 pb-2">
                       <FileText className="h-4 w-4 text-[#FBBF24]" />
                       NOTES ({filteredNotes.length})
                     </h4>
 
                     {filteredNotes.length === 0 ? (
-                      <div className="border-[3px] border-black bg-stone-50/50 p-6 rounded-[16px] text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="border-[3px] border-black dark:border-stone-100 bg-stone-50/50 dark:bg-zinc-900/50 p-6 rounded-[16px] text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
                         <p className="text-xs font-bold uppercase text-stone-500">
                           No matching notes
                         </p>
@@ -570,17 +570,17 @@ function DashboardContent() {
                           <Link
                             key={note.id}
                             href={`/workspace/${note.workspace_id}/note/${note.id}`}
-                            className="group flex items-center justify-between border-[3px] border-black bg-white rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-black"
+                            className="group flex items-center justify-between border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 text-black dark:text-stone-100 rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                           >
                             <div className="flex items-center gap-4 flex-wrap">
                               <FileText className="h-4 w-4 shrink-0 text-[#FBBF24]" />
                               
-                              <span className="text-base font-black uppercase text-stone-900 group-hover:text-[#FBBF24] transition-colors font-sans">
+                              <span className="text-base font-black uppercase text-stone-900 dark:text-stone-100 group-hover:text-[#FBBF24] transition-colors font-sans">
                                 {note.title}
                               </span>
 
                               <span
-                                className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full ${getColorClass(
+                                className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black dark:border-stone-100 rounded-full ${getColorClass(
                                   note.workspaceColor,
                                 )} text-black`}
                               >
@@ -588,14 +588,14 @@ function DashboardContent() {
                               </span>
 
                               {note.tags && Array.isArray(note.tags) && note.tags.map((tag: string) => (
-                                <span key={tag} className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-stone-700">
+                                <span key={tag} className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black dark:border-stone-100 rounded-full bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-stone-300">
                                   #{tag}
                                 </span>
                               ))}
                             </div>
 
                             <div className="flex items-center gap-4">
-                              <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline">
+                              <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline text-black dark:text-stone-100">
                                 OPEN Note
                                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                               </span>
@@ -618,7 +618,7 @@ function DashboardContent() {
 
               {/* Workspaces Section */}
               <section className="space-y-6 pt-6">
-                <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 pb-4">
+                <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 dark:border-zinc-800 pb-4">
                   <span className="text-xs font-black uppercase tracking-[0.35em] text-stone-500">
                     WORKSPACE LIBRARY
                   </span>
@@ -632,26 +632,26 @@ function DashboardContent() {
                     {["alpha", "beta", "gamma"].map((key) => (
                       <div
                         key={`workspace-skeleton-${key}`}
-                        className="border-[3px] border-black bg-white rounded-[24px] p-8 space-y-6 animate-pulse shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+                        className="border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 rounded-[24px] p-8 space-y-6 animate-pulse shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]"
                       >
-                        <div className="h-4 w-28 bg-stone-200 rounded" />
-                        <div className="h-10 w-4/5 bg-stone-200 rounded" />
-                        <div className="h-4 w-full bg-stone-200 rounded" />
-                        <div className="h-12 w-full bg-stone-200 rounded" />
+                        <div className="h-4 w-28 bg-stone-200 dark:bg-zinc-800 rounded" />
+                        <div className="h-10 w-4/5 bg-stone-200 dark:bg-zinc-800 rounded" />
+                        <div className="h-4 w-full bg-stone-200 dark:bg-zinc-800 rounded" />
+                        <div className="h-12 w-full bg-stone-200 dark:bg-zinc-800 rounded" />
                       </div>
                     ))}
                   </div>
                 ) : filteredWorkspaces.length === 0 ? (
-                  <div className="border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white p-10 md:p-14 rounded-[24px] relative overflow-hidden">
+                  <div className="border-[3px] border-black dark:border-stone-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] bg-white dark:bg-zinc-900 p-10 md:p-14 rounded-[24px] relative overflow-hidden">
                     <div className="relative max-w-2xl space-y-6">
-                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-black uppercase border-[3px] border-black bg-stone-100 rounded-full">
+                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-black uppercase border-[3px] border-black dark:border-stone-100 bg-stone-100 dark:bg-zinc-800 text-black dark:text-stone-100 rounded-full">
                         <Grid3X3 className="h-4 w-4" />
                         EMPTY WORKSPACE LIBRARY
                       </span>
-                      <h3 className="text-4xl md:text-5xl font-black uppercase leading-none">
+                      <h3 className="text-4xl md:text-5xl font-black uppercase leading-none text-black dark:text-stone-100">
                         {searchQuery.trim() ? "No matching workspaces" : "No workspaces yet"}
                       </h3>
-                      <p className="max-w-xl text-sm font-bold uppercase leading-relaxed text-stone-500">
+                      <p className="max-w-xl text-sm font-bold uppercase leading-relaxed text-stone-500 dark:text-stone-400">
                         {searchQuery.trim()
                           ? "Try a different search term or clear the filter to see everything again."
                           : "Create your first workspace, then turn it into a habit by adding notes and folder structure."}
@@ -661,7 +661,7 @@ function DashboardContent() {
                           type="button"
                           onClick={() => handleCreateWorkspace()}
                           disabled={creating}
-                          className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
+                          className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
                         >
                           {creating ? "Creating..." : "Create workspace"}
                         </button>
@@ -683,7 +683,7 @@ function DashboardContent() {
                             });
                             fetchWorkspaces(currentOrg.id);
                           }}
-                          className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                          className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-white dark:bg-zinc-900 text-black dark:text-stone-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                         >
                           New folder
                         </button>
@@ -699,47 +699,45 @@ function DashboardContent() {
                       return (
                         <article
                           key={ws.id}
-                          className="group relative overflow-hidden border-[3px] border-black bg-white rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[300px] p-6 md:p-8"
+                          className="group relative overflow-hidden border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[10px_10px_0px_0px_rgba(255,255,255,1)] hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[300px] p-6 md:p-8 text-black dark:text-stone-100"
                         >
                           <div className="space-y-6">
                             <div className="flex items-start justify-between gap-4">
                               <div className="space-y-3">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <span
-                                    className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
-                                      ws.role === "founder" ? "bg-[#FED7AA] text-black" : "bg-black text-white"
+                                    className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black dark:border-stone-100 rounded-full ${
+                                      ws.role === "founder"
+                                        ? "bg-[#FED7AA] text-black"
+                                        : "bg-black dark:bg-white text-white dark:text-black"
                                     }`}
                                   >
                                     {ws.role}
                                   </span>
                                   {folderName && (
-                                    <span className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
+                                    <span className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black dark:border-stone-100 rounded-full bg-stone-100 dark:bg-zinc-800 text-black dark:text-stone-100">
                                       {folderName}
                                     </span>
                                   )}
                                 </div>
-                                <h3 className="text-2xl font-black uppercase leading-tight mt-2 text-stone-900 group-hover:text-[#FBBF24] transition-colors">
+                                <h3 className="text-2xl font-black uppercase leading-tight mt-2 text-stone-900 dark:text-stone-100 group-hover:text-[#FBBF24] transition-colors">
                                   {ws.owner_name}
                                 </h3>
                               </div>
 
                               <div
-                                className={`h-6 w-6 rounded-full border-2 border-black ${getColorClass(ws.color)} shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}
+                                className={`h-6 w-6 rounded-full border-2 border-black dark:border-stone-100 ${getColorClass(ws.color)} shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]`}
                               />
                             </div>
 
                             <div className="grid gap-3 grid-cols-2">
                               <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                                  Folder
-                                </label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-stone-500 dark:text-stone-400">Folder</label>
                                 <select
-                                  className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
+                                  className="bg-stone-50 dark:bg-zinc-800 border-2 border-black dark:border-stone-100 rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 dark:focus:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] text-black dark:text-stone-100"
                                   defaultValue={ws.folder_id || ""}
                                   disabled={session.role !== "founder"}
-                                  title={
-                                    session.role !== "founder" ? "Only the founder can organize this workspace." : ""
-                                  }
+                                  title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
                                   onChange={async (e) => {
                                     const folderId = e.target.value || null;
                                     const res = await fetch(`/api/workspaces?id=${ws.id}`, {
@@ -762,16 +760,12 @@ function DashboardContent() {
                               </div>
 
                               <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                                  Accent
-                                </label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-stone-500 dark:text-stone-400">Accent</label>
                                 <select
-                                  className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
+                                  className="bg-stone-50 dark:bg-zinc-800 border-2 border-black dark:border-stone-100 rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 dark:focus:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] text-black dark:text-stone-100"
                                   defaultValue={ws.color || "stone"}
                                   disabled={session.role !== "founder"}
-                                  title={
-                                    session.role !== "founder" ? "Only the founder can organize this workspace." : ""
-                                  }
+                                  title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
                                   onChange={async (e) => {
                                     const color = e.target.value;
                                     const res = await fetch(`/api/workspaces?id=${ws.id}`, {
@@ -797,7 +791,7 @@ function DashboardContent() {
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between gap-3 pt-5 border-t-2 border-stone-200 mt-6">
+                          <div className="flex items-center justify-between gap-3 pt-5 border-t-2 border-stone-200 dark:border-zinc-800 mt-6 font-sans">
                             <Link
                               href={isRestricted ? "#" : `/workspace/${ws.id}`}
                               onClick={(e) => {
@@ -806,7 +800,7 @@ function DashboardContent() {
                                   alert("You do not have permission to enter a founder-restricted workspace.");
                                 }
                               }}
-                              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black hover:underline"
+                              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black dark:text-stone-100 hover:underline"
                             >
                               OPEN WORKSPACE
                               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -819,7 +813,7 @@ function DashboardContent() {
                                   e.preventDefault();
                                   handleDeleteWorkspace(ws.id);
                                 }}
-                                className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-red-600 hover:text-red-700 hover:underline"
+                                className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:underline"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                                 DELETE
