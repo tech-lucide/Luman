@@ -352,15 +352,7 @@ export function WorkspaceSidebar() {
 
       {/* Main sidebar scroll area */}
       <div className="relative z-10 flex-1 overflow-y-auto scrollbar-none p-6 space-y-8">
-        <div className="relative pt-2 pb-4">
-          <div className="border-[3px] border-black bg-black text-[#FBBF24] py-3.5 px-4 text-center rounded-[16px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase font-black text-lg tracking-wider transform -rotate-2 relative overflow-hidden group hover:rotate-0 transition-transform cursor-pointer select-none">
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              ⚡ {orgSlug || "LUMAN TECH"}
-            </span>
-            <div className="absolute inset-0 bg-stone-900 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-red-500 border border-black animate-pulse" />
-          </div>
-        </div>
+
 
         <nav className="space-y-6">
           <div className="space-y-3">
