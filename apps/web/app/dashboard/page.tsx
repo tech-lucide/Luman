@@ -354,7 +354,7 @@ function DashboardContent() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden">
+      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden pt-16 lg:pt-20">
         {/* Technical grid overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none" />
 
@@ -362,7 +362,7 @@ function DashboardContent() {
         <div className="pointer-events-none absolute top-12 left-1/4 h-96 w-96 rounded-full bg-[#FBBF24]/10 blur-[120px] dark:opacity-20" />
         <div className="pointer-events-none absolute bottom-24 right-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px] dark:opacity-20" />
 
-        <div className="relative mx-auto max-w-7xl px-8 py-12 md:py-16 space-y-12">
+        <div className="relative mx-auto max-w-7xl px-8 pt-4 pb-12 md:pt-6 md:pb-16 space-y-12">
           {/* Header Banner */}
           <section className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-6">

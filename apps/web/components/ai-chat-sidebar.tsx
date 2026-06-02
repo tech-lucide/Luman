@@ -18,9 +18,11 @@ interface AIChatSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   onInsert: (text: string) => void;
+  width: number;
+  setWidth: (width: number) => void;
 }
 
-export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIChatSidebarProps) {
+export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert, width, setWidth }: AIChatSidebarProps) {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -95,7 +97,6 @@ export default function AIChatSidebar({ noteId, isOpen, onClose, onInsert }: AIC
   }, [noteId, setMessages]);
 
   // Resizing logic
-  const [width, setWidth] = useState(420);
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
 

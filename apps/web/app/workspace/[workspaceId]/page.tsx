@@ -75,7 +75,7 @@ export default function WorkspacePage() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden">
+      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden pt-16 lg:pt-20">
         {/* Technical grid overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none" />
 
@@ -83,9 +83,9 @@ export default function WorkspacePage() {
         <div className="pointer-events-none absolute top-12 left-1/4 h-96 w-96 rounded-full bg-[#FBBF24]/10 blur-[120px] dark:opacity-20" />
         <div className="pointer-events-none absolute bottom-24 right-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px] dark:opacity-20" />
 
-        <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-12">
+        <div className="relative mx-auto max-w-7xl px-4 pt-2 pb-6 md:px-8 md:pt-3 md:pb-8 lg:px-10 lg:pt-4 lg:pb-10">
           <section className="border-[3px] border-black rounded-[24px] bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-            <div className="grid gap-0 lg:grid-cols-[1.35fr_0.65fr]">
+            <div className="grid gap-0 xl:grid-cols-[1.35fr_0.65fr]">
               <div className="p-8 md:p-10 lg:p-12 space-y-8">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-black uppercase tracking-[0.25em] border-[3px] border-black bg-[#FBBF24] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
@@ -130,7 +130,7 @@ export default function WorkspacePage() {
                 </div>
               </div>
 
-              <div className="border-t-4 lg:border-t-0 lg:border-l-4 border-foreground bg-muted/30 p-8 md:p-10 flex flex-col justify-between gap-8">
+              <div className="border-t-4 xl:border-t-0 xl:border-l-4 border-foreground bg-muted/30 p-8 md:p-10 flex flex-col justify-between gap-8">
                 <div className="space-y-4">
                   <div className="text-xs font-black uppercase tracking-[0.35em] opacity-60">Snapshot</div>
                   <div className="space-y-4">

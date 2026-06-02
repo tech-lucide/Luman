@@ -62,63 +62,72 @@ export default function MyTasksPage() {
 
   return (
     <AppShell>
-      <div className="p-8 md:p-12 max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="font-black uppercase leading-none border-l-8 border-foreground pl-6 text-5xl md:text-6xl">
-            MY TASKS
-          </h1>
-          <p className="pl-6 mt-4 text-lg font-bold uppercase opacity-50">
-            {activeTasks.length} PENDING · {completedTasks.length} COMPLETED
-          </p>
+      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden pt-16 lg:pt-20">
+        {/* Technical grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none z-0" />
+
+        {/* Ambient Glows */}
+        <div className="pointer-events-none absolute top-12 left-1/4 h-96 w-96 rounded-full bg-[#FBBF24]/10 blur-[120px] dark:opacity-20 z-0" />
+        <div className="pointer-events-none absolute bottom-24 right-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px] dark:opacity-20 z-0" />
+
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pt-4 pb-8 md:pt-6 md:pb-12 z-10">
+          {/* Header */}
+          <div className="mb-12">
+            <h1 className="font-black uppercase leading-none border-l-8 border-foreground pl-6 text-4xl sm:text-5xl md:text-6xl">
+              MY TASKS
+            </h1>
+            <p className="pl-6 mt-4 text-base sm:text-lg font-bold uppercase opacity-50">
+              {activeTasks.length} PENDING · {completedTasks.length} COMPLETED
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="flex items-center gap-4 text-lg font-bold uppercase animate-pulse border-brutal-thick p-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              LOADING TASKS...
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="border-brutal-thick p-16 bg-muted/30 text-center space-y-4">
+              <CheckCircle2 className="h-16 w-16 mx-auto opacity-30" />
+              <h2 className="text-3xl font-black uppercase">ALL CLEAR</h2>
+              <p className="text-lg font-bold uppercase opacity-50">NO TASKS FOUND ACROSS ANY WORKSPACE</p>
+            </div>
+          ) : (
+            <div className="space-y-12">
+              {/* Active Tasks */}
+              {activeTasks.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-4 mb-8 flex items-center gap-4">
+                    <span className="w-3 h-3 bg-foreground inline-block" />
+                    TO DO
+                    <span className="ml-auto text-xl opacity-50">{activeTasks.length}</span>
+                  </h2>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {activeTasks.map((task) => (
+                      <TaskRow key={task.id} task={task} onToggle={() => toggleTask(task)} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Completed Tasks */}
+              {completedTasks.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-4 mb-8 flex items-center gap-4 opacity-60">
+                    <span className="w-3 h-3 bg-foreground inline-block" />
+                    COMPLETED
+                    <span className="ml-auto text-xl">{completedTasks.length}</span>
+                  </h2>
+                  <div className="grid gap-4 md:grid-cols-2 opacity-60">
+                    {completedTasks.map((task) => (
+                      <TaskRow key={task.id} task={task} onToggle={() => toggleTask(task)} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {loading ? (
-          <div className="flex items-center gap-4 text-lg font-bold uppercase animate-pulse border-brutal-thick p-8">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            LOADING TASKS...
-          </div>
-        ) : tasks.length === 0 ? (
-          <div className="border-brutal-thick p-16 bg-muted text-center space-y-4">
-            <CheckCircle2 className="h-16 w-16 mx-auto opacity-30" />
-            <h2 className="text-3xl font-black uppercase">ALL CLEAR</h2>
-            <p className="text-lg font-bold uppercase opacity-50">NO TASKS FOUND ACROSS ANY WORKSPACE</p>
-          </div>
-        ) : (
-          <div className="space-y-12">
-            {/* Active Tasks */}
-            {activeTasks.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-4 mb-8 flex items-center gap-4">
-                  <span className="w-3 h-3 bg-foreground inline-block" />
-                  TO DO
-                  <span className="ml-auto text-xl opacity-50">{activeTasks.length}</span>
-                </h2>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {activeTasks.map((task) => (
-                    <TaskRow key={task.id} task={task} onToggle={() => toggleTask(task)} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Completed Tasks */}
-            {completedTasks.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-4 mb-8 flex items-center gap-4 opacity-60">
-                  <span className="w-3 h-3 bg-foreground inline-block" />
-                  COMPLETED
-                  <span className="ml-auto text-xl">{completedTasks.length}</span>
-                </h2>
-                <div className="grid gap-4 md:grid-cols-2 opacity-60">
-                  {completedTasks.map((task) => (
-                    <TaskRow key={task.id} task={task} onToggle={() => toggleTask(task)} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </AppShell>
   );

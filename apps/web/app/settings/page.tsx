@@ -83,15 +83,26 @@ function SettingsContent() {
 
   if (loading) {
     return (
-      <div className="p-8 md:p-12 max-w-7xl mx-auto">
-        <div className="text-lg font-bold uppercase animate-pulse">LOADING SETTINGS...</div>
+      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden pt-16 lg:pt-20">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none z-0" />
+        <div className="relative px-8 pt-4 pb-8 md:px-12 md:pt-6 md:pb-12 max-w-7xl mx-auto z-10">
+          <div className="text-lg font-bold uppercase animate-pulse">LOADING SETTINGS...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 md:p-12 max-w-3xl mx-auto">
-      <h1 className="text-4xl font-black uppercase mb-12 border-l-8 border-foreground pl-6">SETTINGS</h1>
+    <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden pt-16 lg:pt-20">
+      {/* Technical grid overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none z-0" />
+
+      {/* Ambient Glows */}
+      <div className="pointer-events-none absolute top-12 left-1/4 h-96 w-96 rounded-full bg-[#FBBF24]/10 blur-[120px] dark:opacity-20 z-0" />
+      <div className="pointer-events-none absolute bottom-24 right-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px] dark:opacity-20 z-0" />
+
+      <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-4 pb-8 md:pt-6 md:pb-12 z-10">
+        <h1 className="text-4xl font-black uppercase mb-12 border-l-8 border-foreground pl-6">SETTINGS</h1>
 
       <div className="space-y-12">
         {/* Profile Section */}
@@ -152,6 +163,7 @@ function SettingsContent() {
             </div>
           </section>
         )}
+      </div>
       </div>
     </div>
   );

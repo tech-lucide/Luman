@@ -25,17 +25,19 @@ export async function PUT(req: Request, { params }: { params: Promise<{ noteId: 
   const { noteId } = await params;
 
   const supabase = await createSupabaseServerClient();
-  const { content } = await req.json();
+  const { content, title } = await req.json();
 
-  if (!content) {
-    return NextResponse.json({ error: "Missing content" }, { status: 400 });
+  const updateData: any = {};
+  if (content !== undefined) updateData.content = content;
+  if (title !== undefined) updateData.title = title;
+
+  if (Object.keys(updateData).length === 0) {
+    return NextResponse.json({ error: "Missing content or title" }, { status: 400 });
   }
 
   const { error } = await supabase
     .from("notes")
-    .update({
-      content,
-    })
+    .update(updateData)
     .eq("id", noteId);
 
   if (error) {
