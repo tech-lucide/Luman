@@ -3,6 +3,7 @@
 import { createSupabaseClient } from "@/lib/supabase/client";
 import { ChevronDown, ChevronRight, FileText, Folder, FolderOpen, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -41,6 +42,7 @@ export function WorkspaceSidebar() {
   const [loading, setLoading] = useState(true);
   const [notesLoading, setNotesLoading] = useState(false);
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -51,6 +53,7 @@ export function WorkspaceSidebar() {
           console.error("Sidebar: No authenticated user found", userError);
           return;
         }
+        setUser(userData.user);
 
         let currentOrgId = null;
         if (orgSlug) {
@@ -173,6 +176,43 @@ export function WorkspaceSidebar() {
     }
   };
 
+  const getWorkspaceCardStyle = (color?: string, isActive?: boolean) => {
+    if (isActive) {
+      return "bg-[#FBBF24] text-black border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]";
+    }
+
+    let hoverStyles = "";
+    switch (color) {
+      case "red":
+        hoverStyles = "hover:bg-red-50 hover:border-red-500 hover:shadow-[3px_3px_0px_0px_rgba(239,68,68,1)]";
+        break;
+      case "blue":
+        hoverStyles = "hover:bg-blue-50 hover:border-blue-500 hover:shadow-[3px_3px_0px_0px_rgba(59,130,246,1)]";
+        break;
+      case "green":
+        hoverStyles = "hover:bg-green-50 hover:border-green-500 hover:shadow-[3px_3px_0px_0px_rgba(16,185,129,1)]";
+        break;
+      case "yellow":
+        hoverStyles = "hover:bg-yellow-50 hover:border-yellow-500 hover:shadow-[3px_3px_0px_0px_rgba(245,158,11,1)]";
+        break;
+      case "purple":
+        hoverStyles = "hover:bg-purple-50 hover:border-purple-500 hover:shadow-[3px_3px_0px_0px_rgba(139,92,246,1)]";
+        break;
+      case "pink":
+        hoverStyles = "hover:bg-pink-50 hover:border-pink-500 hover:shadow-[3px_3px_0px_0px_rgba(236,72,153,1)]";
+        break;
+      case "orange":
+        hoverStyles = "hover:bg-orange-50 hover:border-orange-500 hover:shadow-[3px_3px_0px_0px_rgba(249,115,22,1)]";
+        break;
+      case "teal":
+        hoverStyles = "hover:bg-teal-50 hover:border-teal-500 hover:shadow-[3px_3px_0px_0px_rgba(20,184,166,1)]";
+        break;
+      default:
+        hoverStyles = "hover:bg-stone-50 hover:border-stone-400 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]";
+    }
+    return `bg-white text-stone-800 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${hoverStyles}`;
+  };
+
   // Pastel text colors for folder names
   const getFolderTextColor = (color?: string) => {
     switch (color) {
@@ -206,11 +246,14 @@ export function WorkspaceSidebar() {
 
   if (isWorkspaceView && workspaceId) {
     return (
-      <aside className="w-[300px] h-full min-h-0 border-r-4 border-foreground bg-background flex flex-col overflow-hidden">
-        <div className="shrink-0 p-6 pb-4 space-y-4 border-b-4 border-foreground bg-[#FDFBF7]">
+      <aside className="w-full h-full min-h-0 border-none bg-transparent flex flex-col overflow-hidden relative">
+        {/* Technical dot-grid overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-60 pointer-events-none z-0" />
+
+        <div className="relative z-10 shrink-0 p-6 pb-4 space-y-4 border-b-4 border-foreground bg-[#FDFBF7]">
           <Link
             href={dashboardHref}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-black uppercase border-brutal hover-brutal bg-background w-full justify-center"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-black uppercase border-[3px] border-black rounded-full hover-brutal bg-white w-full justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
           >
             <span>&larr; All workspaces</span>
           </Link>
@@ -218,28 +261,28 @@ export function WorkspaceSidebar() {
           <div className="grid grid-cols-2 gap-2">
             <Link
               href="/calendar"
-              className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+              className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-[9px] sm:text-[10px] font-black uppercase border-[3px] border-black rounded-full bg-white hover:bg-accent transition-transform hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
             >
               ALL EVENTS
             </Link>
             <Link
               href="/dashboard/tasks"
-              className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+              className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-[9px] sm:text-[10px] font-black uppercase border-[3px] border-black rounded-full bg-white hover:bg-accent transition-transform hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
             >
               MY TASKS
             </Link>
           </div>
 
-          <div className="inline-flex max-w-full items-center px-3 py-1.5 text-xs font-black uppercase tracking-widest border-brutal bg-accent text-accent-foreground w-full justify-center">
+          <div className="inline-flex max-w-full items-center px-4 py-2 text-xs font-black uppercase tracking-widest border-[3px] border-black bg-[#FBBF24] text-black w-full justify-center rounded-full shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] select-none">
             <span className="truncate">{currentWorkspace?.owner_name || "Workspace"}</span>
           </div>
         </div>
 
-        <div className="shrink-0 flex items-center justify-between px-6 py-4">
+        <div className="relative z-10 shrink-0 flex items-center justify-between px-6 py-4">
           <span className="text-xs font-black uppercase tracking-[0.3em] opacity-70">Notes</span>
           <Link
             href={`/workspace/${workspaceId}/new`}
-            className="inline-flex items-center justify-center h-9 w-9 border-brutal hover-brutal bg-background"
+            className="inline-flex items-center justify-center h-9 w-9 border-[3px] border-black rounded-full hover-brutal bg-white text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
             aria-label="Create new note"
             title="Create new note"
           >
@@ -247,7 +290,7 @@ export function WorkspaceSidebar() {
           </Link>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <div className="relative z-10 flex-1 overflow-y-auto px-4 pb-4">
           {notesLoading ? (
             <div className="px-2 text-sm font-bold uppercase opacity-60">Loading notes...</div>
           ) : notes.length === 0 ? (
@@ -263,11 +306,12 @@ export function WorkspaceSidebar() {
                   <Link
                     key={note.id}
                     href={`/workspace/${workspaceId}/note/${note.id}`}
-                    className={`flex items-center gap-3 px-4 py-3 text-sm font-bold border-brutal-sm transition-all ${
+                    className={cn(
+                      "flex items-center gap-3 px-4.5 py-3.5 text-xs font-black uppercase rounded-[16px] border-[3px] transition-all hover:-translate-y-0.5",
                       isActive
-                        ? "bg-accent text-accent-foreground shadow-brutal"
-                        : "bg-background hover:bg-muted/40 hover:shadow-md"
-                    }`}
+                        ? "bg-[#FBBF24] text-black border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] font-black"
+                        : "bg-white hover:bg-stone-50 border-black hover:border-black hover:shadow-[3.5px_3.5px_0px_0px_rgba(251,191,36,0.8)] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-stone-800 font-bold"
+                    )}
                   >
                     <FileText className="h-4 w-4 shrink-0" />
                     <span className="truncate flex-1">{note.title}</span>
@@ -277,35 +321,65 @@ export function WorkspaceSidebar() {
             </div>
           )}
         </div>
+
+        {/* Sticky User Profile Control Panel at the bottom of Sidebar */}
+        {user && (
+          <div className="relative z-10 shrink-0 p-4 border-t-[3px] border-black bg-stone-50/50 mt-auto">
+            <div className="border-[3px] border-black rounded-[18px] p-3.5 bg-white flex items-center gap-3.5 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover-brutal">
+              <div className="w-10 h-10 rounded-full bg-black text-[#FBBF24] font-black flex items-center justify-center border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] select-none">
+                {user.email?.[0].toUpperCase() || "U"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] font-black uppercase text-stone-900 truncate tracking-wide select-none">
+                  {user.email?.split("@")[0] || "User"}
+                </div>
+                <div className="text-[8px] font-bold text-stone-400 uppercase tracking-widest truncate select-none">
+                  ACTIVE SESSION
+                </div>
+              </div>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-[2px] border-black animate-pulse" />
+            </div>
+          </div>
+        )}
       </aside>
     );
   }
 
   return (
-    <aside className="w-[300px] h-full min-h-0 border-r-4 border-foreground bg-[#FDFBF7] p-6 flex flex-col overflow-y-auto">
-      <div className="space-y-8">
-        <h2 className="text-2xl font-black uppercase border-b-4 border-foreground pb-4 break-words">
-          {orgSlug || "MENU"}
-        </h2>
+    <aside className="w-full h-full min-h-0 border-none bg-transparent flex flex-col overflow-hidden relative">
+      {/* Technical dot-grid overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-60 pointer-events-none z-0" />
+
+      {/* Main sidebar scroll area */}
+      <div className="relative z-10 flex-1 overflow-y-auto scrollbar-none p-6 space-y-8">
+        <div className="relative pt-2 pb-4">
+          <div className="border-[3px] border-black bg-black text-[#FBBF24] py-3.5 px-4 text-center rounded-[16px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase font-black text-lg tracking-wider transform -rotate-2 relative overflow-hidden group hover:rotate-0 transition-transform cursor-pointer select-none">
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              ⚡ {orgSlug || "LUMAN TECH"}
+            </span>
+            <div className="absolute inset-0 bg-stone-900 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+            <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-red-500 border border-black animate-pulse" />
+          </div>
+        </div>
 
         <nav className="space-y-6">
           <div className="space-y-3">
             <Link
               href={`/dashboard?org=${orgSlug || ""}`}
-              className="block px-4 py-2.5 font-black uppercase text-center text-lg bg-[#FBBF24] hover:bg-[#FBBF24]/90 border-brutal shadow-brutal transition-transform hover:-translate-y-1"
+              className="block px-4 py-3 font-black uppercase text-center text-lg bg-[#FBBF24] hover:bg-[#FBBF24]/90 border-[3px] border-black rounded-full shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
             >
               DASHBOARD
             </Link>
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/calendar"
-                className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-[9px] sm:text-[10px] font-black uppercase border-[3px] border-black rounded-full bg-white hover:bg-accent transition-transform hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
               >
                 ALL EVENTS
               </Link>
               <Link
                 href="/dashboard/tasks"
-                className="flex items-center justify-center gap-1.5 px-2 py-2 text-[10px] sm:text-[11px] font-black uppercase border-brutal bg-background hover:bg-accent transition-transform hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-[9px] sm:text-[10px] font-black uppercase border-[3px] border-black rounded-full bg-white hover:bg-accent transition-transform hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
               >
                 MY TASKS
               </Link>
@@ -316,8 +390,14 @@ export function WorkspaceSidebar() {
             <div className="text-xs opacity-50 font-black px-4 tracking-widest animate-pulse">LOADING...</div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center justify-between px-3 pb-2 border-b-2 border-dashed border-foreground/30">
-                <span className="text-xs font-black uppercase tracking-widest opacity-60">WORKSPACES</span>
+              <div className="flex items-center justify-between border-y-[3px] border-black/10 py-3 my-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-stone-400 flex items-center gap-1.5 select-none">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 border border-black animate-pulse" />
+                  WORKSPACES
+                </span>
+                <span className="px-2.5 py-0.5 border-2 border-black rounded-full bg-[#FBBF24] text-[9px] font-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] select-none">
+                  {workspaces.length} ACTIVE
+                </span>
               </div>
 
               {folders.map((folder) => {
@@ -383,7 +463,10 @@ export function WorkspaceSidebar() {
                             <Link
                               key={w.id}
                               href={`/workspace/${w.id}`}
-                              className={`flex items-center gap-2.5 px-3 py-2 text-xs font-black uppercase rounded-lg border-2 border-black transition-all ${workspaceId === w.id ? "bg-[#FBBF24] text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]" : "bg-white hover:bg-stone-50 hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-stone-700"}`}
+                              className={cn(
+                                "flex items-center gap-2.5 px-3.5 py-3 text-xs font-black uppercase rounded-[12px] border-[3px] transition-all hover:-translate-y-0.5",
+                                getWorkspaceCardStyle(w.color, workspaceId === w.id)
+                              )}
                             >
                               <div
                                 className={`h-2.5 w-2.5 rounded-full border border-black shrink-0 ${getColorClass(w.color)}`}
@@ -403,7 +486,10 @@ export function WorkspaceSidebar() {
                   <Link
                     key={w.id}
                     href={`/workspace/${w.id}`}
-                    className={`flex items-center gap-3 px-4 py-2.5 text-xs font-black uppercase rounded-full border-2 border-black transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] ${workspaceId === w.id ? "bg-[#FBBF24] text-black" : "bg-white text-stone-800 hover:bg-stone-50"}`}
+                    className={cn(
+                      "flex items-center gap-3 px-4.5 py-3.5 text-xs font-black uppercase rounded-[16px] border-[3px] transition-all hover:-translate-y-0.5",
+                      getWorkspaceCardStyle(w.color, workspaceId === w.id)
+                    )}
                   >
                     <div
                       className={`h-3 w-3 rounded-full border border-black shrink-0 ${getColorClass(w.color)} shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}
@@ -422,6 +508,26 @@ export function WorkspaceSidebar() {
           )}
         </nav>
       </div>
+
+      {/* Sticky User Profile Control Panel at the bottom of Sidebar */}
+      {user && (
+        <div className="relative z-10 shrink-0 p-4 border-t-[3px] border-black bg-stone-50/50 mt-auto">
+          <div className="border-[3px] border-black rounded-[18px] p-3.5 bg-white flex items-center gap-3.5 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover-brutal">
+            <div className="w-10 h-10 rounded-full bg-black text-[#FBBF24] font-black flex items-center justify-center border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] select-none">
+              {user.email?.[0].toUpperCase() || "U"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-black uppercase text-stone-900 truncate tracking-wide select-none">
+                {user.email?.split("@")[0] || "User"}
+              </div>
+              <div className="text-[8px] font-bold text-stone-400 uppercase tracking-widest truncate select-none">
+                ACTIVE SESSION
+              </div>
+            </div>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-[2px] border-black animate-pulse" />
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

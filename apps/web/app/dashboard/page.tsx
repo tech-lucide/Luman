@@ -270,6 +270,57 @@ function DashboardContent() {
     .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
     .slice(0, 5);
 
+  const quickActionCards = (
+    <section className="grid gap-6 md:grid-cols-2">
+      <Link
+        href="/dashboard/tasks"
+        className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#FBBF24] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
+      >
+        <div className="space-y-2">
+          <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#FBBF24] rounded-full">
+            TASKS & BOARD
+          </div>
+          <h3 className="text-3xl font-black uppercase leading-none mt-2">My Tasks</h3>
+          <p className="text-xs font-bold uppercase tracking-wider text-black/75">
+            Organize, assign, and track all your workflow tasks in one place.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm font-black uppercase tracking-widest group-hover:underline">GO TO BOARD &rarr;</span>
+          <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <ArrowRight className="h-5 w-5" />
+          </div>
+        </div>
+      </Link>
+
+      <Link
+        href="/calendar"
+        className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#A7F3D0] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
+      >
+        <div className="space-y-2">
+          <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#A7F3D0] rounded-full">
+            CALENDAR & SCHEDULE
+          </div>
+          <h3 className="text-3xl font-black uppercase leading-none mt-2">Upcoming Events</h3>
+          <p className="text-xs font-bold uppercase tracking-wider text-black/75">
+            {upcomingEvents.length} active schedule event{upcomingEvents.length === 1 ? "" : "s"} waiting for your
+            attention.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm font-black uppercase tracking-widest group-hover:underline">
+            VIEW CALENDAR &rarr;
+          </span>
+          <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <Calendar className="h-5 w-5" />
+          </div>
+        </div>
+      </Link>
+    </section>
+  );
+
   return (
     <AppShell>
       <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden">
@@ -302,9 +353,7 @@ function DashboardContent() {
                     </span>
                   )}
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wide text-black">
-                  Welcome to Luman
-                </h1>
+                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wide text-black">Welcome to Luman</h1>
                 <div className="text-xs font-black uppercase tracking-[0.25em] text-stone-500">
                   Manage your team, notes, and workspaces beautifully.
                 </div>
@@ -388,240 +437,33 @@ function DashboardContent() {
             )}
           </section>
 
-          {/* Quick Action Widget Cards */}
-          <section className="grid gap-6 md:grid-cols-2">
-            <Link
-              href="/dashboard/tasks"
-              className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#FBBF24] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
-            >
-              <div className="space-y-2">
-                <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#FBBF24] rounded-full">
-                  TASKS & BOARD
-                </div>
-                <h3 className="text-3xl font-black uppercase leading-none mt-2">
-                  My Tasks
-                </h3>
-                <p className="text-xs font-bold uppercase tracking-wider text-black/75">
-                  Organize, assign, and track all your workflow tasks in one place.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between mt-4">
-                <span className="text-sm font-black uppercase tracking-widest group-hover:underline">
-                  GO TO BOARD &rarr;
-                </span>
-                <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                  <ArrowRight className="h-5 w-5" />
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/calendar"
-              className="group relative overflow-hidden border-[3px] border-black rounded-[24px] bg-[#A7F3D0] p-8 flex flex-col justify-between gap-6 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-black"
-            >
-              <div className="space-y-2">
-                <div className="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-black text-[#A7F3D0] rounded-full">
-                  CALENDAR & SCHEDULE
-                </div>
-                <h3 className="text-3xl font-black uppercase leading-none mt-2">
-                  Upcoming Events
-                </h3>
-                <p className="text-xs font-bold uppercase tracking-wider text-black/75">
-                  {upcomingEvents.length} active schedule event{upcomingEvents.length === 1 ? "" : "s"} waiting for your attention.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between mt-4">
-                <span className="text-sm font-black uppercase tracking-widest group-hover:underline">
-                  VIEW CALENDAR &rarr;
-                </span>
-                <div className="inline-flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white rounded-full text-black group-hover:translate-x-1 transition-transform shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                  <Calendar className="h-5 w-5" />
-                </div>
-              </div>
-            </Link>
-          </section>
-
-          {/* Workspaces Section */}
-          <section className="space-y-6 pt-6">
-            <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 pb-4">
-              <span className="text-xs font-black uppercase tracking-[0.35em] text-stone-500">
-                WORKSPACE LIBRARY
-              </span>
-              <span className="text-xs font-black uppercase text-stone-500">
-                {filteredWorkspaces.length} VISIBLE OF {workspaces.length}
-              </span>
-            </div>
-
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {["alpha", "beta", "gamma"].map((key) => (
-                  <div
-                    key={`workspace-skeleton-${key}`}
-                    className="border-[3px] border-black bg-white rounded-[24px] p-8 space-y-6 animate-pulse shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-                  >
-                    <div className="h-4 w-28 bg-stone-200 rounded" />
-                    <div className="h-10 w-4/5 bg-stone-200 rounded" />
-                    <div className="h-4 w-full bg-stone-200 rounded" />
-                    <div className="h-12 w-full bg-stone-200 rounded" />
-                  </div>
-                ))}
-              </div>
-            ) : filteredWorkspaces.length === 0 ? (
-              <div className="border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white p-10 md:p-14 rounded-[24px] relative overflow-hidden">
-                <div className="relative max-w-2xl space-y-6">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-black uppercase border-[3px] border-black bg-stone-100 rounded-full">
-                    <Grid3X3 className="h-4 w-4" />
-                    EMPTY WORKSPACE LIBRARY
+          {searchQuery ? (
+            <>
+              {/* Search Results in thin tile manner */}
+              <section className="space-y-4 pt-2">
+                <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 pb-4">
+                  <span className="text-xs font-black uppercase tracking-[0.35em] text-stone-500">SEARCH RESULTS</span>
+                  <span className="text-xs font-black uppercase text-stone-500">
+                    {filteredWorkspaces.length} MATCH{filteredWorkspaces.length === 1 ? "" : "ES"} FOUND
                   </span>
-                  <h3 className="text-4xl md:text-5xl font-black uppercase leading-none">
-                    {searchQuery.trim() ? "No matching workspaces" : "No workspaces yet"}
-                  </h3>
-                  <p className="max-w-xl text-sm font-bold uppercase leading-relaxed text-stone-500">
-                    {searchQuery.trim()
-                      ? "Try a different search term or clear the filter to see everything again."
-                      : "Create your first workspace, then turn it into a habit by adding notes and folder structure."}
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => handleCreateWorkspace()}
-                      disabled={creating}
-                      className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
-                    >
-                      {creating ? "Creating..." : "Create workspace"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const name = prompt("Folder Name:");
-                        if (!name) return;
-                        const color = prompt("Color (red, blue, green, etc):") || "stone";
-
-                        const currentOrg =
-                          session.organizations?.find((o: Organization) => o.slug === orgSlug) ||
-                          session.organizations?.[0];
-                        if (!currentOrg) return;
-
-                        await fetch("/api/folders", {
-                          method: "POST",
-                          body: JSON.stringify({ name, orgId: currentOrg.id, color }),
-                        });
-                        fetchWorkspaces(currentOrg.id);
-                      }}
-                      className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-                    >
-                      New folder
-                    </button>
-                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredWorkspaces.map((ws) => {
-                  const isRestricted = session.role === "intern" && ws.role === "founder";
-                  const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
 
-                  return (
-                    <article
-                      key={ws.id}
-                      className="group relative overflow-hidden border-[3px] border-black bg-white rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[300px] p-6 md:p-8"
-                    >
-                      <div className="space-y-6">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span
-                                className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
-                                  ws.role === "founder"
-                                    ? "bg-[#FED7AA] text-black"
-                                    : "bg-black text-white"
-                                }`}
-                              >
-                                {ws.role}
-                              </span>
-                              {folderName && (
-                                <span className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
-                                  {folderName}
-                                </span>
-                              )}
-                            </div>
-                            <h3 className="text-2xl font-black uppercase leading-tight mt-2 text-stone-900 group-hover:text-[#FBBF24] transition-colors">
-                              {ws.owner_name}
-                            </h3>
-                          </div>
+                {filteredWorkspaces.length === 0 ? (
+                  <div className="border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white p-8 rounded-[24px] text-center">
+                    <h3 className="text-2xl font-black uppercase text-stone-800">No matching workspaces</h3>
+                    <p className="text-xs font-bold uppercase text-stone-500 mt-2">
+                      Try a different search query or clear the filter to see all workspaces.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {filteredWorkspaces.map((ws) => {
+                      const isRestricted = session.role === "intern" && ws.role === "founder";
+                      const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
 
-                          <div
-                            className={`h-6 w-6 rounded-full border-2 border-black ${getColorClass(ws.color)} shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}
-                          />
-                        </div>
-
-
-
-                        <div className="grid gap-3 grid-cols-2">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Folder</label>
-                            <select
-                              className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
-                              defaultValue={ws.folder_id || ""}
-                              disabled={session.role !== "founder"}
-                              title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
-                              onChange={async (e) => {
-                                const folderId = e.target.value || null;
-                                const res = await fetch(`/api/workspaces?id=${ws.id}`, {
-                                  method: "PATCH",
-                                  headers: { "Content-Type": "application/json" },
-                                  body: JSON.stringify({ folderId }),
-                                });
-                                if (res.ok && session && session.organizations?.[0]) {
-                                  await fetchWorkspaces(session.organizations[0].id);
-                                }
-                              }}
-                            >
-                              <option value="">None</option>
-                              {folders.map((f) => (
-                                <option key={f.id} value={f.id}>
-                                  {f.name}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Accent</label>
-                            <select
-                              className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
-                              defaultValue={ws.color || "stone"}
-                              disabled={session.role !== "founder"}
-                              title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
-                              onChange={async (e) => {
-                                const color = e.target.value;
-                                const res = await fetch(`/api/workspaces?id=${ws.id}`, {
-                                  method: "PATCH",
-                                  headers: { "Content-Type": "application/json" },
-                                  body: JSON.stringify({ color }),
-                                });
-                                if (res.ok && session && session.organizations?.[0]) {
-                                  await fetchWorkspaces(session.organizations[0].id);
-                                }
-                              }}
-                            >
-                              <option value="stone">Gray</option>
-                              <option value="red">Red</option>
-                              <option value="blue">Blue</option>
-                              <option value="green">Green</option>
-                              <option value="yellow">Yellow</option>
-                              <option value="purple">Purple</option>
-                              <option value="pink">Pink</option>
-                              <option value="orange">Orange</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-3 pt-5 border-t-2 border-stone-200 mt-6">
+                      return (
                         <Link
+                          key={ws.id}
                           href={isRestricted ? "#" : `/workspace/${ws.id}`}
                           onClick={(e) => {
                             if (isRestricted) {
@@ -629,32 +471,274 @@ function DashboardContent() {
                               alert("You do not have permission to enter a founder-restricted workspace.");
                             }
                           }}
-                          className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black hover:underline"
+                          className="group flex items-center justify-between border-[3px] border-black bg-white rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-black"
                         >
-                          OPEN WORKSPACE
-                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                        </Link>
+                          <div className="flex items-center gap-4 flex-wrap">
+                            <div
+                              className={`h-4 w-4 rounded-full border-2 border-black shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${getColorClass(
+                                ws.color,
+                              )}`}
+                            />
 
-                        {!isRestricted && (session.role === "founder" || session.userId === ws.owner_id) && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleDeleteWorkspace(ws.id);
-                            }}
-                            className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-red-600 hover:text-red-700 hover:underline"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            DELETE
-                          </button>
-                        )}
+                            <span className="text-base font-black uppercase text-stone-900 group-hover:text-[#FBBF24] transition-colors font-sans">
+                              {ws.owner_name}
+                            </span>
+
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
+                                  ws.role === "founder" ? "bg-[#FED7AA] text-black" : "bg-black text-white"
+                                }`}
+                              >
+                                {ws.role}
+                              </span>
+                              {folderName && (
+                                <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
+                                  {folderName}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline">
+                              {isRestricted ? "RESTRICTED" : "OPEN WORKSPACE"}
+                              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+
+              {/* Quick Action Widget Cards below search results */}
+              {quickActionCards}
+            </>
+          ) : (
+            <>
+              {/* Quick Action Widget Cards in default state */}
+              {quickActionCards}
+
+              {/* Workspaces Section */}
+              <section className="space-y-6 pt-6">
+                <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 pb-4">
+                  <span className="text-xs font-black uppercase tracking-[0.35em] text-stone-500">
+                    WORKSPACE LIBRARY
+                  </span>
+                  <span className="text-xs font-black uppercase text-stone-500">
+                    {filteredWorkspaces.length} VISIBLE OF {workspaces.length}
+                  </span>
+                </div>
+
+                {loading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {["alpha", "beta", "gamma"].map((key) => (
+                      <div
+                        key={`workspace-skeleton-${key}`}
+                        className="border-[3px] border-black bg-white rounded-[24px] p-8 space-y-6 animate-pulse shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+                      >
+                        <div className="h-4 w-28 bg-stone-200 rounded" />
+                        <div className="h-10 w-4/5 bg-stone-200 rounded" />
+                        <div className="h-4 w-full bg-stone-200 rounded" />
+                        <div className="h-12 w-full bg-stone-200 rounded" />
                       </div>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+                    ))}
+                  </div>
+                ) : filteredWorkspaces.length === 0 ? (
+                  <div className="border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white p-10 md:p-14 rounded-[24px] relative overflow-hidden">
+                    <div className="relative max-w-2xl space-y-6">
+                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-black uppercase border-[3px] border-black bg-stone-100 rounded-full">
+                        <Grid3X3 className="h-4 w-4" />
+                        EMPTY WORKSPACE LIBRARY
+                      </span>
+                      <h3 className="text-4xl md:text-5xl font-black uppercase leading-none">
+                        {searchQuery.trim() ? "No matching workspaces" : "No workspaces yet"}
+                      </h3>
+                      <p className="max-w-xl text-sm font-bold uppercase leading-relaxed text-stone-500">
+                        {searchQuery.trim()
+                          ? "Try a different search term or clear the filter to see everything again."
+                          : "Create your first workspace, then turn it into a habit by adding notes and folder structure."}
+                      </p>
+                      <div className="flex flex-wrap gap-4 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => handleCreateWorkspace()}
+                          disabled={creating}
+                          className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
+                        >
+                          {creating ? "Creating..." : "Create workspace"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const name = prompt("Folder Name:");
+                            if (!name) return;
+                            const color = prompt("Color (red, blue, green, etc):") || "stone";
+
+                            const currentOrg =
+                              session.organizations?.find((o: Organization) => o.slug === orgSlug) ||
+                              session.organizations?.[0];
+                            if (!currentOrg) return;
+
+                            await fetch("/api/folders", {
+                              method: "POST",
+                              body: JSON.stringify({ name, orgId: currentOrg.id, color }),
+                            });
+                            fetchWorkspaces(currentOrg.id);
+                          }}
+                          className="px-8 py-4 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                        >
+                          New folder
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredWorkspaces.map((ws) => {
+                      const isRestricted = session.role === "intern" && ws.role === "founder";
+                      const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
+
+                      return (
+                        <article
+                          key={ws.id}
+                          className="group relative overflow-hidden border-[3px] border-black bg-white rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[300px] p-6 md:p-8"
+                        >
+                          <div className="space-y-6">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="space-y-3">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span
+                                    className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
+                                      ws.role === "founder" ? "bg-[#FED7AA] text-black" : "bg-black text-white"
+                                    }`}
+                                  >
+                                    {ws.role}
+                                  </span>
+                                  {folderName && (
+                                    <span className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
+                                      {folderName}
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="text-2xl font-black uppercase leading-tight mt-2 text-stone-900 group-hover:text-[#FBBF24] transition-colors">
+                                  {ws.owner_name}
+                                </h3>
+                              </div>
+
+                              <div
+                                className={`h-6 w-6 rounded-full border-2 border-black ${getColorClass(ws.color)} shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}
+                              />
+                            </div>
+
+                            <div className="grid gap-3 grid-cols-2">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                                  Folder
+                                </label>
+                                <select
+                                  className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
+                                  defaultValue={ws.folder_id || ""}
+                                  disabled={session.role !== "founder"}
+                                  title={
+                                    session.role !== "founder" ? "Only the founder can organize this workspace." : ""
+                                  }
+                                  onChange={async (e) => {
+                                    const folderId = e.target.value || null;
+                                    const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                                      method: "PATCH",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ folderId }),
+                                    });
+                                    if (res.ok && session && session.organizations?.[0]) {
+                                      await fetchWorkspaces(session.organizations[0].id);
+                                    }
+                                  }}
+                                >
+                                  <option value="">None</option>
+                                  {folders.map((f) => (
+                                    <option key={f.id} value={f.id}>
+                                      {f.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                                  Accent
+                                </label>
+                                <select
+                                  className="bg-stone-50 border-2 border-black rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
+                                  defaultValue={ws.color || "stone"}
+                                  disabled={session.role !== "founder"}
+                                  title={
+                                    session.role !== "founder" ? "Only the founder can organize this workspace." : ""
+                                  }
+                                  onChange={async (e) => {
+                                    const color = e.target.value;
+                                    const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                                      method: "PATCH",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ color }),
+                                    });
+                                    if (res.ok && session && session.organizations?.[0]) {
+                                      await fetchWorkspaces(session.organizations[0].id);
+                                    }
+                                  }}
+                                >
+                                  <option value="stone">Gray</option>
+                                  <option value="red">Red</option>
+                                  <option value="blue">Blue</option>
+                                  <option value="green">Green</option>
+                                  <option value="yellow">Yellow</option>
+                                  <option value="purple">Purple</option>
+                                  <option value="pink">Pink</option>
+                                  <option value="orange">Orange</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-3 pt-5 border-t-2 border-stone-200 mt-6">
+                            <Link
+                              href={isRestricted ? "#" : `/workspace/${ws.id}`}
+                              onClick={(e) => {
+                                if (isRestricted) {
+                                  e.preventDefault();
+                                  alert("You do not have permission to enter a founder-restricted workspace.");
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black hover:underline"
+                            >
+                              OPEN WORKSPACE
+                              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                            </Link>
+
+                            {!isRestricted && (session.role === "founder" || session.userId === ws.owner_id) && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleDeleteWorkspace(ws.id);
+                                }}
+                                className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-red-600 hover:text-red-700 hover:underline"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                DELETE
+                              </button>
+                            )}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </div>
       </div>
 

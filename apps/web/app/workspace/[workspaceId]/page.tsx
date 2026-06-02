@@ -75,23 +75,26 @@ export default function WorkspacePage() {
 
   return (
     <AppShell>
-      <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(253,224,71,0.22),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(255,255,255,0.18),_transparent_24%),linear-gradient(to_bottom_right,_rgba(17,17,17,0.03),_transparent_40%)]" />
-        <div className="pointer-events-none absolute -top-32 right-0 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-foreground/5 blur-3xl" />
+      <div className="relative min-h-screen bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden">
+        {/* Technical grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none" />
+
+        {/* Ambient Glows */}
+        <div className="pointer-events-none absolute top-12 left-1/4 h-96 w-96 rounded-full bg-[#FBBF24]/10 blur-[120px] dark:opacity-20" />
+        <div className="pointer-events-none absolute bottom-24 right-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px] dark:opacity-20" />
 
         <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-12">
-          <section className="border-brutal-thick shadow-brutal-xl bg-card overflow-hidden">
+          <section className="border-[3px] border-black rounded-[24px] bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
             <div className="grid gap-0 lg:grid-cols-[1.35fr_0.65fr]">
               <div className="p-8 md:p-10 lg:p-12 space-y-8">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-2 px-3 py-1 text-xs font-black uppercase tracking-[0.3em] border-brutal bg-background">
-                    <Sparkles className="h-3.5 w-3.5" />
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-black uppercase tracking-[0.25em] border-[3px] border-black bg-[#FBBF24] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full">
+                    <Sparkles className="h-4 w-4 animate-pulse" />
                     Workspace Notes
                   </span>
                   <span
-                    className={`px-3 py-1 text-xs font-black uppercase tracking-widest border-brutal ${
-                      workspaceTone === "yellow" ? "bg-accent text-accent-foreground" : "bg-background"
+                    className={`px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-full ${
+                      workspaceTone === "yellow" ? "bg-[#FEF08A]" : "bg-white"
                     }`}
                   >
                     {workspaceName}
@@ -109,14 +112,14 @@ export default function WorkspacePage() {
                   <button
                     type="button"
                     onClick={() => setIsNoteModalOpen(true)}
-                    className="inline-flex items-center justify-center gap-3 px-8 py-4 text-base md:text-lg font-black uppercase border-brutal hover-brutal bg-accent text-accent-foreground"
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 text-base md:text-lg font-black uppercase border-[3px] border-black rounded-full bg-[#FBBF24] hover:bg-[#FBBF24]/90 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                   >
                     <Plus className="h-5 w-5" />
                     New note
                   </button>
 
-                  <div className="flex-1 min-w-0 border-brutal bg-background px-4 py-3 flex items-center gap-3">
-                    <Search className="h-4 w-4 shrink-0 opacity-60" />
+                  <div className="flex-1 min-w-0 border-[3px] border-black bg-white rounded-full px-5 py-3.5 flex items-center gap-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                    <Search className="h-5 w-5 shrink-0 text-stone-500" />
                     <input
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -131,11 +134,11 @@ export default function WorkspacePage() {
                 <div className="space-y-4">
                   <div className="text-xs font-black uppercase tracking-[0.35em] opacity-60">Snapshot</div>
                   <div className="space-y-4">
-                    <div className="border-brutal bg-background p-5 shadow-brutal">
+                    <div className="border-[3px] border-black bg-white p-5 rounded-[18px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover-brutal">
                       <div className="text-4xl font-black uppercase leading-none">{noteCount}</div>
                       <div className="mt-2 text-sm font-bold uppercase opacity-70">notes in this workspace</div>
                     </div>
-                    <div className="border-brutal bg-background p-5 shadow-brutal">
+                    <div className="border-[3px] border-black bg-white p-5 rounded-[18px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover-brutal">
                       <div className="flex items-center gap-2 text-sm font-black uppercase">
                         <Clock3 className="h-4 w-4" />
                         Latest note
@@ -147,7 +150,7 @@ export default function WorkspacePage() {
                   </div>
                 </div>
 
-                <div className="border-brutal bg-accent text-accent-foreground p-5 shadow-brutal">
+                <div className="border-[3px] border-black bg-[#FBBF24] text-black p-5 rounded-[18px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-start gap-3">
                     <FileText className="h-5 w-5 shrink-0 mt-0.5" />
                     <div>
@@ -169,7 +172,7 @@ export default function WorkspacePage() {
             <button
               type="button"
               onClick={() => setIsNoteModalOpen(true)}
-              className="inline-flex items-center gap-2 px-5 py-3 text-sm font-black uppercase border-brutal hover-brutal bg-background"
+              className="inline-flex items-center gap-2 px-5 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
             >
               <Plus className="h-4 w-4" />
               New note
@@ -180,7 +183,7 @@ export default function WorkspacePage() {
             {filteredNotes.map((note, index) => (
               <div
                 key={note.id}
-                className="group border-brutal-thick shadow-brutal bg-card p-6 md:p-8 relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-brutal-xl"
+                className="group relative overflow-hidden border-[3px] border-black bg-white rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all flex flex-col justify-between p-6 md:p-8"
               >
                 <div className="absolute inset-x-0 top-0 h-2 bg-accent" />
                 <div className="absolute -right-10 top-10 h-24 w-24 rounded-full bg-accent/15 blur-2xl transition-opacity group-hover:opacity-100 opacity-70" />

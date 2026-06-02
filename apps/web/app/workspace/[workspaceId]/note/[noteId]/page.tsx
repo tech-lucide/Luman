@@ -31,6 +31,7 @@ export default function NoteEditorPage() {
   const [loading, setLoading] = useState(true);
   const [tags, setTags] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [eventCreatedMessage, setEventCreatedMessage] = useState<string | null>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
@@ -211,7 +212,13 @@ export default function NoteEditorPage() {
       <div className="flex-1 flex overflow-hidden relative z-10">
         
         {/* Left Side Command Bar (IDE-like workspace directory & Table of Contents) */}
-        <aside className="w-80 shrink-0 border-r-4 border-black bg-white hidden lg:flex flex-col justify-between overflow-y-auto">
+        <aside
+          style={{ width: isSidebarOpen ? 320 : 0 }}
+          className={cn(
+            "shrink-0 bg-white hidden lg:flex flex-col justify-between overflow-y-auto transition-all duration-300 ease-out overflow-hidden relative",
+            isSidebarOpen ? "border-r-4 border-black" : "border-r-0"
+          )}
+        >
           <div className="p-6 space-y-6 flex-1 flex flex-col min-h-0">
             
             {/* 1. Workspace Directory list of other notes */}
@@ -389,6 +396,25 @@ export default function NoteEditorPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Left Sidebar Toggle Button near the left-hand scrollbar at the top */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        style={{ left: isSidebarOpen ? "332px" : "24px" }}
+        className="fixed top-[84px] z-40 flex items-center justify-center h-12 w-12 rounded-full border-[3px] border-black bg-[#FBBF24] hover:bg-[#FBBF24]/90 text-black hover:-translate-y-0.5 transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]"
+        title={isSidebarOpen ? "Close Directory" : "Open Directory"}
+      >
+        {isSidebarOpen ? (
+          <ChevronLeft className="h-6 w-6 text-black" />
+        ) : (
+          <ChevronRight className="h-6 w-6 text-black animate-pulse" />
+        )}
+        {!isSidebarOpen && (
+          <span className="absolute -top-1.5 -right-1.5 h-4.5 w-4.5 bg-black rounded-full text-[8px] font-black flex items-center justify-center text-[#FBBF24] ring-2 ring-black">
+            DIR
+          </span>
+        )}
+      </button>
 
       {/* Floating Neobrutalist AI Chat Toggle Button near the right-hand scrollbar at the top */}
       <button
