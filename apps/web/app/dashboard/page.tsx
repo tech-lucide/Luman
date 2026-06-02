@@ -3,7 +3,7 @@
 import AppShell from "@/components/layouts/app-shell";
 import OnboardingModal from "@/components/onboarding-modal";
 import type { Organization } from "@/lib/db/organizations";
-import { ArrowRight, Calendar, Grid3X3, Search, Sparkles, Trash2 } from "lucide-react";
+import { ArrowRight, Calendar, FileText, Grid3X3, Search, Sparkles, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -95,6 +95,7 @@ function DashboardContent() {
   const [viewDensity, setViewDensity] = useState<2 | 3 | 4>(2);
   const [sortBy, setSortBy] = useState<"name" | "date">("name");
   const [events, setEvents] = useState<DashboardEvent[]>([]);
+  const [notes, setNotes] = useState<any[]>([]);
 
   async function checkSession() {
     try {
@@ -119,15 +120,38 @@ function DashboardContent() {
         fetch(`/api/folders?orgId=${orgId}`),
       ]);
 
+      let wsList: Workspace[] = [];
+
       if (wsRes.ok) {
         const data = await wsRes.json();
-        setWorkspaces(Array.isArray(data) ? data : []);
-        setShowOnboarding((data || []).length === 0);
+        wsList = Array.isArray(data) ? data : [];
+        setWorkspaces(wsList);
+        setShowOnboarding(wsList.length === 0);
       }
 
       if (fRes.ok) {
         const data = await fRes.json();
         setFolders(Array.isArray(data) ? data : []);
+      }
+
+      if (wsList.length > 0) {
+        try {
+          const notesPromises = wsList.map((ws) =>
+            fetch(`/api/notes?workspaceId=${ws.id}`).then((res) => (res.ok ? res.json() : [])),
+          );
+          const notesResults = await Promise.all(notesPromises);
+          const allNotes = notesResults.flatMap((notesList, idx) => {
+            const ws = wsList[idx];
+            return (Array.isArray(notesList) ? notesList : []).map((n) => ({
+              ...n,
+              workspaceName: ws.owner_name,
+              workspaceColor: ws.color,
+            }));
+          });
+          setNotes(allNotes);
+        } catch (err) {
+          console.error("Failed to load workspace notes:", err);
+        }
       }
     } catch (err) {
       console.error("Failed to fetch data:", err);
@@ -263,6 +287,13 @@ function DashboardContent() {
     }
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
+
+  let filteredNotes = notes;
+  if (searchQuery) {
+    filteredNotes = notes.filter((note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }
 
   const folderMap = new Map(folders.map((folder) => [folder.id, folder.name]));
   const upcomingEvents = [...events]
@@ -432,7 +463,7 @@ function DashboardContent() {
 
             {searchQuery && (
               <div className="text-xs font-black uppercase tracking-wider opacity-60 pl-2">
-                Showing {filteredWorkspaces.length} of {workspaces.length} workspaces
+                Showing {filteredWorkspaces.length} of {workspaces.length} workspaces and {filteredNotes.length} matching notes
               </div>
             )}
           </section>
@@ -440,77 +471,141 @@ function DashboardContent() {
           {searchQuery ? (
             <>
               {/* Search Results in thin tile manner */}
-              <section className="space-y-4 pt-2">
+              <section className="space-y-6 pt-2">
                 <div className="flex items-center justify-between gap-4 border-b-2 border-dashed border-stone-300 pb-4">
                   <span className="text-xs font-black uppercase tracking-[0.35em] text-stone-500">SEARCH RESULTS</span>
                   <span className="text-xs font-black uppercase text-stone-500">
-                    {filteredWorkspaces.length} MATCH{filteredWorkspaces.length === 1 ? "" : "ES"} FOUND
+                    {filteredWorkspaces.length + filteredNotes.length} MATCH{filteredWorkspaces.length + filteredNotes.length === 1 ? "" : "ES"} FOUND
                   </span>
                 </div>
 
-                {filteredWorkspaces.length === 0 ? (
-                  <div className="border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white p-8 rounded-[24px] text-center">
-                    <h3 className="text-2xl font-black uppercase text-stone-800">No matching workspaces</h3>
-                    <p className="text-xs font-bold uppercase text-stone-500 mt-2">
-                      Try a different search query or clear the filter to see all workspaces.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {filteredWorkspaces.map((ws) => {
-                      const isRestricted = session.role === "intern" && ws.role === "founder";
-                      const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
+                <div className="grid gap-8 md:grid-cols-2">
+                  {/* Workspace Results Column */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-stone-700 flex items-center gap-2 border-b-2 border-stone-200 pb-2">
+                      <Grid3X3 className="h-4 w-4 text-[#FBBF24]" />
+                      WORKSPACES ({filteredWorkspaces.length})
+                    </h4>
+                    
+                    {filteredWorkspaces.length === 0 ? (
+                      <div className="border-[3px] border-black bg-stone-50/50 p-6 rounded-[16px] text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                        <p className="text-xs font-bold uppercase text-stone-500">
+                          No matching workspaces
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        {filteredWorkspaces.map((ws) => {
+                          const isRestricted = session.role === "intern" && ws.role === "founder";
+                          const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
 
-                      return (
-                        <Link
-                          key={ws.id}
-                          href={isRestricted ? "#" : `/workspace/${ws.id}`}
-                          onClick={(e) => {
-                            if (isRestricted) {
-                              e.preventDefault();
-                              alert("You do not have permission to enter a founder-restricted workspace.");
-                            }
-                          }}
-                          className="group flex items-center justify-between border-[3px] border-black bg-white rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-black"
-                        >
-                          <div className="flex items-center gap-4 flex-wrap">
-                            <div
-                              className={`h-4 w-4 rounded-full border-2 border-black shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${getColorClass(
-                                ws.color,
-                              )}`}
-                            />
-
-                            <span className="text-base font-black uppercase text-stone-900 group-hover:text-[#FBBF24] transition-colors font-sans">
-                              {ws.owner_name}
-                            </span>
-
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
-                                  ws.role === "founder" ? "bg-[#FED7AA] text-black" : "bg-black text-white"
-                                }`}
-                              >
-                                {ws.role}
-                              </span>
-                              {folderName && (
-                                <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
-                                  {folderName}
+                          return (
+                            <Link
+                              key={ws.id}
+                              href={isRestricted ? "#" : `/workspace/${ws.id}`}
+                              onClick={(e) => {
+                                if (isRestricted) {
+                                  e.preventDefault();
+                                  alert("You do not have permission to enter a founder-restricted workspace.");
+                                }
+                              }}
+                              className="group flex items-center justify-between border-[3px] border-black bg-white rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-black"
+                            >
+                              <div className="flex items-center gap-4 flex-wrap">
+                                <div
+                                  className={`h-4 w-4 rounded-full border-2 border-black shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${getColorClass(
+                                    ws.color,
+                                  )}`}
+                                />
+                                
+                                <span className="text-base font-black uppercase text-stone-900 group-hover:text-[#FBBF24] transition-colors font-sans">
+                                  {ws.owner_name}
                                 </span>
-                              )}
-                            </div>
-                          </div>
 
-                          <div className="flex items-center gap-4">
-                            <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline">
-                              {isRestricted ? "RESTRICTED" : "OPEN WORKSPACE"}
-                              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                            </span>
-                          </div>
-                        </Link>
-                      );
-                    })}
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full ${
+                                      ws.role === "founder" ? "bg-[#FED7AA] text-black" : "bg-black text-white"
+                                    }`}
+                                  >
+                                    {ws.role}
+                                  </span>
+                                  {folderName && (
+                                    <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-black">
+                                      {folderName}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-4">
+                                <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline">
+                                  {isRestricted ? "RESTRICTED" : "OPEN"}
+                                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                                </span>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
+
+                  {/* Notes Results Column */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-stone-700 flex items-center gap-2 border-b-2 border-stone-200 pb-2">
+                      <FileText className="h-4 w-4 text-[#FBBF24]" />
+                      NOTES ({filteredNotes.length})
+                    </h4>
+
+                    {filteredNotes.length === 0 ? (
+                      <div className="border-[3px] border-black bg-stone-50/50 p-6 rounded-[16px] text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                        <p className="text-xs font-bold uppercase text-stone-500">
+                          No matching notes
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        {filteredNotes.map((note) => (
+                          <Link
+                            key={note.id}
+                            href={`/workspace/${note.workspace_id}/note/${note.id}`}
+                            className="group flex items-center justify-between border-[3px] border-black bg-white rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all text-black"
+                          >
+                            <div className="flex items-center gap-4 flex-wrap">
+                              <FileText className="h-4 w-4 shrink-0 text-[#FBBF24]" />
+                              
+                              <span className="text-base font-black uppercase text-stone-900 group-hover:text-[#FBBF24] transition-colors font-sans">
+                                {note.title}
+                              </span>
+
+                              <span
+                                className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full ${getColorClass(
+                                  note.workspaceColor,
+                                )} text-black`}
+                              >
+                                {note.workspaceName}
+                              </span>
+
+                              {note.tags && Array.isArray(note.tags) && note.tags.map((tag: string) => (
+                                <span key={tag} className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-full bg-stone-100 text-stone-700">
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                              <span className="text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group-hover:underline">
+                                OPEN Note
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </section>
 
               {/* Quick Action Widget Cards below search results */}
