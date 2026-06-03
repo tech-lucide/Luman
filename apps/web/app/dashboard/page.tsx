@@ -3,7 +3,7 @@
 import AppShell from "@/components/layouts/app-shell";
 import OnboardingModal from "@/components/onboarding-modal";
 import type { Organization } from "@/lib/db/organizations";
-import { ArrowRight, Calendar, FileText, Grid3X3, Search, Sparkles, Trash2 } from "lucide-react";
+import { ArrowRight, Calendar, FileText, Grid3X3, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -368,10 +368,6 @@ function DashboardContent() {
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-black uppercase tracking-[0.25em] border-[3px] border-black dark:border-stone-100 bg-[#FBBF24] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
-                    <Sparkles className="h-4 w-4" />
-                    DASHBOARD
-                  </span>
                   <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 text-black dark:text-stone-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
                     {session.role}
                   </span>
@@ -389,28 +385,20 @@ function DashboardContent() {
                   Manage your team, notes, and workspaces beautifully.
                 </div>
               </div>
-
+ 
               <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleCreateWorkspace()}
-                  disabled={creating}
-                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-[#FBBF24] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
-                >
-                  {creating ? "Creating..." : "Create workspace"}
-                </button>
                 <button
                   type="button"
                   onClick={async () => {
                     const name = prompt("Folder Name:");
                     if (!name) return;
                     const color = prompt("Color (red, blue, green, etc):") || "stone";
-
+ 
                     const currentOrg =
                       session.organizations?.find((o: Organization) => o.slug === orgSlug) ||
                       session.organizations?.[0];
                     if (!currentOrg) return;
-
+ 
                     await fetch("/api/folders", {
                       method: "POST",
                       body: JSON.stringify({ name, orgId: currentOrg.id, color }),
@@ -421,23 +409,9 @@ function DashboardContent() {
                 >
                   New folder
                 </button>
-                {(session?.role === "founder" || session?.role === "admin") && (
-                  <Link
-                    href={`/dashboard/admin?org=${orgSlug || ""}`}
-                    className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white dark:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="px-6 py-3.5 text-sm font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 text-black dark:text-stone-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-                >
-                  Logout
-                </button>
               </div>
             </div>
+
 
             {/* Redesigned Search & Sort bar */}
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between bg-white dark:bg-zinc-900 border-[3px] border-black dark:border-stone-100 p-6 rounded-[24px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] mt-8">

@@ -32,6 +32,7 @@ export default function NoteEditorPage() {
   const [loading, setLoading] = useState(true);
   const [tags, setTags] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isNotesCollapsed, setIsNotesCollapsed] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [eventCreatedMessage, setEventCreatedMessage] = useState<string | null>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
@@ -43,6 +44,26 @@ export default function NoteEditorPage() {
       setChatWidth(360);
     }
   }, []);
+
+  // Sync isNotesCollapsed state when toggle is triggered elsewhere
+  useEffect(() => {
+    const handleToggle = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (typeof customEvent.detail === "boolean") {
+        setIsNotesCollapsed(customEvent.detail);
+      }
+    };
+    window.addEventListener("luman-toggle-notes-sidebar", handleToggle);
+    return () => window.removeEventListener("luman-toggle-notes-sidebar", handleToggle);
+  }, []);
+
+  // Collapse notes drawer automatically when AI chat opens
+  useEffect(() => {
+    if (isChatOpen) {
+      setIsNotesCollapsed(true);
+      window.dispatchEvent(new CustomEvent("luman-toggle-notes-sidebar", { detail: true }));
+    }
+  }, [isChatOpen]);
 
   // Live stats and dynamic outline
   const [wordCount, setWordCount] = useState(0);
@@ -227,7 +248,7 @@ export default function NoteEditorPage() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen flex flex-col bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden pt-16 lg:pt-20">
+      <div className="relative h-full flex flex-col bg-[#FDFBF7] dark:bg-zinc-950 overflow-hidden">
         {/* Technical grid overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-70 pointer-events-none z-0" />
 
@@ -239,7 +260,7 @@ export default function NoteEditorPage() {
         <div className="flex-1 flex overflow-hidden relative z-10 w-full">
           
           {/* Middle Main Content Area (The Editor scroll container) */}
-          <main className="flex-1 overflow-y-auto scrollbar-none px-4 pt-2 pb-6 md:px-8 md:pt-3 md:pb-8 lg:px-10 lg:pt-4 lg:pb-10 xl:px-12 relative">
+          <main className="flex-1 overflow-y-auto scrollbar-none px-4 pt-24 pb-6 md:px-8 md:pt-28 md:pb-8 lg:px-10 lg:pt-32 lg:pb-10 xl:px-12 relative">
             <div className="max-w-6xl mx-auto border-[3px] border-black dark:border-stone-100 rounded-[24px] bg-white dark:bg-zinc-900 p-5 sm:p-8 md:p-10 xl:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[10px_10px_0px_0px_rgba(255,255,255,1)] transition-all">
               
               {/* Document Header Panel */}
@@ -300,18 +321,24 @@ export default function NoteEditorPage() {
           />
         </div>
 
+
         {/* Floating AI Chat Toggle Button */}
         <button
           type="button"
           onClick={() => setIsChatOpen(!isChatOpen)}
           style={{ right: isChatOpen ? `${chatWidth + 24}px` : "24px" }}
-          className="fixed top-[84px] z-40 flex items-center justify-center h-12 w-12 rounded-full border-[3px] border-black bg-[#FBBF24] hover:bg-[#FBBF24]/90 text-black hover:-translate-y-0.5 transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] active:shadow-none hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]"
+          className={cn(
+            "fixed top-[84px] z-40 flex items-center justify-center h-12 w-12 rounded-full border-[3px] border-black hover:-translate-y-0.5 transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] active:shadow-none hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]",
+            isChatOpen
+              ? "bg-[#FBBF24] text-black"
+              : "bg-white dark:bg-zinc-900 text-black dark:text-stone-100"
+          )}
           title={isChatOpen ? "Close AI Assistant" : "Open AI Assistant"}
         >
           {isChatOpen ? (
-            <ChevronRight className="h-6 w-6 text-black" />
+            <ChevronRight className="h-6 w-6" />
           ) : (
-            <ChevronLeft className="h-6 w-6 text-black animate-pulse" />
+            <ChevronLeft className="h-6 w-6 animate-pulse" />
           )}
           {!isChatOpen && (
             <span className="absolute -top-1.5 -left-1.5 h-4.5 w-4.5 bg-black rounded-full text-[8px] font-black flex items-center justify-center text-[#FBBF24] ring-2 ring-black">

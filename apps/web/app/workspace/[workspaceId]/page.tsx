@@ -169,14 +169,6 @@ export default function WorkspacePage() {
             <div className="text-sm font-black uppercase tracking-widest opacity-70">
               Showing {filteredNotes.length} of {notes.length} notes
             </div>
-            <button
-              type="button"
-              onClick={() => setIsNoteModalOpen(true)}
-              className="inline-flex items-center gap-2 px-5 py-3.5 text-sm font-black uppercase border-[3px] border-black rounded-full bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-            >
-              <Plus className="h-4 w-4" />
-              New note
-            </button>
           </div>
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

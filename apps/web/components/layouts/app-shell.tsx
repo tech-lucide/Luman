@@ -1,48 +1,67 @@
 "use client";
-
+ 
 import { WorkspaceSidebar } from "@/components/tailwind/workspace-sidebar";
 import { FloatingDock } from "@/components/floating-dock";
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-
+ 
 export default function AppShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // Load sidebar collapsed state from localStorage on client side
+  const [isWorkspacesExpanded, setIsWorkspacesExpanded] = useState(true);
+  const [isNotesCollapsedOnNotePage, setIsNotesCollapsedOnNotePage] = useState(false);
+  const params = useParams();
+  const workspaceId = typeof params?.workspaceId === "string" ? params.workspaceId : undefined;
+  const noteId = typeof params?.noteId === "string" ? params.noteId : undefined;
+  const isNotePage = Boolean(workspaceId && noteId);
+ 
+  // Load workspaces expanded state from localStorage on client side
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("sidebar_collapsed");
-      if (stored === "true") {
-        setIsCollapsed(true);
-      } else if (stored === "false") {
-        setIsCollapsed(false);
-      } else {
-        // Fallback: auto-collapse on compact screen sizes (< 1280px)
-        if (window.innerWidth < 1280) {
-          setIsCollapsed(true);
-        }
+      const stored = localStorage.getItem("workspaces_expanded");
+      if (stored === "false") {
+        setIsWorkspacesExpanded(false);
       }
     }
   }, []);
-
-  const handleToggleCollapse = () => {
-    const nextState = !isCollapsed;
-    setIsCollapsed(nextState);
+ 
+  // Listen to collapse toggle on the note page
+  useEffect(() => {
+    const handleToggle = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (typeof customEvent.detail === "boolean") {
+        setIsNotesCollapsedOnNotePage(customEvent.detail);
+      }
+    };
+    window.addEventListener("luman-toggle-notes-sidebar", handleToggle);
+    return () => window.removeEventListener("luman-toggle-notes-sidebar", handleToggle);
+  }, []);
+ 
+  const handleToggleWorkspaces = () => {
+    const nextState = !isWorkspacesExpanded;
+    setIsWorkspacesExpanded(nextState);
     if (typeof window !== "undefined") {
-      localStorage.setItem("sidebar_collapsed", String(nextState));
+      localStorage.setItem("workspaces_expanded", String(nextState));
     }
   };
-
+ 
+  const sidebarWidthClass = isNotePage
+    ? isNotesCollapsedOnNotePage
+      ? "w-[84px]"
+      : "w-full max-w-[344px] lg:w-[344px]"
+    : !isWorkspacesExpanded
+    ? "w-[84px]"
+    : "w-full max-w-[344px] lg:w-[344px]";
+ 
   return (
     <div className="h-screen flex flex-col relative overflow-hidden bg-[#FDFBF7] dark:bg-zinc-950">
       {/* Floating Breadcrumb Dock (Replaces the top Navbar) */}
       <FloatingDock />
-
+ 
       <div className="flex flex-1 overflow-hidden relative">
         {/* Mobile Overlay */}
         {sidebarOpen && (
@@ -56,23 +75,36 @@ export default function AppShell({
             }}
           />
         )}
-
+ 
         {/* Sidebar Container */}
         <div
           className={cn(
             "fixed lg:static inset-y-0 left-0 z-50 transform lg:transform-none transition-all duration-300 ease-out overflow-hidden shrink-0 bg-[#FDFBF7] dark:bg-zinc-950 border-r-[3px] border-black dark:border-stone-100",
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-            isCollapsed ? "w-[84px]" : "w-[300px]"
+            sidebarWidthClass
           )}
         >
-          <WorkspaceSidebar isCollapsed={isCollapsed} onToggleCollapse={handleToggleCollapse} />
+          <WorkspaceSidebar
+            isWorkspacesExpanded={isWorkspacesExpanded}
+            onToggleWorkspaces={handleToggleWorkspaces}
+            isNotePage={isNotePage}
+            isNotesCollapsedOnNotePage={isNotesCollapsedOnNotePage}
+          />
         </div>
-
+ 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-background w-full">
+        <main
+          className={cn(
+            "flex-1 bg-background w-full",
+            isNotePage ? "h-full overflow-hidden flex flex-col" : "overflow-y-auto"
+          )}
+        >
           {children}
         </main>
       </div>
     </div>
   );
 }
+
+
+
