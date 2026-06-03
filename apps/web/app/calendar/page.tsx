@@ -3,7 +3,7 @@
 import { CalendarGrid } from "@/components/calendar-grid";
 import { EventModal } from "@/components/event-modal";
 import AppShell from "@/components/layouts/app-shell";
-import { Calendar, Plus } from "lucide-react";
+import { Calendar, Plus, List } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 
@@ -15,6 +15,7 @@ type Event = {
   end_time?: string;
   all_day: boolean;
   event_type: "event" | "reminder" | "task";
+  is_completed: boolean;
   workspace_id?: string;
   note_id?: string;
   workspaces?: { owner_name: string };
@@ -30,9 +31,29 @@ function CalendarContent() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("all");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
 
   const [session, setSession] = useState<any>(null);
   const [orgWorkspaces, setOrgWorkspaces] = useState<any[]>([]);
+
+  async function toggleEventCompletion(eventId: string) {
+    const event = events.find((e) => e.id === eventId);
+    if (!event) return;
+
+    try {
+      const res = await fetch(`/api/events/${eventId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_completed: !event.is_completed }),
+      });
+
+      if (res.ok) {
+        setEvents((prev) => prev.map((e) => (e.id === eventId ? { ...e, is_completed: !e.is_completed } : e)));
+      }
+    } catch (error) {
+      console.error("Error toggling event completion:", error);
+    }
+  }
 
   async function checkSession() {
     try {
@@ -143,16 +164,23 @@ function CalendarContent() {
               </h1>
 
               <div className="flex items-center gap-4 flex-wrap">
-                <CalendarGrid
-                  events={filteredEvents.map((e) => ({
-                    ...e,
-                    is_completed: false,
-                  }))}
-                  currentDate={currentDate}
-                  onEventComplete={async (eventId) => {
-                    console.log("Complete event:", eventId);
-                  }}
-                />
+                <button
+                  type="button"
+                  onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
+                  className="px-6 py-3.5 sm:px-8 sm:py-4 text-base sm:text-lg font-black uppercase border-brutal hover-brutal bg-background flex items-center gap-3"
+                >
+                  {viewMode === "list" ? (
+                    <>
+                      <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
+                      GRID VIEW
+                    </>
+                  ) : (
+                    <>
+                      <List className="h-5 w-5 sm:h-6 sm:w-6" />
+                      LIST VIEW
+                    </>
+                  )}
+                </button>
 
                 <button
                   type="button"
@@ -194,6 +222,12 @@ function CalendarContent() {
 
           {loading ? (
             <div className="text-lg font-bold uppercase animate-pulse">LOADING...</div>
+          ) : viewMode === "grid" ? (
+            <CalendarGrid
+              events={filteredEvents}
+              currentDate={currentDate}
+              onEventComplete={toggleEventCompletion}
+            />
           ) : upcomingEvents.length === 0 ? (
             <div className="border-brutal-thick p-12 bg-muted/30">
               <div className="text-center space-y-6">

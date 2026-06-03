@@ -3,7 +3,7 @@
 import { CalendarGrid } from "@/components/calendar-grid";
 import { EventModal } from "@/components/event-modal";
 import AppShell from "@/components/layouts/app-shell";
-import { Calendar, Check, Plus } from "lucide-react";
+import { Calendar, Check, Plus, List } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -26,6 +26,7 @@ export default function WorkspaceCalendarPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
 
   useEffect(() => {
     loadEvents();
@@ -127,7 +128,24 @@ export default function WorkspaceCalendarPage() {
             </div>
 
             <div className="flex gap-4 flex-wrap">
-              <CalendarGrid events={events} currentDate={currentDate} onEventComplete={toggleEventCompletion} />
+              <button
+                type="button"
+                onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
+                className="px-6 py-3.5 sm:px-8 sm:py-4 text-base sm:text-lg font-black uppercase border-brutal hover-brutal bg-background flex items-center gap-3"
+              >
+                {viewMode === "list" ? (
+                  <>
+                    <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
+                    GRID VIEW
+                  </>
+                ) : (
+                  <>
+                    <List className="h-5 w-5 sm:h-6 sm:w-6" />
+                    LIST VIEW
+                  </>
+                )}
+              </button>
+
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
@@ -141,6 +159,12 @@ export default function WorkspaceCalendarPage() {
 
           {loading ? (
             <div className="text-lg font-bold uppercase animate-pulse">LOADING...</div>
+          ) : viewMode === "grid" ? (
+            <CalendarGrid
+              events={events}
+              currentDate={currentDate}
+              onEventComplete={toggleEventCompletion}
+            />
           ) : (
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
               {/* Upcoming Events */}
