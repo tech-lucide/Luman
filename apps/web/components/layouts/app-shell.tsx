@@ -13,7 +13,6 @@ export default function AppShell({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isWorkspacesExpanded, setIsWorkspacesExpanded] = useState(true);
-  const [isNotesCollapsedOnNotePage, setIsNotesCollapsedOnNotePage] = useState(false);
   const params = useParams();
   const workspaceId = typeof params?.workspaceId === "string" ? params.workspaceId : undefined;
   const noteId = typeof params?.noteId === "string" ? params.noteId : undefined;
@@ -29,18 +28,6 @@ export default function AppShell({
     }
   }, []);
  
-  // Listen to collapse toggle on the note page
-  useEffect(() => {
-    const handleToggle = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (typeof customEvent.detail === "boolean") {
-        setIsNotesCollapsedOnNotePage(customEvent.detail);
-      }
-    };
-    window.addEventListener("luman-toggle-notes-sidebar", handleToggle);
-    return () => window.removeEventListener("luman-toggle-notes-sidebar", handleToggle);
-  }, []);
- 
   const handleToggleWorkspaces = () => {
     const nextState = !isWorkspacesExpanded;
     setIsWorkspacesExpanded(nextState);
@@ -49,11 +36,7 @@ export default function AppShell({
     }
   };
  
-  const sidebarWidthClass = isNotePage
-    ? isNotesCollapsedOnNotePage
-      ? "w-[84px]"
-      : "w-full max-w-[344px] lg:w-[344px]"
-    : !isWorkspacesExpanded
+  const sidebarWidthClass = !isWorkspacesExpanded
     ? "w-[84px]"
     : "w-full max-w-[344px] lg:w-[344px]";
  
@@ -88,7 +71,7 @@ export default function AppShell({
             isWorkspacesExpanded={isWorkspacesExpanded}
             onToggleWorkspaces={handleToggleWorkspaces}
             isNotePage={isNotePage}
-            isNotesCollapsedOnNotePage={isNotesCollapsedOnNotePage}
+            isNotesCollapsedOnNotePage={!isWorkspacesExpanded}
           />
         </div>
  

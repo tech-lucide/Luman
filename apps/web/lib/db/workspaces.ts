@@ -26,7 +26,7 @@ export async function getWorkspaces(orgId: string, userId: string, roleFilter?: 
 
 export async function createWorkspace({
   ownerName,
-  role = "founder",
+  role = "intern",
   orgId,
   userId,
   folderId,
@@ -84,7 +84,7 @@ export async function deleteWorkspace(workspaceId: string, userId: string, isFou
 export async function updateWorkspace(
   workspaceId: string,
   userId: string,
-  updates: { folderId?: string | null; color?: string; name?: string },
+  updates: { folderId?: string | null; color?: string; name?: string; role?: string },
   isFounder: boolean = false
 ) {
   const supabase = await createSupabaseServerClient();
@@ -93,6 +93,7 @@ export async function updateWorkspace(
   if (updates.folderId !== undefined) updateData.folder_id = updates.folderId;
   if (updates.color !== undefined) updateData.color = updates.color;
   if (updates.name !== undefined) updateData.owner_name = updates.name;
+  if (updates.role !== undefined) updateData.role = updates.role;
 
   let query = supabase.from("workspaces").update(updateData).eq("id", workspaceId);
 

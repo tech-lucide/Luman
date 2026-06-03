@@ -10,6 +10,7 @@ export type Organization = {
   name: string;
   slug: string;
   invitation_code: string;
+  hierarchy_type: "fixed" | "custom";
   created_at: string;
   updated_at: string;
 };
@@ -18,7 +19,8 @@ export type OrganizationMember = {
   id: string;
   organization_id: string;
   user_id: string;
-  role: "founder" | "admin" | "intern";
+  role: string;
+  assigned_role_id: string;
   created_at: string;
   updated_at: string;
 };
@@ -77,7 +79,12 @@ export async function getOrganizationById(id: string) {
 /**
  * Create a new organization
  */
-export async function createOrganization(name: string, creatorUserId?: string) {
+export async function createOrganization(
+  name: string,
+  creatorUserId?: string,
+  hierarchyType: "fixed" | "custom" = "fixed",
+  customRoles?: { role_name: string; hierarchy_level: number }[]
+) {
   let slug = generateSlug(name);
 
   // Generate a 6-character alphanumeric invitation code
@@ -98,15 +105,38 @@ export async function createOrganization(name: string, creatorUserId?: string) {
 
   const { data, error } = await supabase
     .from("organizations")
-    .insert({ name, slug, invitation_code: invitationCode })
+    .insert({ name, slug, invitation_code: invitationCode, hierarchy_type: hierarchyType })
     .select()
     .single();
 
   if (error) throw error;
 
+  // If custom hierarchy, create the custom roles
+  if (hierarchyType === "custom" && customRoles && customRoles.length > 0) {
+    const rolesToInsert = customRoles.map(role => ({
+      organization_id: data.id,
+      role_name: role.role_name,
+      hierarchy_level: role.hierarchy_level,
+    }));
+    const { error: rolesError } = await supabase
+      .from("roles")
+      .insert(rolesToInsert);
+    if (rolesError) throw rolesError;
+  }
+
   // If creator user ID provided, add them as founder
   if (creatorUserId) {
-    await addMemberToOrganization(data.id, creatorUserId, "founder");
+    let assignedRoleId: string | undefined;
+    if (hierarchyType === "custom") {
+      const { data: roleData } = await supabase
+        .from("roles")
+        .select("id")
+        .eq("organization_id", data.id)
+        .eq("hierarchy_level", 1)
+        .single();
+      if (roleData) assignedRoleId = roleData.id;
+    }
+    await addMemberToOrganization(data.id, creatorUserId, "founder", assignedRoleId);
   }
 
   return data as Organization;
@@ -135,17 +165,23 @@ export async function updateOrganization(id: string, updates: { name?: string })
 export async function addMemberToOrganization(
   organizationId: string,
   userId: string,
-  role: "founder" | "admin" | "intern" = "intern",
+  role: string = "intern",
+  assignedRoleId?: string,
 ) {
-  console.log("[DB] addMemberToOrganization - Org ID:", organizationId, "User ID:", userId, "Role:", role);
+  console.log("[DB] addMemberToOrganization - Org ID:", organizationId, "User ID:", userId, "Role:", role, "Assigned Role ID:", assignedRoleId);
+
+  const insertData: any = {
+    organization_id: organizationId,
+    user_id: userId,
+    role,
+  };
+  if (assignedRoleId) {
+    insertData.assigned_role_id = assignedRoleId;
+  }
 
   const { data, error } = await supabase
     .from("organization_members")
-    .insert({
-      organization_id: organizationId,
-      user_id: userId,
-      role,
-    })
+    .insert(insertData)
     .select()
     .single();
 
@@ -217,10 +253,19 @@ export async function getUserOrganizations(userId: string) {
 /**
  * Update member role
  */
-export async function updateMemberRole(organizationId: string, userId: string, role: "founder" | "admin" | "intern") {
+export async function updateMemberRole(
+  organizationId: string,
+  userId: string,
+  role?: string,
+  assignedRoleId?: string,
+) {
+  const updateData: any = { updated_at: new Date().toISOString() };
+  if (role !== undefined) updateData.role = role;
+  if (assignedRoleId !== undefined) updateData.assigned_role_id = assignedRoleId;
+
   const { data, error } = await supabase
     .from("organization_members")
-    .update({ role, updated_at: new Date().toISOString() })
+    .update(updateData)
     .eq("organization_id", organizationId)
     .eq("user_id", userId)
     .select()
@@ -249,7 +294,7 @@ export async function removeMemberFromOrganization(organizationId: string, userI
 export async function verifyOrganizationCode(slug: string, code: string) {
   const { data, error } = await supabase
     .from("organizations")
-    .select("id, name, slug")
+    .select("id, name, slug, hierarchy_type")
     .eq("slug", slug)
     .eq("invitation_code", code)
     .single();

@@ -18,7 +18,7 @@ export async function createSupabaseServerClient() {
           if (name.includes("auth-token")) {
             console.log(`[Supabase Cookies] SET ${name}`);
           }
-          cookieStore.set({ name, value, ...options });
+          cookieStore.set({ name, value, ...options, maxAge: 345600 });
         } catch (error) {
           // Handled elsewhere
         }

@@ -8,6 +8,14 @@ import { useState } from "react";
 export default function OrgRegisterPage() {
   const router = useRouter();
   const [orgName, setOrgName] = useState("");
+  const [hierarchyType, setHierarchyType] = useState<"fixed" | "custom">("fixed");
+  const [customRoles, setCustomRoles] = useState<{ role_name: string; hierarchy_level: number }[]>([
+    { role_name: "Founder", hierarchy_level: 1 },
+    { role_name: "Director", hierarchy_level: 2 },
+    { role_name: "Manager", hierarchy_level: 3 },
+    { role_name: "Employee", hierarchy_level: 4 },
+    { role_name: "Intern", hierarchy_level: 5 },
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,7 +28,11 @@ export default function OrgRegisterPage() {
       const res = await fetch("/api/auth/org", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: orgName }),
+        body: JSON.stringify({ 
+          name: orgName,
+          hierarchyType,
+          customRoles: hierarchyType === "custom" ? customRoles : undefined
+        }),
       });
 
       const data = await res.json();
@@ -31,15 +43,19 @@ export default function OrgRegisterPage() {
         sessionStorage.setItem("selected_org_name", data.name);
         sessionStorage.setItem("new_org_id", data.id);
 
-        // Redirect to individual registration
-        router.push(`/register?org=${data.slug}&new=true`);
+        // Redirect based on login status
+        if (data.loggedIn) {
+          router.push(`/dashboard?org=${data.slug}`);
+        } else {
+          router.push(`/register?org=${data.slug}&new=true`);
+        }
       } else {
         setError(data.error || "Failed to create organization");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
-      setLoading(false);
+      loading && setLoading(false);
     }
   }
 
@@ -82,6 +98,125 @@ export default function OrgRegisterPage() {
               />
               <p className="text-sm font-bold uppercase opacity-70">THIS WILL BE YOUR ORGANIZATION'S DISPLAY NAME</p>
             </div>
+
+            {/* Hierarchy Type Selection */}
+            <div className="space-y-4">
+              <label className="block text-sm font-black uppercase tracking-wider">
+                HIERARCHY TYPE
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setHierarchyType("fixed")}
+                  className={`p-6 border-brutal text-left transition-all ${
+                    hierarchyType === "fixed"
+                      ? "bg-accent text-accent-foreground shadow-brutal-sm"
+                      : "bg-background text-foreground hover:bg-stone-50"
+                  }`}
+                >
+                  <p className="font-black text-lg uppercase">Option 1: Fixed Hierarchy</p>
+                  <p className="text-xs font-bold uppercase opacity-80 mt-2">Founder, Admin, Intern roles (Default)</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHierarchyType("custom")}
+                  className={`p-6 border-brutal text-left transition-all ${
+                    hierarchyType === "custom"
+                      ? "bg-accent text-accent-foreground shadow-brutal-sm"
+                      : "bg-background text-foreground hover:bg-stone-50"
+                  }`}
+                >
+                  <p className="font-black text-lg uppercase">Option 2: Custom Hierarchy</p>
+                  <p className="text-xs font-bold uppercase opacity-80 mt-2">Define your own roles and levels</p>
+                </button>
+              </div>
+            </div>
+
+            {hierarchyType === "custom" && (
+              <div className="border-brutal bg-muted p-6 space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-black uppercase tracking-wider text-sm">DEFINE ROLES (ORDER: HIGHEST TO LOWEST)</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newLevel = customRoles.length + 1;
+                      setCustomRoles([...customRoles, { role_name: `ROLE ${newLevel}`, hierarchy_level: newLevel }]);
+                    }}
+                    className="px-4 py-2 border-brutal shadow-brutal-sm hover-brutal bg-background text-xs font-black uppercase"
+                  >
+                    + ADD ROLE
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {customRoles.map((role, idx) => (
+                    <div key={idx} className="flex items-center gap-3 bg-background border-brutal p-3 shadow-brutal-sm">
+                      <span className="font-black text-xs px-2 py-1 bg-black text-white">{role.hierarchy_level}</span>
+                      <input
+                        type="text"
+                        value={role.role_name}
+                        onChange={(e) => {
+                          const updated = [...customRoles];
+                          updated[idx].role_name = e.target.value;
+                          setCustomRoles(updated);
+                        }}
+                        className="flex-1 bg-transparent border-none font-bold uppercase focus:outline-none"
+                        placeholder="ROLE NAME"
+                        required
+                      />
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => {
+                            if (idx === 0) return;
+                            const updated = [...customRoles];
+                            // swap
+                            const temp = updated[idx].role_name;
+                            updated[idx].role_name = updated[idx - 1].role_name;
+                            updated[idx - 1].role_name = temp;
+                            setCustomRoles(updated);
+                          }}
+                          className="p-1 border-brutal bg-stone-50 disabled:opacity-30"
+                        >
+                          &uarr;
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === customRoles.length - 1}
+                          onClick={() => {
+                            if (idx === customRoles.length - 1) return;
+                            const updated = [...customRoles];
+                            // swap
+                            const temp = updated[idx].role_name;
+                            updated[idx].role_name = updated[idx + 1].role_name;
+                            updated[idx + 1].role_name = temp;
+                            setCustomRoles(updated);
+                          }}
+                          className="p-1 border-brutal bg-stone-50 disabled:opacity-30"
+                        >
+                          &darr;
+                        </button>
+                        <button
+                          type="button"
+                          disabled={customRoles.length <= 1}
+                          onClick={() => {
+                            if (customRoles.length <= 1) return;
+                            const filtered = customRoles
+                              .filter((_, i) => i !== idx)
+                              .map((r, i) => ({ ...r, hierarchy_level: i + 1 }));
+                            setCustomRoles(filtered);
+                          }}
+                          className="p-1 border-brutal bg-destructive text-destructive-foreground disabled:opacity-30 text-xs font-black"
+                        >
+                          X
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="px-6 py-4 text-sm font-black uppercase border-brutal bg-destructive text-destructive-foreground">

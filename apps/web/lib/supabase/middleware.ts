@@ -31,6 +31,7 @@ export async function updateSession(request: NextRequest) {
             name,
             value,
             ...options,
+            maxAge: 345600,
           });
         },
         remove(name: string, options: CookieOptions) {
@@ -60,14 +61,42 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // If user is logged in and tries to access public auth pages, redirect to dashboard
+  const hasOrgParam = request.nextUrl.searchParams.has("org");
   if (
     user &&
-    (request.nextUrl.pathname === "/" ||
-      request.nextUrl.pathname === "/login" ||
+    !hasOrgParam &&
+    (request.nextUrl.pathname === "/login" ||
       request.nextUrl.pathname === "/register")
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  // If user is logged in and tries to access main landing pages, redirect to dashboard
+  const landingPages = ["/", "/about", "/pricing", "/features", "/support"];
+  if (user && landingPages.includes(request.nextUrl.pathname)) {
+    let orgSlugToUse = request.nextUrl.searchParams.get("org");
+
+    if (!orgSlugToUse) {
+      const { data: membership } = await supabase
+        .from("organization_members")
+        .select("organizations(slug)")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle();
+
+      const orgObj = membership?.organizations as any;
+      if (orgObj?.slug) {
+        orgSlugToUse = orgObj.slug;
+      }
+    }
+
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    if (orgSlugToUse) {
+      url.searchParams.set("org", orgSlugToUse);
+    }
     return NextResponse.redirect(url);
   }
 

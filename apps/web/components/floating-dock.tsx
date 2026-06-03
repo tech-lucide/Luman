@@ -26,7 +26,8 @@ export function FloatingDock() {
 
   const workspaceId = params?.workspaceId as string;
   const noteId = params?.noteId as string;
-  const orgSlug = searchParams.get("org") || "";
+  const orgSlug =
+    searchParams.get("org") || (typeof window !== "undefined" ? sessionStorage.getItem("selected_org_slug") : "") || "";
 
   const [workspaceName, setWorkspaceName] = useState("");
   const [noteTitle, setNoteTitle] = useState("");
@@ -77,7 +78,8 @@ export function FloatingDock() {
       .catch((err) => console.error("Dock fetch note error:", err));
   }, [noteId]);
 
-  const dashboardUrl = orgSlug ? `/dashboard?org=${orgSlug}` : "/dashboard";
+  const orgQueryParam = orgSlug ? `?org=${orgSlug}` : "";
+  const dashboardUrl = `/dashboard${orgQueryParam}`;
 
   // Build the items based on current pathname
   const items = [];
@@ -94,38 +96,38 @@ export function FloatingDock() {
     items.push({
       label: "Calendar",
       icon: Calendar,
-      href: "/calendar",
+      href: `/calendar${orgQueryParam}`,
     });
   } else if (pathname?.startsWith("/dashboard/tasks")) {
     items.push({
       label: "My Tasks",
       icon: CheckSquare,
-      href: "/dashboard/tasks",
+      href: `/dashboard/tasks${orgQueryParam}`,
     });
   } else if (pathname?.startsWith("/settings")) {
     items.push({
       label: "Settings",
       icon: Settings,
-      href: `/settings${orgSlug ? `?org=${orgSlug}` : ""}`,
+      href: `/settings${orgQueryParam}`,
     });
   } else if (pathname?.startsWith("/dashboard/admin")) {
     items.push({
       label: "Admin Panel",
       icon: Shield,
-      href: `/dashboard/admin?org=${orgSlug}`,
+      href: `/dashboard/admin${orgQueryParam}`,
     });
   } else if (workspaceId) {
     items.push({
       label: workspaceName || "Workspace",
       icon: Folder,
-      href: `/workspace/${workspaceId}`,
+      href: `/workspace/${workspaceId}${orgQueryParam}`,
     });
 
     if (noteId) {
       items.push({
         label: noteTitle || "Note",
         icon: FileText,
-        href: `/workspace/${workspaceId}/note/${noteId}`,
+        href: `/workspace/${workspaceId}/note/${noteId}${orgQueryParam}`,
       });
     }
   }

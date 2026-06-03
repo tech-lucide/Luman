@@ -4,7 +4,8 @@ import { CalendarGrid } from "@/components/calendar-grid";
 import { EventModal } from "@/components/event-modal";
 import AppShell from "@/components/layouts/app-shell";
 import { Calendar, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
 type Event = {
   id: string;
@@ -19,20 +20,67 @@ type Event = {
   workspaces?: { owner_name: string };
 };
 
-export default function OrganizationCalendarPage() {
+function CalendarContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const orgSlug = searchParams.get("org");
+
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("all");
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  const [session, setSession] = useState<any>(null);
+  const [orgWorkspaces, setOrgWorkspaces] = useState<any[]>([]);
+
+  async function checkSession() {
+    try {
+      const res = await fetch(`/api/auth/session${orgSlug ? `?org=${orgSlug}` : ""}`);
+      if (!res.ok) {
+        router.push(`/login${orgSlug ? `?org=${orgSlug}` : ""}`);
+        return;
+      }
+      const data = await res.json();
+      setSession(data.user);
+
+      const currentOrg = data.user.organizations?.find((o: any) => o.slug === orgSlug) || data.user.organizations?.[0];
+      if (currentOrg) {
+        // Fetch workspaces for this organization
+        const wsRes = await fetch(`/api/workspaces?orgId=${currentOrg.id}`);
+        if (wsRes.ok) {
+          const wsData = await wsRes.json();
+          setOrgWorkspaces(wsData);
+        }
+        // Sync sessionStorage
+        sessionStorage.setItem("selected_org_slug", currentOrg.slug);
+        sessionStorage.setItem("selected_org_name", currentOrg.name);
+      }
+    } catch (err) {
+      console.error("Session check failed:", err);
+    }
+  }
+
   useEffect(() => {
-    loadEvents();
-  }, []);
+    if (!orgSlug) {
+      const storedSlug = sessionStorage.getItem("selected_org_slug");
+      if (storedSlug) {
+        router.push(`/calendar?org=${storedSlug}`);
+        return;
+      }
+    }
+    checkSession();
+  }, [orgSlug, router]);
+
+  useEffect(() => {
+    if (session) {
+      loadEvents();
+    }
+  }, [session]);
 
   async function loadEvents() {
     try {
-      const res = await fetch("/api/calendar/organization");
+      const res = await fetch(`/api/calendar/organization${orgSlug ? `?org=${orgSlug}` : ""}`);
       const data = await res.json();
       setEvents(data);
     } catch (error) {
@@ -45,15 +93,6 @@ export default function OrganizationCalendarPage() {
   // Filter events by workspace
   const filteredEvents =
     selectedWorkspace === "all" ? events : events.filter((e) => e.workspace_id === selectedWorkspace);
-
-  // Get unique workspaces
-  const workspaces = Array.from(new Set(events.map((e) => e.workspace_id).filter(Boolean))).map((id) => {
-    const event = events.find((e) => e.workspace_id === id);
-    return {
-      id,
-      name: event?.workspaces?.owner_name || "Unknown",
-    };
-  });
 
   // Get upcoming events (all future events)
   const today = new Date();
@@ -111,7 +150,6 @@ export default function OrganizationCalendarPage() {
                   }))}
                   currentDate={currentDate}
                   onEventComplete={async (eventId) => {
-                    // Optional: handle event completion via API
                     console.log("Complete event:", eventId);
                   }}
                 />
@@ -139,16 +177,16 @@ export default function OrganizationCalendarPage() {
               >
                 ALL WORKSPACES ({events.length})
               </button>
-              {workspaces.map((ws) => (
+              {orgWorkspaces.map((ws) => (
                 <button
                   key={ws.id}
                   type="button"
-                  onClick={() => setSelectedWorkspace(ws.id!)}
+                  onClick={() => setSelectedWorkspace(ws.id)}
                   className={`px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-black uppercase border-brutal hover-brutal ${
                     selectedWorkspace === ws.id ? "bg-accent text-accent-foreground" : "bg-background"
                   }`}
                 >
-                  {ws.name} ({events.filter((e) => e.workspace_id === ws.id).length})
+                  {ws.owner_name} ({events.filter((e) => e.workspace_id === ws.id).length})
                 </button>
               ))}
             </div>
@@ -179,7 +217,7 @@ export default function OrganizationCalendarPage() {
                           <div className="text-2xl font-black uppercase leading-tight mb-2">
                             {event.note_id && event.workspace_id ? (
                               <a
-                                href={`/workspace/${event.workspace_id}/note/${event.note_id}`}
+                                href={`/workspace/${event.workspace_id}/note/${event.note_id}${orgSlug ? `?org=${orgSlug}` : ""}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="hover:text-accent transition-colors underline decoration-2"
@@ -228,7 +266,20 @@ export default function OrganizationCalendarPage() {
         </div>
       </div>
 
-      <EventModal isOpen={modalOpen} onClose={() => setModalOpen(false)} onEventCreated={loadEvents} />
+      <EventModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onEventCreated={loadEvents}
+        workspaces={orgWorkspaces}
+      />
     </AppShell>
+  );
+}
+
+export default function OrganizationCalendarPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-muted-foreground">Loading...</div></div>}>
+      <CalendarContent />
+    </Suspense>
   );
 }

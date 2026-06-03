@@ -2,7 +2,8 @@
 
 import AppShell from "@/components/layouts/app-shell";
 import { CheckCircle2, Circle, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import { toast } from "sonner";
 
 type Task = {
@@ -11,15 +12,53 @@ type Task = {
   is_completed: boolean;
   workspace_id?: string;
   created_at?: string;
+  workspaces?: { owner_name: string };
 };
 
-export default function MyTasksPage() {
+function TasksContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const orgSlug = searchParams.get("org");
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<any>(null);
+
+  async function checkSession() {
+    try {
+      const res = await fetch(`/api/auth/session${orgSlug ? `?org=${orgSlug}` : ""}`);
+      if (!res.ok) {
+        router.push(`/login${orgSlug ? `?org=${orgSlug}` : ""}`);
+        return;
+      }
+      const data = await res.json();
+      setSession(data.user);
+
+      const currentOrg = data.user.organizations?.find((o: any) => o.slug === orgSlug) || data.user.organizations?.[0];
+      if (currentOrg) {
+        // Sync sessionStorage
+        sessionStorage.setItem("selected_org_slug", currentOrg.slug);
+        sessionStorage.setItem("selected_org_name", currentOrg.name);
+      }
+    } catch (err) {
+      console.error("Session check failed:", err);
+    }
+  }
+
+  useEffect(() => {
+    if (!orgSlug) {
+      const storedSlug = sessionStorage.getItem("selected_org_slug");
+      if (storedSlug) {
+        router.push(`/dashboard/tasks?org=${storedSlug}`);
+        return;
+      }
+    }
+    checkSession();
+  }, [orgSlug, router]);
 
   async function fetchTasks() {
     try {
-      const res = await fetch("/api/tasks");
+      const res = await fetch(`/api/tasks${orgSlug ? `?org=${orgSlug}` : ""}`);
       if (res.ok) {
         const data = await res.json();
         setTasks(data);
@@ -34,8 +73,10 @@ export default function MyTasksPage() {
   }
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (session) {
+      fetchTasks();
+    }
+  }, [session]);
 
   async function toggleTask(task: Task) {
     const newStatus = !task.is_completed;
@@ -146,12 +187,20 @@ function TaskRow({ task, onToggle }: { task: Task; onToggle: () => void }) {
         <p className={`font-black text-lg uppercase leading-snug ${task.is_completed ? "line-through opacity-50" : ""}`}>
           {task.content}
         </p>
-        {task.workspace_id && (
+        {task.workspaces?.owner_name && (
           <p className="text-xs font-mono uppercase opacity-40 mt-2 border-l-2 border-foreground/20 pl-2">
-            WS: {task.workspace_id.slice(0, 8)}
+            WS: {task.workspaces.owner_name}
           </p>
         )}
       </div>
     </div>
+  );
+}
+
+export default function MyTasksPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-muted-foreground">Loading...</div></div>}>
+      <TasksContent />
+    </Suspense>
   );
 }

@@ -227,3 +227,71 @@
 [2026-06-02T18:14:23.343Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=a4fbe6f7-1f62-425b-b216-c672f5c0ae82","orgSlug":"lucidetech"}
 [2026-06-02T18:14:24.433Z] Code exchange result {"error":null,"hasSession":true}
 [2026-06-02T18:14:24.834Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T09:40:29.067Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=07d4e1cf-9fb6-48b9-9f80-afef222d0357","orgSlug":"test"}
+[2026-06-03T09:40:29.866Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:15:12.570Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=3b7e130d-1073-4597-b114-a98086ff70bd","orgSlug":"lucidetech"}
+[2026-06-03T10:15:12.581Z] Code exchange result {"error":"PKCE code verifier not found in storage. This can happen if the auth flow was initiated in a different browser or device, or if the storage was cleared. For SSR frameworks (Next.js, SvelteKit, etc.), use @supabase/ssr on both the server and client to store the code verifier in cookies.","hasSession":false}
+[2026-06-03T10:15:27.881Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=0267738b-2212-4194-bea1-ff56284ad96f","orgSlug":"lucidetech"}
+[2026-06-03T10:15:28.216Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:15:28.660Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T10:16:19.395Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=cba8b86d-7dd9-4f23-a47b-f59779c86860","orgSlug":"test"}
+[2026-06-03T10:16:19.958Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:16:20.395Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-06-03T10:17:54.206Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=4daff2c3-2359-43f0-9da7-009ffb5479dc","orgSlug":"null"}
+[2026-06-03T10:17:54.531Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:20:29.485Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=2f9e3b98-a5e7-4a43-8cfb-3f0bf6a9e9e2","orgSlug":"lucidetech"}
+[2026-06-03T10:20:29.494Z] Code exchange result {"error":"PKCE code verifier not found in storage. This can happen if the auth flow was initiated in a different browser or device, or if the storage was cleared. For SSR frameworks (Next.js, SvelteKit, etc.), use @supabase/ssr on both the server and client to store the code verifier in cookies.","hasSession":false}
+[2026-06-03T10:20:53.893Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=46d4b9a4-d77c-41c4-9074-59519c11bd9a","orgSlug":"test"}
+[2026-06-03T10:20:54.219Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:20:54.642Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-06-03T10:22:26.553Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=bed33860-9074-4da2-9ce5-bd986f5b9105","orgSlug":"null"}
+[2026-06-03T10:22:27.105Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:24:06.387Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=69cda485-a0fc-43f1-b8d1-caa5761a84b3","orgSlug":"null"}
+[2026-06-03T10:24:06.884Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:24:07.533Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T10:27:50.228Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=567a3175-68ee-4990-84b5-b109adc258bd","orgSlug":"null"}
+[2026-06-03T10:27:50.740Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:30:05.457Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=b5ae898d-d17f-425f-9151-33f05e60224f","orgSlug":"test"}
+[2026-06-03T10:30:06.156Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:30:06.523Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-06-03T10:31:53.222Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=019d4a06-3643-4675-8c15-b0284ca723b7&new=false&org=test","orgSlug":"test"}
+[2026-06-03T10:31:53.558Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:32:27.200Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=e899c447-d279-4105-9d92-9c7cdd863fb7","orgSlug":"null"}
+[2026-06-03T10:32:27.964Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:32:28.566Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T10:32:44.228Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=56ff3b76-52a0-46f7-9f6b-5b6bdd3e738e","orgSlug":"null"}
+[2026-06-03T10:32:44.544Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:32:45.121Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T10:57:53.679Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=0f9a572d-4012-45e1-b147-ac45d91b8236&org=test","orgSlug":"test"}
+[2026-06-03T10:57:54.009Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:57:54.401Z] Existing member redirecting to dashboard {"role":"admin"}
+[2026-06-03T10:58:30.020Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=ab1ac45c-c534-4213-b7e9-29c24637280b&org=null","orgSlug":"null"}
+[2026-06-03T10:58:30.368Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T10:58:31.366Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T10:59:32.445Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=f461af03-c629-4268-99c4-85440e857e34&org=null","orgSlug":"null"}
+[2026-06-03T10:59:32.752Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T11:00:08.675Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=4aa9df3c-e146-4c24-8638-81af6d55b324&new=false&org=test","orgSlug":"test"}
+[2026-06-03T11:00:09.266Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T11:04:08.192Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=37d1787f-94be-4e7d-848e-d06e8c65dbbb&org=null","orgSlug":"null"}
+[2026-06-03T11:04:08.896Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T11:04:09.509Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T11:17:02.886Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=647b2669-8efb-4e2a-b3ff-719e129ddab6&org=null","orgSlug":"null"}
+[2026-06-03T11:17:03.215Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T11:17:03.831Z] Existing member redirecting to dashboard {"role":"intern"}
+[2026-06-03T11:25:28.433Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=af722ef1-eba8-4c12-b938-1bcf1f49a428&org=lucidetech","orgSlug":"lucidetech"}
+[2026-06-03T11:25:29.205Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T11:25:29.773Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T13:59:28.362Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=d837d36e-2e56-4aaf-970d-b4be11c29346&org=lucidetech","orgSlug":"lucidetech"}
+[2026-06-03T13:59:29.511Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T13:59:30.041Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T14:06:51.300Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=f5759a84-e654-452d-9834-c287752f1b38&org=lucidetech","orgSlug":"lucidetech"}
+[2026-06-03T14:06:51.878Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T14:06:52.295Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T14:48:20.199Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=d9ab6b5e-eef3-485f-9ffb-4a971185d6d3&org=null","orgSlug":"null"}
+[2026-06-03T14:48:21.084Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T14:48:21.763Z] Existing member redirecting to dashboard {"role":"founder"}
+[2026-06-03T14:49:07.658Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=2b0f5369-0de6-4476-b71c-206602607da9&org=lucidetech","orgSlug":"lucidetech"}
+[2026-06-03T14:49:07.966Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T14:49:42.649Z] === OAuth Callback Handler START === {"url":"http://localhost:3000/auth/callback?code=e53e7c0f-777d-4608-b681-dbb0f4a58121&org=null","orgSlug":"null"}
+[2026-06-03T14:49:42.906Z] Code exchange result {"error":null,"hasSession":true}
+[2026-06-03T14:49:43.453Z] Existing member redirecting to dashboard {"role":"founder"}

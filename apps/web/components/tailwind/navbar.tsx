@@ -89,7 +89,7 @@ export default function Navbar({ aiOpen, onToggleAI, onToggleSidebar }: NavbarPr
         <TodoMenu workspaceId={workspaceId} />
 
         <Link href="/settings" className="p-3 border-brutal hover-brutal bg-background">
-          <Settings className="h-5 w-5" />
+          <Settings className="h-5 w-5 transition-none animate-none" style={{ transition: "none", transform: "none" }} />
         </Link>
       </div>
     </header>

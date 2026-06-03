@@ -74,9 +74,9 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { orgId, userId, role } = body;
+    const { orgId, userId, role, assignedRoleId } = body;
 
-    if (!orgId || !userId || !role) {
+    if (!orgId || !userId || (!role && !assignedRoleId)) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -86,7 +86,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden: Insufficient permissions" }, { status: 403 });
     }
 
-    const updatedMember = await updateMemberRole(orgId, userId, role);
+    const updatedMember = await updateMemberRole(orgId, userId, role, assignedRoleId);
     return NextResponse.json(updatedMember);
   } catch (error) {
     console.error("Error updating member role:", error);

@@ -16,6 +16,7 @@ type Workspace = {
   folder_id?: string | null;
   color?: string;
   owner_id?: string;
+  created_by?: string;
 };
 
 type DashboardEvent = {
@@ -101,6 +102,10 @@ function DashboardContent() {
     try {
       const res = await fetch(`/api/auth/session${orgSlug ? `?org=${orgSlug}` : ""}`);
       if (!res.ok) {
+        if (res.status === 403) {
+          router.push("/org-register");
+          return;
+        }
         router.push(`/login${orgSlug ? `?org=${orgSlug}` : ""}`);
         return;
       }
@@ -161,8 +166,15 @@ function DashboardContent() {
   }
 
   useEffect(() => {
+    if (!orgSlug) {
+      const storedSlug = sessionStorage.getItem("selected_org_slug");
+      if (storedSlug) {
+        router.push(`/dashboard?org=${storedSlug}`);
+        return;
+      }
+    }
     checkSession();
-  }, [orgSlug]);
+  }, [orgSlug, router]);
 
   useEffect(() => {
     if (!session) return;
@@ -170,7 +182,28 @@ function DashboardContent() {
     const currentOrg =
       session.organizations?.find((o: Organization) => o.slug === orgSlug) || session.organizations?.[0];
 
-    if (currentOrg) fetchWorkspaces(currentOrg.id);
+    if (currentOrg) {
+      fetchWorkspaces(currentOrg.id);
+      sessionStorage.setItem("selected_org_slug", currentOrg.slug);
+      sessionStorage.setItem("selected_org_name", currentOrg.name);
+    }
+  }, [session, orgSlug]);
+
+  useEffect(() => {
+    if (!session) return;
+    const currentOrg =
+      session.organizations?.find((o: Organization) => o.slug === orgSlug) || session.organizations?.[0];
+
+    const handleRefresh = () => {
+      if (currentOrg) {
+        fetchWorkspaces(currentOrg.id);
+      }
+    };
+
+    window.addEventListener("luman-workspaces-refresh", handleRefresh);
+    return () => {
+      window.removeEventListener("luman-workspaces-refresh", handleRefresh);
+    };
   }, [session, orgSlug]);
 
   useEffect(() => {
@@ -224,12 +257,13 @@ function DashboardContent() {
       const res = await fetch("/api/workspaces", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ownerName: name, role: session.role, ownerId: currentOrg.id }),
+        body: JSON.stringify({ ownerName: name, role: "intern", ownerId: currentOrg.id }),
       });
 
       if (res.ok) {
         await fetchWorkspaces(currentOrg.id);
         setShowOnboarding(false);
+        window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
       } else {
         const errorData = await res.json();
         alert(`Failed to create workspace: ${errorData.error || "Unknown error"}`);
@@ -254,7 +288,10 @@ function DashboardContent() {
         if (session) {
           const currentOrg =
             session.organizations?.find((o: Organization) => o.slug === orgSlug) || session.organizations?.[0];
-          if (currentOrg) await fetchWorkspaces(currentOrg.id);
+          if (currentOrg) {
+            await fetchWorkspaces(currentOrg.id);
+            window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
+          }
         }
       } else {
         const data = await res.json();
@@ -273,6 +310,8 @@ function DashboardContent() {
       </div>
     );
   }
+
+  const currentOrg = session.organizations?.find((o: Organization) => o.slug === orgSlug) || session.organizations?.[0];
 
   let filteredWorkspaces = workspaces;
   if (searchQuery) {
@@ -374,9 +413,9 @@ function DashboardContent() {
                   <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black dark:border-stone-100 bg-black dark:bg-white text-white dark:text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
                     {session.ownerName}
                   </span>
-                  {session.role === "founder" && session.organizations[0]?.invitation_code && (
+                  {(session.role?.toLowerCase() === "founder" || session.role?.toLowerCase() === "admin") && currentOrg?.invitation_code && (
                     <span className="px-3.5 py-1.5 text-xs font-black uppercase tracking-widest border-[3px] border-black dark:border-stone-100 bg-[#A7F3D0] text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] rounded-full">
-                      INVITE: {session.organizations[0].invitation_code}
+                      INVITE: {currentOrg.invitation_code}
                     </span>
                   )}
                 </div>
@@ -478,13 +517,16 @@ function DashboardContent() {
                     ) : (
                       <div className="flex flex-col gap-3">
                         {filteredWorkspaces.map((ws) => {
-                          const isRestricted = session.role === "intern" && ws.role === "founder";
+                          const isRestricted =
+                            (session.userId !== ws.owner_id && session.userId !== ws.created_by) &&
+                            ((ws.role === "founder" && session.role !== "founder") ||
+                             (ws.role === "admin" && session.role === "intern"));
                           const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
 
                           return (
                             <Link
                               key={ws.id}
-                              href={isRestricted ? "#" : `/workspace/${ws.id}`}
+                              href={isRestricted ? "#" : `/workspace/${ws.id}${orgSlug ? `?org=${orgSlug}` : ""}`}
                               onClick={(e) => {
                                 if (isRestricted) {
                                   e.preventDefault();
@@ -551,7 +593,7 @@ function DashboardContent() {
                         {filteredNotes.map((note) => (
                           <Link
                             key={note.id}
-                            href={`/workspace/${note.workspace_id}/note/${note.id}`}
+                            href={`/workspace/${note.workspace_id}/note/${note.id}${orgSlug ? `?org=${orgSlug}` : ""}`}
                             className="group flex items-center justify-between border-[3px] border-black dark:border-stone-100 bg-white dark:bg-zinc-900 text-black dark:text-stone-100 rounded-[16px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                           >
                             <div className="flex items-center gap-4 flex-wrap">
@@ -675,7 +717,10 @@ function DashboardContent() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredWorkspaces.map((ws) => {
-                      const isRestricted = session.role === "intern" && ws.role === "founder";
+                      const isRestricted =
+                        (session.userId !== ws.owner_id && session.userId !== ws.created_by) &&
+                        ((ws.role === "founder" && session.role !== "founder") ||
+                         (ws.role === "admin" && session.role === "intern"));
                       const folderName = ws.folder_id ? folderMap.get(ws.folder_id) : null;
 
                       return (
@@ -712,14 +757,14 @@ function DashboardContent() {
                               />
                             </div>
 
-                            <div className="grid gap-3 grid-cols-2">
+                            <div className="grid gap-3 grid-cols-3">
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-stone-500 dark:text-stone-400">Folder</label>
                                 <select
                                   className="bg-stone-50 dark:bg-zinc-800 border-2 border-black dark:border-stone-100 rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 dark:focus:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] text-black dark:text-stone-100"
                                   defaultValue={ws.folder_id || ""}
-                                  disabled={session.role !== "founder"}
-                                  title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
+                                  disabled={session.role !== "founder" && session.userId !== ws.owner_id && session.userId !== ws.created_by}
+                                  title={session.role !== "founder" && session.userId !== ws.owner_id && session.userId !== ws.created_by ? "Only the founder or creator can organize this workspace." : ""}
                                   onChange={async (e) => {
                                     const folderId = e.target.value || null;
                                     const res = await fetch(`/api/workspaces?id=${ws.id}`, {
@@ -729,6 +774,7 @@ function DashboardContent() {
                                     });
                                     if (res.ok && session && session.organizations?.[0]) {
                                       await fetchWorkspaces(session.organizations[0].id);
+                                      window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
                                     }
                                   }}
                                 >
@@ -746,8 +792,8 @@ function DashboardContent() {
                                 <select
                                   className="bg-stone-50 dark:bg-zinc-800 border-2 border-black dark:border-stone-100 rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 dark:focus:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] text-black dark:text-stone-100"
                                   defaultValue={ws.color || "stone"}
-                                  disabled={session.role !== "founder"}
-                                  title={session.role !== "founder" ? "Only the founder can organize this workspace." : ""}
+                                  disabled={session.role !== "founder" && session.userId !== ws.owner_id && session.userId !== ws.created_by}
+                                  title={session.role !== "founder" && session.userId !== ws.owner_id && session.userId !== ws.created_by ? "Only the founder or creator can organize this workspace." : ""}
                                   onChange={async (e) => {
                                     const color = e.target.value;
                                     const res = await fetch(`/api/workspaces?id=${ws.id}`, {
@@ -757,6 +803,7 @@ function DashboardContent() {
                                     });
                                     if (res.ok && session && session.organizations?.[0]) {
                                       await fetchWorkspaces(session.organizations[0].id);
+                                      window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
                                     }
                                   }}
                                 >
@@ -770,12 +817,38 @@ function DashboardContent() {
                                   <option value="orange">Orange</option>
                                 </select>
                               </div>
+
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-stone-500 dark:text-stone-400">Visibility</label>
+                                <select
+                                  className="bg-stone-50 dark:bg-zinc-800 border-2 border-black dark:border-stone-100 rounded-xl text-[11px] font-black uppercase px-2.5 py-2.5 cursor-pointer focus:outline-none focus:bg-stone-100 dark:focus:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] text-black dark:text-stone-100"
+                                  defaultValue={ws.role || "intern"}
+                                  disabled={session.userId !== ws.owner_id && session.userId !== ws.created_by}
+                                  title={session.userId !== ws.owner_id && session.userId !== ws.created_by ? "Only the creator/owner can change visibility." : ""}
+                                  onChange={async (e) => {
+                                    const role = e.target.value;
+                                    const res = await fetch(`/api/workspaces?id=${ws.id}`, {
+                                      method: "PATCH",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ role }),
+                                    });
+                                    if (res.ok && session && session.organizations?.[0]) {
+                                      await fetchWorkspaces(session.organizations[0].id);
+                                      window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
+                                    }
+                                  }}
+                                >
+                                  <option value="intern">Visible to All</option>
+                                  <option value="admin">Admin & Founder</option>
+                                  <option value="founder">Founder Only</option>
+                                </select>
+                              </div>
                             </div>
                           </div>
 
                           <div className="flex items-center justify-between gap-3 pt-5 border-t-2 border-stone-200 dark:border-zinc-800 mt-6 font-sans">
                             <Link
-                              href={isRestricted ? "#" : `/workspace/${ws.id}`}
+                              href={isRestricted ? "#" : `/workspace/${ws.id}${orgSlug ? `?org=${orgSlug}` : ""}`}
                               onClick={(e) => {
                                 if (isRestricted) {
                                   e.preventDefault();

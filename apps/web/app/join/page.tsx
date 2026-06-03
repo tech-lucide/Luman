@@ -40,8 +40,12 @@ export default function JoinPage() {
       if (res.ok && data.success) {
         // Success!
         console.log("Verification successful", data);
-        // Redirect to login with the verified org
-        router.push(`/login?org=${data.slug}`);
+        // Redirect based on login status
+        if (data.loggedIn) {
+          router.push(`/dashboard?org=${data.slug}`);
+        } else {
+          router.push(`/login?org=${data.slug}`);
+        }
       } else {
         setError(data.error || "Invalid Organization Name or Code");
       }

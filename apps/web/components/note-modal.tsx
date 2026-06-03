@@ -40,7 +40,15 @@ export function NoteModal({ isOpen, onClose, workspaceId, onNoteCreated }: NoteM
       });
 
       if (!res.ok) {
-        alert("Failed to create note");
+        let errMsg = "Failed to create note";
+        try {
+          const text = await res.text();
+          const errData = text ? JSON.parse(text) : null;
+          if (errData?.error) errMsg = errData.error;
+        } catch (e) {
+          console.error("Error reading/parsing note error response", e);
+        }
+        alert(`Failed to create note: ${errMsg}`);
         return;
       }
 

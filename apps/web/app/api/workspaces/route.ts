@@ -27,9 +27,26 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Not a member of this organization" }, { status: 403 });
     }
 
-    // Interns and Founders now see ALL workspaces (Interns see founder workspaces as locked).
-    const data = await getWorkspaces(orgId, user.id);
-    return NextResponse.json(data);
+    const rawWorkspaces = await getWorkspaces(orgId, user.id);
+    const userRole = membership.role; // 'founder', 'admin', 'intern'
+
+    const filtered = rawWorkspaces.filter((ws) => {
+      // Owner/creator can always access
+      if (ws.owner_id === user.id || ws.created_by === user.id) {
+        return true;
+      }
+      // Otherwise enforce visibility checks
+      if (ws.role === "founder") {
+        return userRole === "founder";
+      }
+      if (ws.role === "admin") {
+        return userRole === "founder" || userRole === "admin";
+      }
+      // 'intern' workspaces are visible to all members
+      return true;
+    });
+
+    return NextResponse.json(filtered);
   } catch (err) {
     console.error("GET /api/workspaces error:", err);
     return NextResponse.json({ error: err instanceof Error ? err.message : "Internal server error" }, { status: 500 });
@@ -66,14 +83,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Not a member of this organization" }, { status: 403 });
     }
 
-    // Force role: If user is intern, they MUST create intern workspace.
-    // If founder/admin, they can create whatever, but default to their role.
-    let roleToAssign = membership.role;
-
-    // Optional: Allow Founder/Admin to explicitly create an 'intern' workspace if they want (via requestedRole)
-    if (membership.role !== "intern" && requestedRole) {
-      roleToAssign = requestedRole;
-    }
+    const roleToAssign = requestedRole || "intern";
 
     const data = await createWorkspace({
       ownerName,
@@ -109,7 +119,7 @@ export async function PATCH(req: Request) {
 
     const body = await req.json();
     console.log("PATCH /api/workspaces body:", body);
-    const { folderId, color, name } = body;
+    const { folderId, color, name, role } = body;
 
     const supabase = await createSupabaseServerClient();
     const {
@@ -133,7 +143,7 @@ export async function PATCH(req: Request) {
       }
     }
 
-    await updateWorkspace(workspaceId, user.id, { folderId, color, name }, isFounder);
+    await updateWorkspace(workspaceId, user.id, { folderId, color, name, role }, isFounder);
 
     return NextResponse.json({ success: true });
   } catch (err) {

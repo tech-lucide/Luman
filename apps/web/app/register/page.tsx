@@ -9,20 +9,23 @@ import { Suspense, useEffect, useState } from "react";
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const orgSlug = searchParams.get("org");
+  const orgSlug = searchParams.get("org") || (typeof window !== "undefined" ? sessionStorage.getItem("selected_org_slug") : null);
   const isNewOrg = searchParams.get("new") === "true";
   const errorParam = searchParams.get("error");
 
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
 
   useEffect(() => {
     // Get organization name from session storage
     const storedOrgName = sessionStorage.getItem("selected_org_name");
     if (storedOrgName) {
       setOrgName(storedOrgName);
-    } else if (!orgSlug) {
+    }
+    
+    if (!orgSlug) {
       // No organization selected, redirect to org login
       router.push("/org-login");
     }
@@ -34,8 +37,40 @@ function RegisterForm() {
 
   async function handleGoogleSignUp() {
     setError("");
-    setLoading(true);
 
+    // If joining an existing org, we must require and verify the invite code first
+    if (!isNewOrg) {
+      if (!inviteCode || inviteCode.trim().length !== 6) {
+        setError("Please enter a valid 6-character invitation code.");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const verifyRes = await fetch("/api/auth/verify-invite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orgSlug, code: inviteCode.trim().toUpperCase() }),
+        });
+
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok || !verifyData.success) {
+          setError(verifyData.error || "Invalid invitation code for this organization.");
+          setLoading(false);
+          return;
+        }
+        if (verifyData.loggedIn) {
+          router.push(`/dashboard?org=${orgSlug}`);
+          return;
+        }
+      } catch (err) {
+        setError("Failed to verify invitation code. Please try again.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    setLoading(true);
     try {
       const supabase = createSupabaseClient();
 
@@ -128,6 +163,21 @@ function RegisterForm() {
                     </Link>
                   </p>
                 )}
+              </div>
+            )}
+            {!isNewOrg && (
+              <div className="space-y-4">
+                <label className="text-sm font-black uppercase block text-left">INVITATION CODE</label>
+                <input
+                  type="text"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                  placeholder="ENTER 6-CHARACTER INVITE CODE"
+                  maxLength={6}
+                  required
+                  className="w-full px-6 py-4 text-xl font-bold uppercase border-brutal bg-background focus:outline-none focus:ring-4 focus:ring-accent tracking-widest text-center"
+                />
+                <p className="text-xs opacity-60 font-mono text-left">* Required to join an existing organization</p>
               </div>
             )}
 

@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();
+    console.log("[Session API] Current user:", user ? { id: user.id, email: user.email } : null);
     const { searchParams } = new URL(request.url);
     const orgSlug = searchParams.get("org");
 
@@ -16,6 +17,7 @@ export async function GET(request: NextRequest) {
 
     // Get user's organizations
     const organizations = await getUserOrganizations(user.id);
+    console.log("[Session API] User organizations count:", organizations.length);
 
     // Default values
     let role = "intern";

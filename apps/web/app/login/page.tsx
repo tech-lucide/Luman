@@ -15,6 +15,7 @@ function LoginForm() {
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
 
   useEffect(() => {
     // Get organization name from session storage
@@ -24,7 +25,30 @@ function LoginForm() {
     } else if (!orgSlug) {
       // No organization selected, redirect to org login
       router.push("/org-login");
+      return;
     }
+
+    // Check if user is already logged in
+    async function checkExistingSession() {
+      if (!orgSlug) return;
+      try {
+        const res = await fetch(`/api/auth/session?org=${orgSlug}`);
+        if (res.ok) {
+          // User is logged in and belongs to this organization, redirect to dashboard
+          router.push(`/dashboard?org=${orgSlug}`);
+        } else if (res.status === 403) {
+          // User is logged in but is NOT a member of this organization.
+          // Sign them out of the incorrect account so they can log in clean!
+          console.log("[Login Page] Logged-in user is not a member of this org. Signing out...");
+          const supabase = createSupabaseClient();
+          await supabase.auth.signOut();
+        }
+      } catch (err) {
+        console.error("Failed to check existing session:", err);
+      }
+    }
+
+    checkExistingSession();
   }, [orgSlug, router]);
 
   async function handleGoogleSignIn() {
@@ -32,6 +56,21 @@ function LoginForm() {
     setLoading(true);
 
     try {
+      if (inviteCode) {
+        const verifyRes = await fetch("/api/auth/verify-invite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orgSlug, code: inviteCode.toUpperCase() }),
+        });
+
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok || !verifyData.success) {
+          setError(verifyData.error || "Invalid Organization Invite Code");
+          setLoading(false);
+          return;
+        }
+      }
+
       const supabase = createSupabaseClient();
 
       // Store org slug in a cookie that expires in 10 minutes
@@ -41,7 +80,7 @@ function LoginForm() {
       const { data, error: authError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?org=${orgSlug}`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -271,7 +310,6 @@ function LoginForm() {
                 </p>
               </div>
             </div>
-
             {/* Selected Organization Info Pill */}
             {orgName && (
               <div className="border-[3px] border-black bg-[#D1FAE5] text-black p-4 rounded-2xl flex items-center gap-3.5 relative z-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
@@ -287,19 +325,58 @@ function LoginForm() {
 
             {/* Core Sign-In Action Block */}
             <div className="space-y-5">
-              {registered && (
-                <div className="px-5 py-3 text-[10px] font-black uppercase border-[3px] border-black bg-[#FBBF24] text-black rounded-full text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-bounce">
-                  ✨ ACCOUNT CREATED! SIGN IN WITH GOOGLE
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase text-center text-foreground tracking-wider">
+                    SIGN IN WITH YOUR GOOGLE ACCOUNT
+                  </p>
+                  <p className="text-[9px] font-black uppercase text-center text-muted-foreground leading-relaxed tracking-wider">
+                    ONE CLICK TO ACCESS YOUR WORKSPACE
+                  </p>
                 </div>
-              )}
 
-              <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase text-center text-foreground tracking-wider">
-                  SIGN IN WITH YOUR GOOGLE ACCOUNT
+                {/* Exact Google Pill Button matching CONTINUE */}
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                  className="w-full py-5 rounded-full border-[3px] border-black bg-white text-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[5px] hover:translate-y-[5px] transition-all disabled:opacity-50 flex items-center justify-center gap-3.5 font-black uppercase text-xs tracking-wider"
+                >
+                  <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-labelledby="google-desc">
+                    <title id="google-desc">Google Login Logo</title>
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  {loading ? "Signing in..." : "SIGN IN WITH GOOGLE"}
+                </button>
+              </div>
+
+              <div className="space-y-2 text-center">
+                <p className="text-[10px] font-black uppercase text-foreground tracking-wider">
+                  If joining for first time Enter invite code
                 </p>
-                <p className="text-[9px] font-black uppercase text-center text-muted-foreground leading-relaxed tracking-wider">
-                  ONE CLICK TO ACCESS YOUR WORKSPACE
-                </p>
+                <input
+                  type="text"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                  placeholder="ENTER INVITE CODE..."
+                  maxLength={6}
+                  className="w-full px-5 py-4 border-[3px] border-black bg-white dark:bg-zinc-900 text-black dark:text-white rounded-full text-center font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] focus:outline-none focus:ring-2 focus:ring-accent"
+                />
               </div>
 
               {error && (
@@ -307,77 +384,7 @@ function LoginForm() {
                   ⚠ {error.toUpperCase()}
                 </div>
               )}
-
-              {/* Exact Google Pill Button matching CONTINUE */}
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="w-full py-5 rounded-full border-[3px] border-black bg-white text-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[5px] hover:translate-y-[5px] transition-all disabled:opacity-50 flex items-center justify-center gap-3.5 font-black uppercase text-xs tracking-wider"
-              >
-                <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-labelledby="google-desc">
-                  <title id="google-desc">Google Login Logo</title>
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                {loading ? "Signing in..." : "SIGN IN WITH GOOGLE"}
-              </button>
             </div>
-
-            {/* Divider */}
-            <div className="h-[3px] bg-black border border-black rounded-full my-2" />
-
-            {/* Back Organization Option */}
-            <div className="space-y-3.5 text-center">
-              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
-                Select a different organization?
-              </p>
-              
-              <Link
-                href="/org-login"
-                className="inline-flex w-full py-5 rounded-full border-[3px] border-black bg-black hover:bg-zinc-900 text-white text-center shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] dark:shadow-[5px_5px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[5px] hover:translate-y-[5px] transition-all justify-center items-center font-black uppercase text-xs tracking-wider"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Change Organization Workspace
-              </Link>
-            </div>
-
-            {/* Core Registration Links */}
-            <div className="space-y-3 text-center pt-2">
-              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">
-                Don't have an account?{" "}
-                <Link
-                  href={`/register${orgSlug ? `?org=${orgSlug}` : ""}`}
-                  className="text-foreground underline decoration-2 underline-offset-4 hover:text-accent font-bold"
-                >
-                  Sign Up
-                </Link>
-              </p>
-              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">
-                Have an invite code?{" "}
-                <Link
-                  href="/join"
-                  className="text-foreground underline decoration-2 underline-offset-4 hover:text-accent font-bold"
-                >
-                  Join Organization
-                </Link>
-              </p>
-            </div>
-
           </div>
 
           {/* Secure Footer Flag */}

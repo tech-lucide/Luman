@@ -19,6 +19,7 @@ const TailwindAdvancedEditor = dynamic(() => import("@/components/tailwind/advan
 });
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createSupabaseClient } from "@/lib/supabase/client";
 
 export default function NoteEditorPage() {
   const { noteId, workspaceId } = useParams<{
@@ -37,6 +38,15 @@ export default function NoteEditorPage() {
   const [eventCreatedMessage, setEventCreatedMessage] = useState<string | null>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [chatWidth, setChatWidth] = useState(420);
+
+  // Note visibility state
+  const [visibilityMode, setVisibilityMode] = useState<"public" | "hierarchy" | "specific">("public");
+  const [minRoleLevel, setMinRoleLevel] = useState<number | null>(null);
+  const [specificRoleIds, setSpecificRoleIds] = useState<string[]>([]);
+  const [userRoleLevel, setUserRoleLevel] = useState<number | null>(null);
+  const [userRoleId, setUserRoleId] = useState<string | null>(null);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [orgId, setOrgId] = useState<string | null>(null);
 
   // Set default chat width based on viewport on mount
   useEffect(() => {
@@ -72,22 +82,93 @@ export default function NoteEditorPage() {
 
   useEffect(() => {
     async function loadNote() {
-      const res = await fetch(`/api/notes/${noteId}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`/api/notes/${noteId}`);
+        const data = await res.json();
 
-      if (!data?.content) {
-        setContent({ type: "doc", content: [] });
-      } else {
-        setContent(data.content);
+        if (!data?.content) {
+          setContent({ type: "doc", content: [] });
+        } else {
+          setContent(data.content);
+        }
+
+        setTitle(data?.title || "Untitled");
+        setTags(data?.tags || []);
+        setVisibilityMode(data?.visibility_mode || "public");
+        setMinRoleLevel(data?.minimum_visible_role_level ?? null);
+        setSpecificRoleIds(data?.specific_role_ids || []);
+
+        const supabase = createSupabaseClient();
+        const { data: wsData } = await supabase
+          .from("workspaces")
+          .select("organization_id")
+          .eq("id", workspaceId)
+          .single();
+
+        if (wsData?.organization_id) {
+          setOrgId(wsData.organization_id);
+
+          const rolesRes = await fetch(`/api/organization/${wsData.organization_id}/roles`);
+          if (rolesRes.ok) {
+            const rolesData = await rolesRes.json();
+            setRoles(rolesData || []);
+          }
+
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: member } = await supabase
+              .from("organization_members")
+              .select("assigned_role_id, roles(hierarchy_level)")
+              .eq("organization_id", wsData.organization_id)
+              .eq("user_id", user.id)
+              .single();
+
+            if (member) {
+              setUserRoleId(member.assigned_role_id);
+              const r = member.roles as any;
+              setUserRoleLevel(r?.hierarchy_level ?? null);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load note data:", err);
+      } finally {
+        setLoading(false);
       }
-
-      setTitle(data?.title || "Untitled");
-      setTags(data?.tags || []);
-      setLoading(false);
     }
 
     loadNote();
-  }, [noteId]);
+  }, [noteId, workspaceId]);
+
+  const handleUpdateVisibility = async (
+    mode: "public" | "hierarchy" | "specific",
+    minLevel: number | null,
+    roleIds: string[]
+  ) => {
+    setVisibilityMode(mode);
+    setMinRoleLevel(minLevel);
+    setSpecificRoleIds(roleIds);
+
+    try {
+      const res = await fetch(`/api/notes/${noteId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visibilityMode: mode,
+          minimumVisibleRoleLevel: minLevel,
+          specificRoleIds: roleIds,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to update visibility settings");
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Failed to update note visibility:", err);
+    }
+  };
 
 
 

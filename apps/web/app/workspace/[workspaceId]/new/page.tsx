@@ -40,9 +40,16 @@ export default function NewNotePage() {
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        console.error("CREATE NOTE FAILED:", text);
-        alert("Failed to create note");
+        let errMsg = "Failed to create note";
+        try {
+          const text = await res.text();
+          const errData = text ? JSON.parse(text) : null;
+          if (errData?.error) errMsg = errData.error;
+          console.error("CREATE NOTE FAILED:", errData || text);
+        } catch (e) {
+          console.error("CREATE NOTE FAILED: Error reading error response", e);
+        }
+        alert(`Failed to create note: ${errMsg}`);
         return;
       }
 

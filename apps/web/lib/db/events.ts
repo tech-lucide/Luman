@@ -33,7 +33,31 @@ export async function getEvents(workspaceId?: string) {
   return data as Event[];
 }
 
-export async function getOrganizationEvents() {
+export async function getOrganizationEvents(orgId?: string) {
+  if (orgId) {
+    // Get all workspaces of this organization
+    const { data: workspaces, error: wsError } = await supabase
+      .from("workspaces")
+      .select("id")
+      .eq("organization_id", orgId);
+
+    if (wsError) throw wsError;
+
+    const workspaceIds = workspaces.map((w: any) => w.id);
+    if (workspaceIds.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from("events")
+      .select("*, workspaces(owner_name)")
+      .in("workspace_id", workspaceIds)
+      .order("start_time", { ascending: true });
+
+    if (error) throw error;
+    return data;
+  }
+
   const { data, error } = await supabase
     .from("events")
     .select("*, workspaces(owner_name)")

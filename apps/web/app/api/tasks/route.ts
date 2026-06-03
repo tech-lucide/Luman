@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getOrganizationBySlug, getUserOrganizations } from "@/lib/db/organizations";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -10,31 +11,6 @@ export async function POST(req: Request) {
     if (!tasks || !Array.isArray(tasks) || !workspaceId) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
-
-    // Process tasks: upset each task based on its content or some ID if we had one in the editor node
-    // Since tiptap task items don't strictly have IDs unless we add them, we might be doing content matching or just simple creation for now.
-    // However, the prompt says "If a taskItem is created or updated, automatically sync".
-    // Challenge: Avoiding duplicates. Ideally, we should attach an ID to the taskItem in Tiptap.
-    // GUIDANCE: For this iteration, we'll assume we wipe and recreate tasks for the referenced note/context,
-    // OR we try to upsert if we can persist IDs in the editor attributes.
-    // Given the constraints and typical Tiptap usage, persisting an ID attribute on the taskItem node is best.
-    // But for simplicity/speed requested, we might just insert new ones or look for existing text.
-
-    // BETTER APPROACH: The editor should send tasks with a `uuid` attribute if possible.
-    // If we can't modify the schema of the editor nodes easily right now, we might just assume the content + workspace is unique enough or just replace all non-completed tasks for this note?
-    // Wait, the tasks have `workspace_id` but are also linked to a note?
-    // The prompt says: "Modify the notes table or create a new tasks table... workspace_id... assignee_id".
-    // It DOES NOT explicitly link tasks to a specific note_id in the schema requirement,
-    // BUT "Add a due_date column to the notes table...".
-    // The task extraction implies extracting from the editor (which is per note).
-    // Let's assume we should send the `noteId` as well contextually, maybe storing it in metadata or just handling them as workspace-level entities.
-
-    // REFINED STRATEGY matching "student startup" MVP vibe:
-    // We will iterate through incoming tasks.
-    // We'll upsert based on `content` and `workspace_id` (imperfect but works for simple lists)
-    // OR, better, we check if we can pass a temporary ID from the frontend.
-
-    // Let's stick to valid upserts.
 
     const { data, error } = await supabase
       .from("tasks")
@@ -71,17 +47,52 @@ export async function GET(req: Request) {
     const supabase = await createSupabaseServerClient();
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get("workspaceId");
+    const orgSlug = searchParams.get("org");
 
-    const query = supabase.from("tasks").select("*").eq("is_completed", false);
+    const query = supabase
+      .from("tasks")
+      .select("*, workspaces(owner_name)")
+      .eq("is_completed", false);
 
     if (workspaceId) {
       query.eq("workspace_id", workspaceId);
-    }
+    } else {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
 
-    // If no workspaceId, maybe return user's tasks across all workspaces?
-    // The prompt says "Organization View: Aggregated tasks from all workspaces the user belongs to".
-    // RLS policies already filter by "user in workspace". So fetching all tasks without workspace_id filter
-    // should return all tasks the user has access to (Organization View).
+      let targetOrg = null;
+      if (orgSlug) {
+        targetOrg = await getOrganizationBySlug(orgSlug);
+      }
+
+      if (!targetOrg) {
+        const userOrgs = await getUserOrganizations(user.id);
+        if (userOrgs && userOrgs.length > 0) {
+          targetOrg = userOrgs[0];
+        }
+      }
+
+      if (!targetOrg) {
+        return NextResponse.json([]);
+      }
+
+      // Get workspace IDs of this organization
+      const { data: workspaces, error: wsError } = await supabase
+        .from("workspaces")
+        .select("id")
+        .eq("organization_id", targetOrg.id);
+
+      if (wsError) throw wsError;
+
+      const workspaceIds = workspaces.map((w: any) => w.id);
+      if (workspaceIds.length === 0) {
+        return NextResponse.json([]);
+      }
+
+      query.in("workspace_id", workspaceIds);
+    }
 
     const { data, error } = await query;
 

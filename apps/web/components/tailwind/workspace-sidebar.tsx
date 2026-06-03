@@ -35,6 +35,7 @@ type Workspace = {
   color: string;
   owner_id: string;
   created_by: string;
+  role?: string | null;
 };
  
 type Note = {
@@ -124,9 +125,12 @@ export function WorkspaceSidebar({
       }
       setUser(userData.user);
  
+      const latestOrgSlug =
+        searchParams.get("org") || (typeof window !== "undefined" ? sessionStorage.getItem("selected_org_slug") : null);
+
       let orgId = null;
-      if (orgSlug) {
-        const { data: org } = await supabase.from("organizations").select("id").eq("slug", orgSlug).single();
+      if (latestOrgSlug) {
+        const { data: org } = await supabase.from("organizations").select("id").eq("slug", latestOrgSlug).single();
         orgId = org?.id;
       } else {
         const { data: membership } = await supabase
@@ -198,8 +202,14 @@ export function WorkspaceSidebar({
       .on("postgres_changes", { event: "*", schema: "public", table: "notes" }, () => fetchData())
       .subscribe();
  
+    const handleRefresh = () => {
+      fetchData();
+    };
+    window.addEventListener("luman-workspaces-refresh", handleRefresh);
+ 
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener("luman-workspaces-refresh", handleRefresh);
     };
   }, [orgSlug]);
  
@@ -250,7 +260,7 @@ export function WorkspaceSidebar({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ownerName: name,
-          role: membershipRole,
+          role: "intern",
           ownerId: currentOrgId,
         }),
       });
@@ -258,6 +268,9 @@ export function WorkspaceSidebar({
       if (!res.ok) {
         const errData = await res.json();
         alert(errData.error || "Failed to create workspace");
+      } else {
+        fetchData();
+        window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
       }
     } catch (err) {
       console.error("Error creating workspace:", err);
@@ -368,9 +381,24 @@ export function WorkspaceSidebar({
   const isCalendarActive = pathname?.startsWith("/calendar");
   const isSettingsActive = pathname?.startsWith("/settings");
  
-  const filteredWorkspaces = workspaces.filter((w) =>
-    w.owner_name.toLowerCase().includes(workspaceSearchQuery.toLowerCase())
-  );
+  const filteredWorkspaces = workspaces.filter((w) => {
+    const matchesSearch = w.owner_name.toLowerCase().includes(workspaceSearchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    // Owner/creator can always access
+    if (w.owner_id === user?.id || w.created_by === user?.id) {
+      return true;
+    }
+    // Visibility checks
+    if (w.role === "founder") {
+      return membershipRole === "founder";
+    }
+    if (w.role === "admin") {
+      return membershipRole === "founder" || membershipRole === "admin";
+    }
+    // 'intern' workspaces are visible to all members
+    return true;
+  });
  
   const filteredFolders = folders.map(folder => {
     const folderWorkspaces = filteredWorkspaces.filter(w => w.folder_id === folder.id);
@@ -386,7 +414,7 @@ export function WorkspaceSidebar({
     note.title.toLowerCase().includes(noteSearchQuery.toLowerCase())
   );
  
-  const showColumn2 = isNotePage ? !isNotesCollapsedOnNotePage : isWorkspacesExpanded;
+  const showColumn2 = isWorkspacesExpanded;
  
   return (
     <aside className="w-full h-full min-h-0 border-none bg-transparent flex overflow-hidden relative font-sans">
@@ -396,24 +424,7 @@ export function WorkspaceSidebar({
       {/* Column 1 — Icon Rail (narrowest column) */}
       <div className="w-[84px] h-full flex flex-col items-center border-r-[3px] border-black dark:border-stone-100 bg-[#FDFBF7] dark:bg-zinc-950 shrink-0 relative z-10 py-6">
         <div className="flex flex-col gap-6 items-center w-full">
-          {/* Expand Sidebar Toggle (Only visible on Note Page when Notes column is collapsed) */}
-          {isNotePage && isNotesCollapsedOnNotePage && (
-            <div className="relative group">
-              <button
-                type="button"
-                onClick={() => {
-                  window.dispatchEvent(new CustomEvent("luman-toggle-notes-sidebar", { detail: false }));
-                }}
-                className="flex items-center justify-center h-11 w-11 border-[3px] border-black dark:border-stone-100 rounded-lg bg-white dark:bg-zinc-900 text-black dark:text-stone-100 shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2.5px_2.5px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all"
-                title="Expand Notes Sidebar"
-              >
-                <PanelLeftOpen className="h-5 w-5" />
-              </button>
-              <div className="absolute left-full ml-4 top-1/2 -translate-y-1/2 hidden group-hover:block z-50 bg-black text-[#FBBF24] border-2 border-black dark:border-stone-100 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-md whitespace-nowrap shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
-                EXPAND SIDEBAR
-              </div>
-            </div>
-          )}
+
 
           {/* Dashboard Button */}
           <div className="relative group">
@@ -489,7 +500,7 @@ export function WorkspaceSidebar({
                 isSettingsActive ? "bg-[#FBBF24] text-black" : "bg-white dark:bg-zinc-900 text-black dark:text-stone-100"
               )}
             >
-              <Settings className="h-5 w-5" />
+              <Settings className="h-5 w-5 transition-none animate-none" style={{ transition: "none", transform: "none" }} />
             </Link>
             <div className="absolute left-full ml-4 top-1/2 -translate-y-1/2 hidden group-hover:block z-50 bg-black text-[#FBBF24] border-2 border-black dark:border-stone-100 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-md whitespace-nowrap shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)]">
               SETTINGS
@@ -547,19 +558,7 @@ export function WorkspaceSidebar({
                 </button>
               </div>
 
-              {/* Sidebar Collapse Toggle Button inside Column 2 Header on Note Page */}
-              {isNotePage && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent("luman-toggle-notes-sidebar", { detail: true }));
-                  }}
-                  className="flex items-center justify-center h-8 w-8 border-[3px] border-black dark:border-stone-100 rounded-lg bg-white dark:bg-zinc-900 text-black dark:text-stone-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all shrink-0"
-                  title="Collapse Notes Sidebar"
-                >
-                  <PanelLeftClose className="h-4.5 w-4.5" />
-                </button>
-              )}
+
             </div>
           </div>
 
@@ -658,7 +657,7 @@ export function WorkspaceSidebar({
                                   return (
                                     <div key={w.id} className="flex items-center gap-1.5">
                                       <Link
-                                        href={`/workspace/${w.id}`}
+                                        href={`/workspace/${w.id}${orgSlug ? `?org=${orgSlug}` : ""}`}
                                         className={cn(
                                           "flex-1 flex items-center gap-2 px-3 py-2 text-[10px] font-black uppercase rounded-[12px] border-[3px] transition-all hover:-translate-y-0.5 min-w-0 truncate",
                                           getWorkspaceCardStyle(w.color, isActive)
@@ -681,6 +680,9 @@ export function WorkspaceSidebar({
                                             if (!res.ok) {
                                               const errData = await res.json();
                                               alert(errData.error || "Failed to delete workspace");
+                                            } else {
+                                              fetchData();
+                                              window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
                                             }
                                           }}
                                           className="p-1 text-stone-400 dark:text-stone-500 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-950/10 transition-colors shrink-0"
@@ -708,7 +710,7 @@ export function WorkspaceSidebar({
                           return (
                             <div key={w.id} className="flex items-center gap-1.5">
                               <Link
-                                href={`/workspace/${w.id}`}
+                                href={`/workspace/${w.id}${orgSlug ? `?org=${orgSlug}` : ""}`}
                                 className={cn(
                                   "flex-1 flex items-center gap-2.5 px-4 py-2.5 text-[10px] font-black uppercase rounded-[14px] border-[3px] transition-all hover:-translate-y-0.5 min-w-0 truncate",
                                   getWorkspaceCardStyle(w.color, isActive)
@@ -731,6 +733,9 @@ export function WorkspaceSidebar({
                                     if (!res.ok) {
                                       const errData = await res.json();
                                       alert(errData.error || "Failed to delete workspace");
+                                    } else {
+                                      fetchData();
+                                      window.dispatchEvent(new CustomEvent("luman-workspaces-refresh"));
                                     }
                                   }}
                                   className="p-1 text-stone-400 dark:text-stone-505 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-950/10 transition-colors shrink-0"
@@ -787,7 +792,7 @@ export function WorkspaceSidebar({
                   {currentWorkspace?.owner_name || "Workspace"}
                 </span>
                 <Link
-                  href={`/workspace/${workspaceId}/new`}
+                  href={`/workspace/${workspaceId}/new${orgSlug ? `?org=${orgSlug}` : ""}`}
                   className="inline-flex items-center justify-center h-7 w-7 border-[3px] border-black rounded-full hover-brutal bg-[#FBBF24] text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all"
                   title="Create new note"
                 >
@@ -810,7 +815,7 @@ export function WorkspaceSidebar({
                       return (
                         <Link
                           key={note.id}
-                          href={`/workspace/${workspaceId}/note/${note.id}`}
+                          href={`/workspace/${workspaceId}/note/${note.id}${orgSlug ? `?org=${orgSlug}` : ""}`}
                           className={cn(
                             "flex items-center gap-2.5 px-4 py-3 text-[10px] font-black uppercase rounded-[12px] border-[3px] transition-all hover:-translate-y-0.5",
                             isActive
@@ -873,7 +878,7 @@ export function WorkspaceSidebar({
               {workspaceId && (
                 <div className="p-4 border-t-[3px] border-black dark:border-stone-100 bg-transparent shrink-0">
                   <Link
-                    href={`/workspace/${workspaceId}/new`}
+                    href={`/workspace/${workspaceId}/new${orgSlug ? `?org=${orgSlug}` : ""}`}
                     className="w-full inline-flex items-center justify-center py-2.5 text-xs font-black uppercase border-[3px] border-black dark:border-stone-100 rounded-full bg-[#FBBF24] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all font-sans"
                   >
                     + New Note

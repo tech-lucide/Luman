@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface EventModalProps {
   isOpen: boolean;
@@ -9,9 +9,10 @@ interface EventModalProps {
   workspaceId?: string;
   noteId?: string; // Optional: Link event to a specific note
   onEventCreated?: () => void;
+  workspaces?: { id: string; owner_name: string }[];
 }
 
-export function EventModal({ isOpen, onClose, workspaceId, noteId, onEventCreated }: EventModalProps) {
+export function EventModal({ isOpen, onClose, workspaceId, noteId, onEventCreated, workspaces = [] }: EventModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -21,6 +22,13 @@ export function EventModal({ isOpen, onClose, workspaceId, noteId, onEventCreate
   const [allDay, setAllDay] = useState(false);
   const [eventType, setEventType] = useState<"event" | "reminder" | "task">("event");
   const [loading, setLoading] = useState(false);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(workspaceId || "");
+
+  useEffect(() => {
+    if (workspaceId) {
+      setSelectedWorkspaceId(workspaceId);
+    }
+  }, [workspaceId]);
 
   if (!isOpen) return null;
 
@@ -45,7 +53,7 @@ export function EventModal({ isOpen, onClose, workspaceId, noteId, onEventCreate
           end_time,
           all_day: allDay,
           event_type: eventType,
-          workspace_id: workspaceId,
+          workspace_id: selectedWorkspaceId || undefined,
           note_id: noteId, // Link to note if provided
         }),
       });
@@ -73,6 +81,7 @@ export function EventModal({ isOpen, onClose, workspaceId, noteId, onEventCreate
     setEndTime("");
     setAllDay(false);
     setEventType("event");
+    setSelectedWorkspaceId(workspaceId || "");
     onClose();
   }
 
@@ -89,6 +98,26 @@ export function EventModal({ isOpen, onClose, workspaceId, noteId, onEventCreate
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          {/* Workspace Selection (only if workspaceId not pre-provided) */}
+          {!workspaceId && workspaces && workspaces.length > 0 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-black uppercase tracking-wider">WORKSPACE *</label>
+              <select
+                value={selectedWorkspaceId}
+                onChange={(e) => setSelectedWorkspaceId(e.target.value)}
+                required
+                className="w-full border-brutal px-6 py-4 text-lg font-bold uppercase bg-background focus:outline-none focus:shadow-brutal cursor-pointer text-foreground"
+              >
+                <option value="">SELECT A WORKSPACE</option>
+                {workspaces.map((ws) => (
+                  <option key={ws.id} value={ws.id}>
+                    {ws.owner_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Title */}
           <div className="space-y-3">
             <label className="block text-sm font-black uppercase tracking-wider">TITLE *</label>
